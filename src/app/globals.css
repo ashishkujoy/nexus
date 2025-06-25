@@ -10,7 +10,7 @@ body {
   height: 100%;
 }
 
-.dashboard-container {
+.page-container {
   display: flex;
   height: 100vh;
   background-color: #f9fafb;
