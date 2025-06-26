@@ -183,21 +183,21 @@ body {
   margin-left: 0;
 }
 
-.header {
+.app-header {
   height: 64px;
   background: white;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   border-bottom: 1px solid #e5e7eb;
 }
 
-.header-content {
+.app-header-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
+  padding: 0 16px;
 }
 
-.header-left {
+.app-header-left {
   display: flex;
   align-items: center;
 }
@@ -571,6 +571,78 @@ body {
   width: 20px;
   height: 20px;
 }
+
+.header {
+  display: flex;
+  justify-content: between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.batch-meta {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.batch-status {
+  background: #e8f5e8;
+  color: #2e7d32;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #4285f4;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #3367d6;
+}
+
+.btn-secondary {
+  background: white;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+.btn-secondary:hover {
+  background: #f8f9fa;
+}
+
 
 /* Responsive Design */
 @media (min-width: 1024px) {

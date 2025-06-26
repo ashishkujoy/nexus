@@ -1,7 +1,7 @@
 
 import { AlertTriangle, Calendar, FileText, Plus } from "lucide-react";
 import { ReactNode } from "react";
-import Header from "./components/Header";
+import Header from "./components/AppHeader";
 import Sidebar from "./components/Sidebar";
 
 
