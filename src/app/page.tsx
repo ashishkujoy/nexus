@@ -82,10 +82,6 @@ const Batchs = () => {
     <div className="section">
       <div className="section-header">
         <h3 className="section-title">My Batches</h3>
-        <button className="add-btn">
-          <Plus className="icon-sm" />
-          <span className="add-btn-text">Add Batch</span>
-        </button>
       </div>
 
       <div className="batch-grid">
@@ -170,7 +166,6 @@ export default function Home() {
   return (
     <div className="main-container">
       <div className="page-container">
-        <Sidebar currentUser={{ name: "Martha", email: "martha@gmail.com" }} />
         <div className="main-content">
           <Header />
           <MainContent />
