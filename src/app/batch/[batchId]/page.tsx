@@ -1,4 +1,4 @@
-import { FeedbackIcon, InternIcon, ObservationIcon } from "@/app/components/Icons";
+import { FeedbackIcon, InternIcon, NoticeIcon, ObservationIcon } from "@/app/components/Icons";
 import Sidebar from "@/app/components/Sidebar";
 
 import "./page.css";
@@ -111,9 +111,7 @@ type InternRowProps = {
 const NoticeBadge = () => {
     return (
         <div className="notice-container">
-            <svg className="notice-icon" viewBox="0 0 24 24">
-                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z" />
-            </svg>
+            <NoticeIcon />
         </div>
     )
 }

@@ -23,3 +23,32 @@ export const FeedbackIcon = () => {
         </svg>
     )
 }
+
+export const PlusIcon = () => {
+    return (
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2L12 22M2 12L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+    )
+}
+
+export const NoticeIcon = (props: { width?: number; heigth?: number; }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const size: any = {};
+    if (props.width) (size.width = props.width);
+    if (props.heigth) (size.height = props.heigth);
+
+    return (
+        <svg className="notice-icon" viewBox="0 0 24 24" {...size}>
+            <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z" />
+        </svg>
+    )
+}
+
+export const TerminateIcon = () => {
+    return (
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+    )
+}
