@@ -104,6 +104,30 @@ const RecentActivities = () => {
 
 type InternRowProps = {
     name: string;
+    colorCode?: string;
+    notice: boolean;
+}
+
+const NoticeBadge = () => {
+    return (
+        <div className="notice-container">
+            <svg className="notice-icon" viewBox="0 0 24 24">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z" />
+            </svg>
+        </div>
+    )
+}
+
+const Status = (props: { colorCode?: string; notice: boolean }) => {
+    return (
+        <td className="table-cell">
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span className={`color-badge color-${props.colorCode || "none"}`}></span>
+                {props.notice && <NoticeBadge />}
+
+            </div>
+        </td>
+    )
 }
 
 const InternRow = (props: InternRowProps) => {
@@ -113,13 +137,10 @@ const InternRow = (props: InternRowProps) => {
                 <div className="intern-name">
                     <div>
                         <div style={{ fontWeight: "500" }}>{props.name}</div>
-                        <div style={{ fontSize: "12px", color: "#666" }}>john.doe@email.com</div>
                     </div>
                 </div>
             </td>
-            <td>Engineering</td>
-            <td><span className="status-badge status-active">Active</span></td>
-            <td>2 hours ago</td>
+            <Status colorCode={props.colorCode} notice={props.notice} />
             <td>
                 <button className="btn btn-secondary"
                     style={{ padding: "4px 8px", fontSize: "12px" }}>View</button>
@@ -149,17 +170,15 @@ const InternsList = () => {
                     <thead>
                         <tr>
                             <th>Intern</th>
-                            <th>Department</th>
                             <th>Status</th>
-                            <th>Last Activity</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <InternRow name="John Doe" />
-                        <InternRow name="Jane Smith" />
-                        <InternRow name="Mike Wilson" />
-                        <InternRow name="Alice Brown" />
+                        <InternRow name="John Doe" colorCode="green" notice={false} />
+                        <InternRow name="Jane Smith" colorCode="orange" notice={false} />
+                        <InternRow name="Mike Wilson" colorCode="yellow" notice={false} />
+                        <InternRow name="Alice Brown" colorCode="red" notice={true} />
                     </tbody>
                 </table>
             </div>
