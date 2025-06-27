@@ -86,7 +86,7 @@ const MainContent = async (props: { user: User }) => {
   return (
     <main className="content">
       <QuickStats />
-      <BatchSection batchs={batchs} />
+      <BatchSection batchs={batchs} allowBatchCreation={props.user.isRoot}/>
       <RecentActivities />
     </main>
   )

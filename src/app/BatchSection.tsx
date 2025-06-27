@@ -50,14 +50,14 @@ const BatchCard = (props: { batch: Batch }) => {
     )
 }
 
-const Batchs = (props: { batchs: Batch[]; onNewBatch: () => void; }) => {
+const Batchs = (props: { batchs: Batch[]; onNewBatch: () => void; allowBatchCreation: boolean }) => {
     const { batchs } = props;
 
     return (
         <div className="section">
             <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3 className="section-title">My Batches</h3>
-                <button className="btn btn-primary" onClick={props.onNewBatch}>+ Add Batch</button>
+                {props.allowBatchCreation && <button className="btn btn-primary" onClick={props.onNewBatch}>+ Add Batch</button>}
             </div>
 
             <div className="batch-grid">
@@ -67,13 +67,13 @@ const Batchs = (props: { batchs: Batch[]; onNewBatch: () => void; }) => {
     )
 }
 
-const EmptyBatch = (props: { onNewBatch: () => void; }) => {
+const EmptyBatch = (props: { onNewBatch: () => void; allowBatchCreation: boolean }) => {
     return (
         <div>
             <div className="section">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div className="section-title">My Batches</div>
-                    <button className="btn btn-primary" onClick={props.onNewBatch}>+ Add Batch</button>
+                    {props.allowBatchCreation && <button className="btn btn-primary" onClick={props.onNewBatch}>+ Add Batch</button>}
                 </div>
                 <div className="empty-state">
                     <div className="empty-icon">📋</div>
@@ -89,6 +89,7 @@ const EmptyBatch = (props: { onNewBatch: () => void; }) => {
 
 type BatchSectionProps = {
     batchs: Batch[];
+    allowBatchCreation: boolean;
 }
 
 const BatchSection = (props: BatchSectionProps) => {
@@ -96,13 +97,9 @@ const BatchSection = (props: BatchSectionProps) => {
     const [batchModal, setBatchModal] = useState(false);
     const toggleBatchModal = () => setBatchModal(!batchModal);
 
-    if (!batchs || batchs.length === 0) {
-        return <EmptyBatch onNewBatch={toggleBatchModal} />;
-    }
-
     return (
         <div className="batch-section">
-            {batchs.length > 0 ? <Batchs batchs={batchs} onNewBatch={toggleBatchModal} /> : <EmptyBatch onNewBatch={toggleBatchModal} />}
+            {batchs.length > 0 ? <Batchs batchs={batchs} onNewBatch={toggleBatchModal} allowBatchCreation={props.allowBatchCreation} /> : <EmptyBatch onNewBatch={toggleBatchModal} allowBatchCreation={props.allowBatchCreation} />}
             {batchModal && <BatchModal onClose={toggleBatchModal} />}
         </div>
     );
