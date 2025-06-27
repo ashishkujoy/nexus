@@ -1,7 +1,8 @@
 
 import { AlertTriangle, Calendar, FileText } from "lucide-react";
 import { ReactNode } from "react";
-import Header from "./components/AppHeader";
+import AppHeader from "./components/AppHeader";
+import Sidebar from "./components/Sidebar";
 
 
 const getPermissionBadges = (permissions: string[]) => {
@@ -166,7 +167,7 @@ export default function Home() {
     <div className="main-container">
       <div className="page-container">
         <div className="main-content">
-          <Header />
+          <AppHeader />
           <MainContent />
         </div>
       </div>

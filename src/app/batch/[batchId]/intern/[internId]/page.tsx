@@ -168,7 +168,6 @@ const FeedbackSection = () => {
 
 const InternPage = () => {
     return (
-
         <div className="intern-container">
             <div className="intern-header">
                 <div className="intern-profile-section">

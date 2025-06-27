@@ -1,8 +1,8 @@
 import { FeedbackIcon, InternIcon, NoticeIcon, ObservationIcon } from "@/app/components/Icons";
-import Sidebar from "@/app/components/Sidebar";
 
-import "./page.css";
 import { ReactNode } from "react";
+import "./page.css";
+import AppHeader from "@/app/components/AppHeader";
 
 type QuickActionProps = {
     title: string;
@@ -327,8 +327,8 @@ const BatchPage = async ({ params }: { params: Promise<{ batchId: number }> }) =
     return (
         <div className="main-container">
             <div className="page-container">
-                <Sidebar currentUser={{ name: "Martha", email: "martha@gmail.com" }} />
                 <div className="main-content">
+                    <AppHeader />
                     <MainContent />
                 </div>
             </div>
