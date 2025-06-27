@@ -1,0 +1,23 @@
+.success-message {
+    text-align: center;
+}
+
+.response-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: white;
+    font-size: 24px;
+}
+
+.success {
+    background-color: #10b981;
+}
+
+.error {
+    background-color: #b91310;
+}

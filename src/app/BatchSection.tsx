@@ -1,3 +1,8 @@
+"use client";
+
+import { useState } from "react";
+import BatchModal from "./components/BatchModal";
+
 type Batch = {
     id: number;
     name: string;
@@ -45,13 +50,14 @@ const BatchCard = (props: { batch: Batch }) => {
     )
 }
 
-const Batchs = (props: { batchs: Batch[] }) => {
+const Batchs = (props: { batchs: Batch[]; onNewBatch: () => void; }) => {
     const { batchs } = props;
 
     return (
         <div className="section">
-            <div className="section-header">
+            <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3 className="section-title">My Batches</h3>
+                <button className="btn btn-primary" onClick={props.onNewBatch}>+ Add Batch</button>
             </div>
 
             <div className="batch-grid">
@@ -61,18 +67,20 @@ const Batchs = (props: { batchs: Batch[] }) => {
     )
 }
 
-const EmptyBatch = () => {
+const EmptyBatch = (props: { onNewBatch: () => void; }) => {
     return (
-        <div className="section">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div className="section-title">My Batches</div>
-                <button className="btn btn-primary">+ Add Batch</button>
-            </div>
-            <div className="empty-state">
-                <div className="empty-icon">📋</div>
-                <div className="empty-title">No batches yet</div>
-                <div className="empty-description">
-                    Ask admin to add you to a batch.
+        <div>
+            <div className="section">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="section-title">My Batches</div>
+                    <button className="btn btn-primary" onClick={props.onNewBatch}>+ Add Batch</button>
+                </div>
+                <div className="empty-state">
+                    <div className="empty-icon">📋</div>
+                    <div className="empty-title">No batches yet</div>
+                    <div className="empty-description">
+                        Ask admin to add you to a batch.
+                    </div>
                 </div>
             </div>
         </div>
@@ -85,14 +93,17 @@ type BatchSectionProps = {
 
 const BatchSection = (props: BatchSectionProps) => {
     const { batchs } = props;
+    const [batchModal, setBatchModal] = useState(false);
+    const toggleBatchModal = () => setBatchModal(!batchModal);
 
     if (!batchs || batchs.length === 0) {
-        return <EmptyBatch />;
+        return <EmptyBatch onNewBatch={toggleBatchModal} />;
     }
 
     return (
         <div className="batch-section">
-            <Batchs batchs={batchs} />
+            {batchs.length > 0 ? <Batchs batchs={batchs} onNewBatch={toggleBatchModal} /> : <EmptyBatch onNewBatch={toggleBatchModal} />}
+            {batchModal && <BatchModal onClose={toggleBatchModal} />}
         </div>
     );
 }
