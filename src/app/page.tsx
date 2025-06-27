@@ -29,6 +29,8 @@ const RecentActivities = () => {
       <div className="activity-header">
         <h3>Recent Activity</h3>
       </div>
+      <EmptyRecentActivitySection />
+      {/* Uncomment the below code to display recent activities */}
       <div>
         {recentActivity.map((activity, index) => (
           <div key={index} className="activity-item">
@@ -128,6 +130,33 @@ const Batchs = () => {
   )
 }
 
+const EmptyPage = () => {
+  return (
+    <div className="section">
+      <div className="section-title">My Batches</div>
+      <div className="empty-state">
+        <div className="empty-icon">📋</div>
+        <div className="empty-title">No batches yet</div>
+        <div className="empty-description">
+          Ask admin to add you to a batch.
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const EmptyRecentActivitySection = () => {
+  return (
+    <div className="empty-state">
+      <div className="empty-icon">📊</div>
+      <div className="empty-title">No recent activity</div>
+      <div className="empty-description">
+        Your recent activities, feedback, and observations will be displayed here once you start using the platform.
+      </div>
+    </div>
+  )
+}
+
 const StatCard = (props: { icon: ReactNode; title: string; value: number }) => {
   return (
     <div className="stat-card">
@@ -156,6 +185,7 @@ const MainContent = () => {
     <main className="content">
       <QuickStats />
       <Batchs />
+      <EmptyPage />
       <RecentActivities />
     </main>
   )
