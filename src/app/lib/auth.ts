@@ -1,7 +1,7 @@
 import NeonAdapter from '@auth/neon-adapter';
+import { neon } from "@neondatabase/serverless";
 import { AuthOptions } from 'next-auth';
 import Google from 'next-auth/providers/google';
-import { neon, NeonQueryFunction } from "@neondatabase/serverless"
 import { pool } from './db';
 
 export type User = {
