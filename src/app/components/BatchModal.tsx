@@ -73,6 +73,7 @@ const BatchModal = (props: BatchModalProps) => {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
+                type: "CreateBatch",
                 name: req.name,
                 startDate: req.startDate,
                 endDate: req.endDate || null,

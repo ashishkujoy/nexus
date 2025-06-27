@@ -1,8 +1,9 @@
 import { FeedbackIcon, InternIcon, NoticeIcon, ObservationIcon } from "@/app/components/Icons";
 
-import { ReactNode } from "react";
-import "./page.css";
 import AppHeader from "@/app/components/AppHeader";
+import { ReactNode } from "react";
+import BatchPageHeader from "./BatchPageHeader";
+import "./page.css";
 
 type QuickActionProps = {
     title: string;
@@ -279,41 +280,10 @@ const Stats = () => {
     )
 }
 
-type PageHeaderProps = {
-    title: string;
-    startDate: Date;
-}
-
-const formatedDate = (date: Date) => {
-    return date.toLocaleDateString("en-us", {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-}
-
-const PageHeader = (props: PageHeaderProps) => {
-    return (
-        <div className="header">
-            <div className="header-left">
-                <h1 className="page-title">{props.title}</h1>
-                <div className="batch-meta">
-                    <span>Started: {formatedDate(props.startDate)}</span>
-                    <span className="batch-status">Active</span>
-                </div>
-            </div>
-            <div className="header-actions">
-                <button className="btn btn-secondary">Export Report</button>
-                <button className="btn btn-primary">+ Add Intern</button>
-            </div>
-        </div>
-    )
-}
-
-const MainContent = () => {
+const MainContent = (props: { batchId: number }) => {
     return (
         <main className="content">
-            <PageHeader title="STEP 2025" startDate={new Date(Date.parse("2025-07-02T00:00:02.000Z"))} />
+            <BatchPageHeader title="STEP 2025" startDate={new Date(Date.parse("2025-07-02T00:00:02.000Z"))} batchId={props.batchId} />
             <Stats />
             <ContentGrid />
         </main>
@@ -329,7 +299,7 @@ const BatchPage = async ({ params }: { params: Promise<{ batchId: number }> }) =
             <div className="page-container">
                 <div className="main-content">
                     <AppHeader />
-                    <MainContent />
+                    <MainContent batchId={batchId} />
                 </div>
             </div>
         </div>
