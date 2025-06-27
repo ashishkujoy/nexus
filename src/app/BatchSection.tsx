@@ -25,8 +25,10 @@ const getPermissionBadges = (permissions: string[]) => {
 
 const BatchCard = (props: { batch: Batch }) => {
     const { batch } = props;
+    const gotoBatch = () => window.location.href = `/batch/${batch.id}`;
+
     return (
-        <div className="batch-card">
+        <div className="batch-card" style={{ cursor: 'pointer' }} onClick={gotoBatch}>
             <div className="batch-header">
                 <div className="batch-info">
                     <h4>{batch.name}</h4>
