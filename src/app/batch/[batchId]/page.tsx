@@ -4,6 +4,7 @@ import AppHeader from "@/app/components/AppHeader";
 import { ReactNode } from "react";
 import BatchPageHeader from "./BatchPageHeader";
 import "./page.css";
+import { fetchBatch } from "./action";
 
 type QuickActionProps = {
     title: string;
@@ -280,10 +281,21 @@ const Stats = () => {
     )
 }
 
-const MainContent = (props: { batchId: number }) => {
+type Batch = {
+    id: number;
+    name: string;
+    startDate: Date;
+    endDate?: Date;
+}
+
+const MainContent = (props: Batch) => {
     return (
         <main className="content">
-            <BatchPageHeader title="STEP 2025" startDate={new Date(Date.parse("2025-07-02T00:00:02.000Z"))} batchId={props.batchId} />
+            <BatchPageHeader
+                title={props.name}
+                startDate={props.startDate}
+                batchId={props.id}
+            />
             <Stats />
             <ContentGrid />
         </main>
@@ -292,14 +304,14 @@ const MainContent = (props: { batchId: number }) => {
 
 const BatchPage = async ({ params }: { params: Promise<{ batchId: number }> }) => {
     const { batchId } = await params;
-    console.log("Batch ID:", batchId);
+    const batch = await fetchBatch(batchId);
 
     return (
         <div className="main-container">
             <div className="page-container">
                 <div className="main-content">
                     <AppHeader />
-                    <MainContent batchId={batchId} />
+                    <MainContent {...batch} />
                 </div>
             </div>
         </div>
