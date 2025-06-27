@@ -2,7 +2,6 @@
 import { AlertTriangle, Calendar, FileText } from "lucide-react";
 import { ReactNode } from "react";
 import AppHeader from "./components/AppHeader";
-import Sidebar from "./components/Sidebar";
 
 
 const getPermissionBadges = (permissions: string[]) => {

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import "./page.css";
 import { FeedbackIcon, NoticeIcon, ObservationIcon, PlusIcon, TerminateIcon } from "@/app/components/Icons";
+import ObservationModal from "@/app/components/ObservationModal";
 
 type ProfileInfoProps = {
     name: string;
@@ -147,7 +148,7 @@ const FeedbackSection = () => {
                 <FeedbackIcon />
                 Feedback
             </h2>
-            <Feedback 
+            <Feedback
                 content="Great job on the recent project presentation, very well articulated"
                 mentor="Michael Brown"
                 date="Jun 15, 2024"
@@ -188,6 +189,7 @@ const InternPage = () => {
                 <QuickActions />
             </div>
             <div className="content-grid">
+                <ObservationModal />
                 <ObservationSection />
                 <FeedbackSection />
             </div>
