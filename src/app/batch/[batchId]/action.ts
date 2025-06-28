@@ -35,3 +35,15 @@ export const fetchInterns = async (batchId: number) => {
         notice: row.notice as boolean
     }));
 }
+
+export const fetchStats = async (batchId: number) => {
+    const interns = await fetchInterns(batchId);
+    return (
+        {
+            totalInterns: interns.length,
+            pendingObservations: 5,
+            pendingFeedback: 3,
+            activeNotices: 2,
+        }
+    )
+}

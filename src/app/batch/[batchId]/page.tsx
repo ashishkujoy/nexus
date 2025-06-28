@@ -3,7 +3,7 @@ import { FeedbackIcon, InternIcon, ObservationIcon } from "@/app/components/Icon
 import AppHeader from "@/app/components/AppHeader";
 import { Skeleton } from "@/app/components/Skeleton";
 import { ReactNode, Suspense } from "react";
-import { fetchBatch, fetchInterns } from "./action";
+import { fetchBatch, fetchInterns, fetchStats } from "./action";
 import BatchPageHeader from "./BatchPageHeader";
 import InternRow from "./InternRow";
 import "./page.css";
@@ -158,12 +158,11 @@ const RightSidebarSection = async (props: { interns: Promise<Intern[]>, batch: B
     )
 }
 
-const ContentGrid = (props: { batch: Batch }) => {
-    const internsPromise = fetchInterns(props.batch.id);
+const ContentGrid = (props: { batch: Batch; interns: Promise<Intern[]> }) => {
     return (
         <div className="content-grid">
-            <InternsList interns={internsPromise} />
-            <RightSidebarSection interns={internsPromise} batch={props.batch} />
+            <InternsList interns={props.interns} />
+            <RightSidebarSection interns={props.interns} batch={props.batch} />
         </div>
     )
 }
@@ -171,7 +170,7 @@ const ContentGrid = (props: { batch: Batch }) => {
 type StatCardProps = {
     icon: ReactNode;
     title: string;
-    value: number;
+    value: Promise<number>;
     subtitle?: string;
     trend?: string;
     down?: boolean;
@@ -184,14 +183,31 @@ const StatCard = (props: StatCardProps) => {
                 {props.icon}
                 <div className="stat-title">{props.title}</div>
             </div>
-            <div className="stat-value">{props.value}</div>
+            <div className="stat-value">
+                <Suspense fallback={<Skeleton width="100px" height="24px" />}>
+                    <StatsValue value={props.value} />
+                </Suspense>
+            </div>
             {props.subtitle && <div className="stat-subtitle">{props.subtitle}</div>}
-            {props.trend && <div className={`stat-trend ${props.down ? "trend-down" : "trend-up"}`}>{props.trend}</div>}
         </div>
     )
 }
 
-const Stats = () => {
+type Stat = {
+    totalInterns: number;
+    pendingObservations: number;
+    pendingFeedback: number;
+    activeNotices: number;
+}
+
+const StatsValue = async (props: { value: Promise<number> }) => {
+    const value = await props.value;
+
+    return <span>{value}</span>
+}
+
+const Stats = (props: { batchId: number }) => {
+    const stats = fetchStats(props.batchId);
     return (
         <div className="stats-grid">
             <StatCard
@@ -199,7 +215,7 @@ const Stats = () => {
                     <InternIcon />
                 </div>}
                 title="Total Interns"
-                value={35}
+                value={stats.then(s => s.totalInterns)}
                 subtitle="Active participants"
                 trend="+3 this week"
             />
@@ -210,7 +226,7 @@ const Stats = () => {
                     </svg>
                 </div>}
                 title="Pending Observations"
-                value={5}
+                value={stats.then(s => s.pendingObservations)}
                 subtitle="Awaiting review"
                 trend="-2 since yesterday"
                 down
@@ -224,7 +240,7 @@ const Stats = () => {
                     </svg>
                 </div>}
                 title="Pending Feedback"
-                value={8}
+                value={stats.then(s => s.pendingFeedback)}
                 subtitle="Due this week"
                 trend="+1 new"
             />
@@ -237,7 +253,7 @@ const Stats = () => {
                     </svg>
                 </div>}
                 title="Active Notices"
-                value={2}
+                value={stats.then(s => s.activeNotices)}
                 subtitle="Requires attention"
                 trend="+1 critical"
             />
@@ -253,6 +269,8 @@ type Batch = {
 }
 
 const MainContent = (props: Batch) => {
+    const internsPromise = fetchInterns(props.id);
+
     return (
         <main className="content">
             <BatchPageHeader
@@ -260,8 +278,8 @@ const MainContent = (props: Batch) => {
                 startDate={props.startDate}
                 batchId={props.id}
             />
-            <Stats />
-            <ContentGrid batch={props} />
+            <Stats batchId={props.id} />
+            <ContentGrid batch={props} interns={internsPromise} />
         </main>
     )
 }
