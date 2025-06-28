@@ -1,10 +1,13 @@
 "use client";
 import { AlertTriangle, Calendar, Eye, FileText, Users, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import "./observationModal.css";
+import LoaderOverlay from './LoaderOverlay';
+import SuccessOverlay from './SuccessOverlay';
+import ErrorOverlay from './ErrorOverlay';
 
-const ModalHeader = () => {
+const ModalHeader = (props: { onClose: () => void; }) => {
     return (
         <div className="modal-header">
             <div className="header-left">
@@ -16,7 +19,7 @@ const ModalHeader = () => {
                     <p className="modal-subtitle">Document intern performance and feedback</p>
                 </div>
             </div>
-            <button className="modal-close-btn">
+            <button className="modal-close-btn" onClick={props.onClose}>
                 <X className="text-gray-500" />
             </button>
         </div>
@@ -24,10 +27,10 @@ const ModalHeader = () => {
 }
 
 type BatchSelectorProps = {
-    batches: { id: string; name: string; startDate: string }[];
-    selectedBatch: string;
-    setSelectedBatch: (b: string) => void;
-    setSelectedIntern: (i: string) => void;
+    batches: Batch[];
+    selectedBatch: number;
+    setSelectedBatch: (b: number) => void;
+    setSelectedIntern: (i: number) => void;
 }
 
 const BatchSelector = (props: BatchSelectorProps) => {
@@ -38,12 +41,14 @@ const BatchSelector = (props: BatchSelectorProps) => {
                 <select
                     value={props.selectedBatch}
                     onChange={(e) => {
-                        props.setSelectedBatch(e.target.value);
-                        props.setSelectedIntern('');
+                        props.setSelectedBatch(+e.target.value);
+                        props.setSelectedIntern(-1);
                     }}
                     className="select"
+                    name='batchId'
+                    required
                 >
-                    <option value="">Choose a batch...</option>
+                    <option value={-1}>Choose a batch...</option>
                     {props.batches.map(batch => (
                         <option key={batch.id} value={batch.id}>
                             {batch.name}
@@ -57,10 +62,10 @@ const BatchSelector = (props: BatchSelectorProps) => {
 }
 
 type InternSelectorProps = {
-    selectedBatch: string;
-    availableInterns: { id: string; name: string }[];
-    selectedIntern: string;
-    setSelectedIntern: (i: string) => void;
+    selectedBatch: number;
+    availableInterns: Intern[];
+    selectedIntern: number;
+    setSelectedIntern: (i: number) => void;
 }
 
 const InternSelector = (props: InternSelectorProps) => {
@@ -70,9 +75,11 @@ const InternSelector = (props: InternSelectorProps) => {
             <div className="select-container">
                 <select
                     value={props.selectedIntern}
-                    onChange={(e) => props.setSelectedIntern(e.target.value)}
+                    onChange={(e) => props.setSelectedIntern(+e.target.value)}
                     disabled={!props.selectedBatch}
                     className="select"
+                    required
+                    name='internId'
                 >
                     <option value="">
                         {props.selectedBatch ? 'Choose an intern...' : 'Select a batch first'}
@@ -185,6 +192,8 @@ const ContentSection = (props: ContentSectionProps) => {
                     placeholder="Write your observation here... You can use markdown formatting:&#10;&#10;**Bold text**&#10;*Italic text*&#10;`Code snippets`&#10;&#10;Regular paragraphs work too."
                     className="textarea"
                     rows={6}
+                    name='content'
+                    required
                 />
             )}
 
@@ -201,79 +210,123 @@ const ModalFooter = () => {
             <button className="cancel-btn">
                 Cancel
             </button>
-            <button className="submit-btn">
+            <button className="submit-btn" type="submit">
                 Submit Observation
             </button>
         </div>
     )
 }
 
-const ObservationModal = () => {
-    const [selectedBatch, setSelectedBatch] = useState('');
-    const [selectedIntern, setSelectedIntern] = useState('');
+type Batch = {
+    id: number;
+    name: string;
+}
+
+type Intern = {
+    id: number;
+    name: string;
+}
+
+type ObservationModalProps = {
+    batches: Batch[];
+    internsByBatch: { [key: number]: Intern[] };
+    onClose: () => void;
+}
+
+const ObservationModal = (props: ObservationModalProps) => {
+    const [selectedBatch, setSelectedBatch] = useState(-1);
+    const [selectedIntern, setSelectedIntern] = useState(-1);
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [watchOut, setWatchOut] = useState(false);
     const [content, setContent] = useState('');
+    const [loadingMsg, setLoadingMsg] = useState('');
+    const [successMsg, setSuccessMsg] = useState('');
+    const [errorMsg, setErrorMsg] = useState('');
 
-    // Mock data based on the screenshot
-    const batches = [
-        { id: 'batch-a', name: 'STEP 2024 Batch A', startDate: '15/1/2024' },
-        { id: 'batch-b', name: 'STEP 2024 Batch B', startDate: '1/6/2024' }
-    ];
+    useEffect(() => {
+        if (props.batches.length === 1) {
+            setSelectedBatch(props.batches[0].id);
+        }
+    }, [props.batches])
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const internsByBatch: any = {
-        'batch-a': [
-            { id: 'john-doe', name: 'John Doe' },
-            { id: 'jane-smith', name: 'Jane Smith' },
-            { id: 'mike-wilson', name: 'Mike Wilson' },
-            { id: 'alice-brown', name: 'Alice Brown' }
-        ],
-        'batch-b': [
-            { id: 'intern-1', name: 'Sarah Johnson' },
-            { id: 'intern-2', name: 'David Lee' },
-            { id: 'intern-3', name: 'Emma Davis' }
-        ]
-    };
+    const availableInterns: Intern[] = selectedBatch ? props.internsByBatch[selectedBatch] || [] : [];
 
-    const availableInterns: { id: string; name: string }[] = selectedBatch ? internsByBatch[selectedBatch] || [] : [];
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const reqBody = {
+            batchId: +selectedBatch,
+            internId: +selectedIntern,
+            date,
+            watchOut,
+            content
+        };
+        setLoadingMsg('Submitting observation...');
+        fetch('/api/batch', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                type: 'RecordObservation',
+                ...reqBody
+            })
+        })
+            .then(async (r) => {
+                if (!r.ok) {
+                    const errorData = await r.json();
+                    return setErrorMsg(`Error: ${errorData.error || 'Failed to submit observation'}`);
+                }
+                setSuccessMsg('Observation recorded successfully!');
+            })
+            .catch(() => setErrorMsg('Failed to submit observation'))
+            .finally(() => setLoadingMsg(''));
+    }
 
     return (
         <div className="modal-overlay">
             <div className="modal-container">
-                <ModalHeader />
-                <div className="modal-body">
-                    <div className="modal-form">
-                        <div className="intern-batch-selectors">
-                            <BatchSelector
-                                batches={batches}
-                                selectedBatch={selectedBatch}
-                                setSelectedBatch={setSelectedBatch}
-                                setSelectedIntern={setSelectedIntern}
+                <ModalHeader onClose={props.onClose} />
+                <form onSubmit={handleSubmit}>
+                    <div className="modal-body">
+                        <div className="modal-form">
+                            <div className="intern-batch-selectors">
+                                <BatchSelector
+                                    batches={props.batches}
+                                    selectedBatch={selectedBatch}
+                                    setSelectedBatch={setSelectedBatch}
+                                    setSelectedIntern={setSelectedIntern}
+                                />
+                                <InternSelector
+                                    selectedBatch={selectedBatch}
+                                    availableInterns={availableInterns}
+                                    selectedIntern={selectedIntern}
+                                    setSelectedIntern={setSelectedIntern}
+                                />
+                                <ObservationDateSelector
+                                    date={date}
+                                    setDate={setDate}
+                                />
+                            </div>
+                            <WatchOut
+                                watchOut={watchOut}
+                                setWatchOut={setWatchOut}
                             />
-                            <InternSelector
-                                selectedBatch={selectedBatch}
-                                availableInterns={availableInterns}
-                                selectedIntern={selectedIntern}
-                                setSelectedIntern={setSelectedIntern}
-                            />
-                            <ObservationDateSelector
-                                date={date}
-                                setDate={setDate}
+                            <ContentSection
+                                content={content}
+                                setContent={setContent}
                             />
                         </div>
-                        <WatchOut
-                            watchOut={watchOut}
-                            setWatchOut={setWatchOut}
-                        />
-                        <ContentSection
-                            content={content}
-                            setContent={setContent}
-                        />
                     </div>
-                </div>
-                <ModalFooter />
+                    <ModalFooter />
+                </form>
             </div>
+            {loadingMsg && <LoaderOverlay title="Hold On" message={loadingMsg} />}
+            {successMsg && <SuccessOverlay title="Success" message={successMsg} onClose={() => {
+                setSuccessMsg('');
+                props.onClose();
+                window.location.reload();
+            }} />}
+            {errorMsg && <ErrorOverlay title="Error" message={errorMsg} onClose={() => setErrorMsg('')} />}
         </div>
     );
 };

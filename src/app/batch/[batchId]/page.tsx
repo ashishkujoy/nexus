@@ -5,53 +5,10 @@ import { Skeleton } from "@/app/components/Skeleton";
 import { ReactNode, Suspense } from "react";
 import { fetchBatch, fetchInterns } from "./action";
 import BatchPageHeader from "./BatchPageHeader";
-import "./page.css";
 import InternRow from "./InternRow";
+import "./page.css";
+import QuickActions from "./QuickActionsSection";
 
-type QuickActionProps = {
-    title: string;
-    description: string;
-    iconBackground: string;
-    icon: ReactNode;
-}
-
-const QuickAction = (props: QuickActionProps) => {
-    return (
-        <div className="quick-action">
-            <div className="quick-action-icon" style={{ background: props.iconBackground }}>
-                {props.icon}
-            </div>
-            <div className="quick-action-text">
-                <div className="quick-action-title">{props.title}</div>
-                <div className="quick-action-desc">{props.description}</div>
-            </div>
-        </div>
-    )
-}
-
-const QuickActions = () => {
-    return (
-        <div className="card">
-            <div className="card-header">
-                <h3 className="card-title">Quick Actions</h3>
-            </div>
-            <div className="card-body">
-                <QuickAction
-                    title="Record Observation"
-                    description="Add new observation for intern"
-                    iconBackground="#e3f2fd"
-                    icon={<ObservationIcon />}
-                />
-                <QuickAction
-                    title="Provide Feedback"
-                    description="Give feedback to intern"
-                    iconBackground="#e8f5e8"
-                    icon={<FeedbackIcon />}
-                />
-            </div>
-        </div>
-    )
-}
 
 type ActionsProps = {
     internName: string;
@@ -131,8 +88,15 @@ const LoadingRows = () => {
     </tbody>
 }
 
-const InternRows = async (props: { batchId: number }) => {
-    const interns = await fetchInterns(props.batchId);
+type Intern = {
+    id: number;
+    name: string;
+    colorCode?: string;
+    notice: boolean;
+}
+
+const InternRows = async (props: { interns: Promise<Intern[]> }) => {
+    const interns = await props.interns;
 
     return (
         <tbody>
@@ -149,7 +113,7 @@ const InternRows = async (props: { batchId: number }) => {
     )
 }
 
-const InternsList = (props: { batchIn: number }) => {
+const InternsList = (props: { interns: Promise<Intern[]> }) => {
     return (
         <div className="card">
             <div className="card-header">
@@ -176,7 +140,7 @@ const InternsList = (props: { batchIn: number }) => {
                     </thead>
 
                     <Suspense fallback={<LoadingRows />}>
-                        <InternRows batchId={props.batchIn} />
+                        <InternRows interns={props.interns} />
                     </Suspense>
                 </table>
             </div>
@@ -184,20 +148,22 @@ const InternsList = (props: { batchIn: number }) => {
     )
 }
 
-const RightSidebarSection = () => {
+const RightSidebarSection = async (props: { interns: Promise<Intern[]>, batch: Batch }) => {
+    const interns = await props.interns;
     return (
         <div className="sidebar-section">
-            <QuickActions />
+            <QuickActions interns={interns} batch={props.batch} />
             <RecentActivities />
         </div>
     )
 }
 
-const ContentGrid = (props: { batchId: number }) => {
+const ContentGrid = (props: { batch: Batch }) => {
+    const internsPromise = fetchInterns(props.batch.id);
     return (
         <div className="content-grid">
-            <InternsList batchIn={props.batchId} />
-            <RightSidebarSection />
+            <InternsList interns={internsPromise} />
+            <RightSidebarSection interns={internsPromise} batch={props.batch} />
         </div>
     )
 }
@@ -295,7 +261,7 @@ const MainContent = (props: Batch) => {
                 batchId={props.id}
             />
             <Stats />
-            <ContentGrid batchId={props.id} />
+            <ContentGrid batch={props} />
         </main>
     )
 }

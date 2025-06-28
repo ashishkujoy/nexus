@@ -1,7 +1,6 @@
+import { FeedbackIcon, NoticeIcon, ObservationIcon, PlusIcon, TerminateIcon } from "@/app/components/Icons";
 import Image from "next/image";
 import "./page.css";
-import { FeedbackIcon, NoticeIcon, ObservationIcon, PlusIcon, TerminateIcon } from "@/app/components/Icons";
-import ObservationModal from "@/app/components/ObservationModal";
 
 type ProfileInfoProps = {
     name: string;
@@ -189,7 +188,6 @@ const InternPage = () => {
                 <QuickActions />
             </div>
             <div className="content-grid">
-                <ObservationModal />
                 <ObservationSection />
                 <FeedbackSection />
             </div>

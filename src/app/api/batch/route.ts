@@ -1,4 +1,6 @@
+import { authOptions } from "@/app/lib/auth";
 import { neon } from "@neondatabase/serverless";
+import { getServerSession } from "next-auth/next";
 
 type NewBatchReqBody = {
     name: string;
@@ -48,11 +50,43 @@ const onboardInterns = async (body: OnboardInternsReqBody) => {
     }
 }
 
+type RecordObservationReqBody = {
+    internId: number;
+    batchId: number;
+    date: string;
+    watchOut: boolean;
+    content: string;
+}
+
+const recordObservation = async (body: RecordObservationReqBody) => {
+    console.log(body);
+    const session = await getServerSession(authOptions);
+    const mentorId = session?.user?.id;
+    const sql = neon(`${process.env.DATABASE_URL}`);
+    try {
+        await sql`
+        INSERT INTO observations 
+        (mentor_id, intern_id, batch_id, date, watchout, content) 
+        VALUES (${mentorId}, ${body.internId}, ${body.batchId}, ${body.date}, ${body.watchOut}, ${body.content});`;
+        return new Response(JSON.stringify({ message: "Observation recorded successfully" }), {
+            status: 201,
+            headers: { "Content-Type": "application/json" }
+        });
+    } catch (error) {
+        console.error("Error recording observation:", error);
+        return new Response(JSON.stringify({ error: `${error}` }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" }
+        });
+    }
+}
+
 export const POST = async (req: Request) => {
     const body = await req.json();
     switch (body.type) {
         case "CreateBatch": return createBatch(body);
         case "OnboardInterns": return onboardInterns(body);
+        case "RecordObservation": return recordObservation(body);
     }
     return createBatch(body);
 }

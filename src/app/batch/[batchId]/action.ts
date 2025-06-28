@@ -31,7 +31,7 @@ export const fetchInterns = async (batchId: number) => {
         id: row.id as number,
         name: row.name as string,
         email: row.email as string,
-        colorCode: row.colorCode as (string | null),
+        colorCode: row.colorCode as (string | undefined),
         notice: row.notice as boolean
     }));
 }

@@ -301,7 +301,7 @@
     margin-bottom: 0.75rem;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 1000px) {
     .intern-batch-selectors {
         display: flex;
         gap: 1rem;
