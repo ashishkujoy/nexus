@@ -1,10 +1,11 @@
 import { FeedbackIcon, InternIcon, NoticeIcon, ObservationIcon } from "@/app/components/Icons";
 
 import AppHeader from "@/app/components/AppHeader";
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 import BatchPageHeader from "./BatchPageHeader";
 import "./page.css";
-import { fetchBatch } from "./action";
+import { fetchBatch, fetchInterns } from "./action";
+import { Skeleton } from "@/app/components/Skeleton";
 
 type QuickActionProps = {
     title: string;
@@ -149,7 +150,49 @@ const InternRow = (props: InternRowProps) => {
     )
 }
 
-const InternsList = () => {
+const LoadingRow = () => {
+    return (
+        <tr className="intern-row">
+            <td>
+                <Skeleton width="100%" height="20px" />
+            </td>
+            <td>
+                <Skeleton width="100%" height="20px" className="table-cell" />
+            </td>
+            <td>
+                <Skeleton width="100px" height="20px" className="table-cell" />
+            </td>
+        </tr>
+    )
+}
+
+const LoadingRows = () => {
+    return <tbody>
+        <LoadingRow />
+        <LoadingRow />
+        <LoadingRow />
+        <LoadingRow />
+    </tbody>
+}
+
+const InternRows = async (props: { batchId: number }) => {
+    const interns = await fetchInterns(props.batchId);
+
+    return (
+        <tbody>
+            {
+                interns.map(intern => <InternRow
+                    key={intern.id}
+                    name={intern.name}
+                    colorCode={intern.colorCode || undefined}
+                    notice={intern.notice}
+                />)
+            }
+        </tbody>
+    )
+}
+
+const InternsList = (props: { batchIn: number }) => {
     return (
         <div className="card">
             <div className="card-header">
@@ -165,7 +208,7 @@ const InternsList = () => {
                     <button className="btn btn-secondary filter-btn">Filter</button>
                 </div>
             </div>
-            <div className="card-body" style={{ padding: "0" }}>
+            <div className="card-body" style={{ padding: "0", maxHeight: "500px", overflowY: "auto" }}>
                 <table className="interns-table">
                     <thead>
                         <tr>
@@ -174,12 +217,10 @@ const InternsList = () => {
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <InternRow name="John Doe" colorCode="green" notice={false} />
-                        <InternRow name="Jane Smith" colorCode="orange" notice={false} />
-                        <InternRow name="Mike Wilson" colorCode="yellow" notice={false} />
-                        <InternRow name="Alice Brown" colorCode="red" notice={true} />
-                    </tbody>
+
+                    <Suspense fallback={<LoadingRows />}>
+                        <InternRows batchId={props.batchIn} />
+                    </Suspense>
                 </table>
             </div>
         </div>
@@ -195,10 +236,10 @@ const RightSidebarSection = () => {
     )
 }
 
-const ContentGrid = () => {
+const ContentGrid = (props: { batchId: number }) => {
     return (
         <div className="content-grid">
-            <InternsList />
+            <InternsList batchIn={props.batchId} />
             <RightSidebarSection />
         </div>
     )
@@ -297,7 +338,7 @@ const MainContent = (props: Batch) => {
                 batchId={props.id}
             />
             <Stats />
-            <ContentGrid />
+            <ContentGrid batchId={props.id} />
         </main>
     )
 }

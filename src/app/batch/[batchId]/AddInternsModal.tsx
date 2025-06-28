@@ -14,7 +14,10 @@ type Props = {
 const parseInternsCSV = (content: string) => {
     return content.trim().split("\n").map(line => {
         const [name, email] = line.split(",");
-        return { name: name.trim(), email: email.trim() };
+        return {
+            name: name.replaceAll("\"", "").trim(),
+            email: email.replaceAll("\"", "").trim(),
+        };
     });
 }
 

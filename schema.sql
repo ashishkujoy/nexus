@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS interns (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,
+    color_code VARCHAR(10),
+    notice BOOLEAN DEFAULT FALSE,
     batch_id INT NOT NULL,
     FOREIGN KEY (batch_id) REFERENCES batches(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
