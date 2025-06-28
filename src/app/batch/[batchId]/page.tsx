@@ -8,6 +8,8 @@ import BatchPageHeader from "./BatchPageHeader";
 import InternRow from "./InternRow";
 import "./page.css";
 import QuickActions from "./QuickActionsSection";
+import { authOptions } from "@/app/lib/auth";
+import { getServerSession } from "next-auth";
 
 
 type ActionsProps = {
@@ -193,7 +195,7 @@ const StatCard = (props: StatCardProps) => {
     )
 }
 
-type Stat = {
+export type Stat = {
     totalInterns: number;
     pendingObservations: number;
     pendingFeedback: number;
@@ -206,8 +208,8 @@ const StatsValue = async (props: { value: Promise<number> }) => {
     return <span>{value}</span>
 }
 
-const Stats = (props: { batchId: number }) => {
-    const stats = fetchStats(props.batchId);
+const Stats = (props: { batchId: number, mentorId: number }) => {
+    const stats = fetchStats(props.batchId, props.mentorId);
     return (
         <div className="stats-grid">
             <StatCard
@@ -268,18 +270,18 @@ type Batch = {
     endDate?: Date;
 }
 
-const MainContent = (props: Batch) => {
-    const internsPromise = fetchInterns(props.id);
+const MainContent = (props: { batch: Batch, mentorId: number }) => {
+    const internsPromise = fetchInterns(props.batch.id);
 
     return (
         <main className="content">
             <BatchPageHeader
-                title={props.name}
-                startDate={props.startDate}
-                batchId={props.id}
+                title={props.batch.name}
+                startDate={props.batch.startDate}
+                batchId={props.batch.id}
             />
-            <Stats batchId={props.id} />
-            <ContentGrid batch={props} interns={internsPromise} />
+            <Stats batchId={props.batch.id} mentorId={props.mentorId} />
+            <ContentGrid batch={props.batch} interns={internsPromise} />
         </main>
     )
 }
@@ -287,13 +289,14 @@ const MainContent = (props: Batch) => {
 const BatchPage = async ({ params }: { params: Promise<{ batchId: number }> }) => {
     const { batchId } = await params;
     const batch = await fetchBatch(batchId);
+    const session = await getServerSession(authOptions);
 
     return (
         <div className="main-container">
             <div className="page-container">
                 <div className="main-content">
                     <AppHeader />
-                    <MainContent {...batch} />
+                    <MainContent batch={batch} mentorId={session?.user.id || 0} />
                 </div>
             </div>
         </div>

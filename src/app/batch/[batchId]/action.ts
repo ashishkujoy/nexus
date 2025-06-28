@@ -36,14 +36,41 @@ export const fetchInterns = async (batchId: number) => {
     }));
 }
 
-export const fetchStats = async (batchId: number) => {
-    const interns = await fetchInterns(batchId);
+export const fetchStats = async (batchId: number, mentorId: number) => {
+    const [interns, pendingObservations] = await Promise.all([
+        fetchInterns(batchId),
+        countInternsWithoutRecentObservations(batchId, mentorId, 15),
+    ]);
     return (
         {
             totalInterns: interns.length,
-            pendingObservations: 5,
+            pendingObservations,
             pendingFeedback: 3,
             activeNotices: 2,
         }
     )
+}
+
+export const countInternsWithoutRecentObservations = async (
+    batchId: number,
+    mentorId: number,
+    days: number
+): Promise<number> => {
+    const sql = neon(`${process.env.DATABASE_URL}`);
+
+    const result = await sql`
+        SELECT COUNT(*) as count
+        FROM interns i
+        WHERE i.batch_id = ${batchId}
+        AND NOT EXISTS (
+            SELECT 1 
+            FROM observations o 
+            WHERE o.intern_id = i.id 
+            AND o.mentor_id = ${mentorId}
+            AND o.batch_id = ${batchId}
+            AND o.date >= CURRENT_DATE - INTERVAL '1 day' * ${days}
+        )
+    `;
+
+    return result[0].count as number;
 }
