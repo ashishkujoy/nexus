@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS feedback (
     FOREIGN KEY (batch_id) REFERENCES batches(id),
     date TIMESTAMP NOT NULL,
     content TEXT NOT NULL,
+    delivered BOOLEAN DEFAULT FALSE,
     colorCode VARCHAR(10)
 );
 

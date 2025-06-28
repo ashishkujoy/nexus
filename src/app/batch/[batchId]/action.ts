@@ -37,18 +37,32 @@ export const fetchInterns = async (batchId: number) => {
 }
 
 export const fetchStats = async (batchId: number, mentorId: number) => {
-    const [interns, pendingObservations] = await Promise.all([
+    const [interns, pendingObservations, pendingFeedback] = await Promise.all([
         fetchInterns(batchId),
         countInternsWithoutRecentObservations(batchId, mentorId, 15),
+        pendingFeedbacks(batchId)
     ]);
     return (
         {
             totalInterns: interns.length,
             pendingObservations,
-            pendingFeedback: 3,
-            activeNotices: 2,
+            pendingFeedback,
+            activeNotices: interns.filter(intern => intern.notice).length,
         }
     )
+}
+
+const pendingFeedbacks = async (batchId: number) => {
+    const sql = neon(`${process.env.DATABASE_URL}`);
+
+    const rows = await sql`
+        SELECT COUNT(*) as count
+        FROM feedback
+        WHERE batch_id = ${batchId}
+        AND delivered = false
+    `;
+
+    return rows[0].count as number;
 }
 
 export const countInternsWithoutRecentObservations = async (
