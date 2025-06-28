@@ -1,4 +1,5 @@
 "use client";
+import FeedbackModal from "@/app/components/FeedbackModal";
 import { FeedbackIcon, ObservationIcon } from "@/app/components/Icons";
 import ObservationModal from "@/app/components/ObservationModal";
 import { ReactNode, useState } from "react";
@@ -37,7 +38,10 @@ type Intern = {
 
 const QuickActions = (props: { batch: Batch; interns: Intern[] }) => {
     const [showObservationModal, setShowObservationModal] = useState(false);
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+
     const toggleObservationModal = () => setShowObservationModal(!showObservationModal);
+    const toggleFeedbackModal = () => setShowFeedbackModal(!showFeedbackModal);
 
     return (
         <div>
@@ -58,7 +62,7 @@ const QuickActions = (props: { batch: Batch; interns: Intern[] }) => {
                         description="Give feedback to intern"
                         iconBackground="#e8f5e8"
                         icon={<FeedbackIcon />}
-                        onClick={toggleObservationModal}
+                        onClick={toggleFeedbackModal}
                     />
                 </div>
             </div>
@@ -66,6 +70,11 @@ const QuickActions = (props: { batch: Batch; interns: Intern[] }) => {
                 batches={[props.batch]}
                 internsByBatch={{ [props.batch.id]: props.interns }}
                 onClose={toggleObservationModal}
+            />}
+            {showFeedbackModal && <FeedbackModal
+                batches={[props.batch]}
+                internsByBatch={{ [props.batch.id]: props.interns }}
+                onClose={toggleFeedbackModal}
             />}
         </div>
     )

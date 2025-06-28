@@ -59,7 +59,9 @@ CREATE TABLE IF NOT EXISTS feedback (
     date TIMESTAMP NOT NULL,
     content TEXT NOT NULL,
     delivered BOOLEAN DEFAULT FALSE,
-    colorCode VARCHAR(10)
+    delivered_at TIMESTAMP,
+    notice BOOLEAN DEFAULT FALSE
+    color_code VARCHAR(10)
 );
 
 -- NEXT AUTH

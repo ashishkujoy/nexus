@@ -1,5 +1,5 @@
 import { authOptions } from "@/app/lib/auth";
-import { neon } from "@neondatabase/serverless";
+import { neon, NeonQueryFunction } from "@neondatabase/serverless";
 import { getServerSession } from "next-auth/next";
 
 type NewBatchReqBody = {
@@ -59,7 +59,6 @@ type RecordObservationReqBody = {
 }
 
 const recordObservation = async (body: RecordObservationReqBody) => {
-    console.log(body);
     const session = await getServerSession(authOptions);
     const mentorId = session?.user?.id;
     const sql = neon(`${process.env.DATABASE_URL}`);
@@ -81,12 +80,56 @@ const recordObservation = async (body: RecordObservationReqBody) => {
     }
 }
 
+type RecordFeedbackReqBody = {
+    internId: number;
+    batchId: number;
+    content: string;
+    date: string;
+    notice?: boolean;
+    colorCode?: string;
+}
+
+const updateNotice = async (sql: NeonQueryFunction<false, false>, internId: number, notice: boolean) => {
+    return sql`UPDATE interns
+    SET notice = ${notice}
+    WHERE id = ${internId}`;
+}
+
+const recordFeedback = async (body: RecordFeedbackReqBody) => {
+    console.log("Recording feedback:", body);
+    const session = await getServerSession(authOptions);
+    const mentorId = session?.user?.id;
+    const sql = neon(`${process.env.DATABASE_URL}`);
+    try {
+        // TODO: Add transaction handling for atomicity
+        await sql`
+        INSERT INTO feedback 
+        (mentor_id, intern_id, batch_id, date, notice, content, color_code) 
+        VALUES (${mentorId}, ${body.internId}, ${body.batchId}, ${body.date}, ${body.notice}, ${body.content}, ${body.colorCode});`;
+
+        if (body.notice !== undefined) {
+            await updateNotice(sql, body.internId, body.notice!);
+        }
+        return new Response(JSON.stringify({ message: "Feedback recorded successfully" }), {
+            status: 201,
+            headers: { "Content-Type": "application/json" }
+        });
+    } catch (error) {
+        console.error("Error recording feedback:", error);
+        return new Response(JSON.stringify({ error: `${error}` }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" }
+        });
+    }
+}
+
 export const POST = async (req: Request) => {
     const body = await req.json();
     switch (body.type) {
         case "CreateBatch": return createBatch(body);
         case "OnboardInterns": return onboardInterns(body);
         case "RecordObservation": return recordObservation(body);
+        case "RecordFeedback": return recordFeedback(body);
     }
     return createBatch(body);
 }

@@ -15,13 +15,51 @@ const ModalHeader = (props: { onClose: () => void; }) => {
                     <FileText className="text-blue-600" />
                 </div>
                 <div>
-                    <h2 className="modal-title">Record Observation</h2>
-                    <p className="modal-subtitle">Document intern performance and observation</p>
+                    <h2 className="modal-title">Record Feedback</h2>
+                    <p className="modal-subtitle">Document intern performance and feedback</p>
                 </div>
             </div>
             <button className="modal-close-btn" onClick={props.onClose}>
                 <X className="text-gray-500" />
             </button>
+        </div>
+    )
+}
+
+
+type ColorCodeSelectorProps = {
+    selectedColorCode: number;
+    setColorCode: (c: number) => void;
+}
+
+const ColorCodeSelector = (props: ColorCodeSelectorProps) => {
+    const colors = [
+        { name: "Green", code: 4 },
+        { name: "Yellow", code: 3 },
+        { name: "Orange", code: 2 },
+        { name: "Red", code: 1 }
+    ];
+
+    return (
+        <div className="form-group">
+            <label className="label">Color Code</label>
+            <div className="select-container">
+                <select
+                    value={props.selectedColorCode}
+                    onChange={(e) => props.setColorCode(parseInt(e.target.value))}
+                    className="select"
+                    name='colorCode'
+                    required
+                >
+                    <option value={-1}>Choose color code...</option>
+                    {colors.map(color => (
+                        <option key={color.code} value={color.code}>
+                            {color.name}
+                        </option>
+                    ))}
+                </select>
+                <Paintbrush className="icon-right" />
+            </div>
         </div>
     )
 }
@@ -101,10 +139,10 @@ type ObservationDateSelectorProps = {
     setDate: (d: string) => void;
 }
 
-const ObservationDateSelector = (props: ObservationDateSelectorProps) => {
+const DateSelector = (props: ObservationDateSelectorProps) => {
     return (
         <div className="form-group">
-            <label className="label">Observation Date *</label>
+            <label className="label">Date *</label>
             <div className="select-container">
                 <input
                     type="date"
@@ -118,29 +156,29 @@ const ObservationDateSelector = (props: ObservationDateSelectorProps) => {
     )
 }
 
-type WatchOutProps = {
-    watchOut: boolean;
-    setWatchOut: (w: boolean) => void;
+type NoticeProps = {
+    notice: boolean;
+    setNotice: (w: boolean) => void;
 }
 
-const WatchOut = (props: WatchOutProps) => {
+const Notice = (props: NoticeProps) => {
     return (
         <div>
             <label className="checkbox-label">
                 <div className="checkbox-container">
                     <input
                         type="checkbox"
-                        checked={props.watchOut}
-                        onChange={(e) => props.setWatchOut(e.target.checked)}
+                        checked={props.notice}
+                        onChange={(e) => props.setNotice(e.target.checked)}
                         className="sr-only"
                     />
-                    <div className={`checkbox-box ${props.watchOut ? 'checked' : 'unckecked'}`}>
-                        {props.watchOut && <AlertTriangle className="text-white" />}
+                    <div className={`checkbox-box ${props.notice ? 'checked' : 'unckecked'}`}>
+                        {props.notice && <AlertTriangle className="text-white" />}
                     </div>
                 </div>
                 <div style={{ margin: '0' }}>
-                    <span className="label">Watch Out</span>
-                    <p className="modal-subtitle">Mark this observation as requiring attention</p>
+                    <span className="label">Notice</span>
+                    <p className="modal-subtitle">Mark this feedback as notice feedback</p>
                 </div>
             </label>
         </div>
@@ -227,17 +265,18 @@ type Intern = {
     name: string;
 }
 
-type ObservationModalProps = {
+type FeedbackModalProps = {
     batches: Batch[];
     internsByBatch: { [key: number]: Intern[] };
     onClose: () => void;
 }
 
-const ObservationModal = (props: ObservationModalProps) => {
+const FeedbackModal = (props: FeedbackModalProps) => {
     const [selectedBatch, setSelectedBatch] = useState(-1);
     const [selectedIntern, setSelectedIntern] = useState(-1);
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-    const [watchOut, setWatchOut] = useState(false);
+    const [notice, setNotice] = useState(false);
+    const [colorCode, setColorCode] = useState(-1);
     const [content, setContent] = useState('');
     const [loadingMsg, setLoadingMsg] = useState('');
     const [successMsg, setSuccessMsg] = useState('');
@@ -257,28 +296,29 @@ const ObservationModal = (props: ObservationModalProps) => {
             batchId: +selectedBatch,
             internId: +selectedIntern,
             date,
-            watchOut,
-            content
+            notice,
+            content,
+            colorCode: colorCode === -1 ? undefined : colorCode,
         };
-        setLoadingMsg('Submitting observation...');
+        setLoadingMsg('Submitting Feedback...');
         fetch('/api/batch', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                type: 'RecordObservation',
+                type: 'RecordFeedback',
                 ...reqBody
             })
         })
             .then(async (r) => {
                 if (!r.ok) {
                     const errorData = await r.json();
-                    return setErrorMsg(`Error: ${errorData.error || 'Failed to submit observation'}`);
+                    return setErrorMsg(`Error: ${errorData.error || 'Failed to submit feedback'}`);
                 }
-                setSuccessMsg('Observation recorded successfully!');
+                setSuccessMsg('Feedback recorded successfully!');
             })
-            .catch(() => setErrorMsg('Failed to submit observation'))
+            .catch(() => setErrorMsg('Failed to submit feedback'))
             .finally(() => setLoadingMsg(''));
     }
 
@@ -302,14 +342,18 @@ const ObservationModal = (props: ObservationModalProps) => {
                                     selectedIntern={selectedIntern}
                                     setSelectedIntern={setSelectedIntern}
                                 />
-                                <ObservationDateSelector
+                                <ColorCodeSelector
+                                    selectedColorCode={colorCode}
+                                    setColorCode={setColorCode}
+                                />
+                                <DateSelector
                                     date={date}
                                     setDate={setDate}
                                 />
                             </div>
-                            <WatchOut
-                                watchOut={watchOut}
-                                setWatchOut={setWatchOut}
+                            <Notice
+                                notice={notice}
+                                setNotice={setNotice}
                             />
                             <ContentSection
                                 content={content}
@@ -331,4 +375,4 @@ const ObservationModal = (props: ObservationModalProps) => {
     );
 };
 
-export default ObservationModal;
+export default FeedbackModal;
