@@ -5,7 +5,7 @@ import { Skeleton } from "@/app/components/Skeleton";
 import { authOptions } from "@/app/lib/auth";
 import { getServerSession } from "next-auth";
 import { ReactNode, Suspense } from "react";
-import { fetchBatch, fetchInterns, fetchStats } from "./action";
+import { fetchBatch, fetchInterns, fetchObservations, fetchStats } from "./action";
 import BatchPageHeader from "./BatchPageHeader";
 import BatchPageTab from "./BatchPageTab";
 import "./page.css";
@@ -72,8 +72,9 @@ export type Intern = {
     notice: boolean;
 }
 
-const InternsList = async (props: { interns: Promise<Intern[]> }) => {
-    const interns = await props.interns;
+const InternsList = async (props: { batchId: number; interns: Promise<Intern[]> }) => {
+    const [interns, observations] = await Promise.all([props.interns, fetchObservations(props.batchId)]);
+
     return (
         <div className="card">
             <div className="card-header">
@@ -90,7 +91,7 @@ const InternsList = async (props: { interns: Promise<Intern[]> }) => {
                 </div>
             </div>
             <div className="card-body" style={{ padding: "0", maxHeight: "500px", overflowY: "auto" }}>
-                <BatchPageTab interns={interns} />
+                <BatchPageTab interns={interns} observations={observations} />
             </div>
         </div>
     )
@@ -109,7 +110,7 @@ const RightSidebarSection = async (props: { interns: Promise<Intern[]>, batch: B
 const ContentGrid = (props: { batch: Batch; interns: Promise<Intern[]> }) => {
     return (
         <div className="content-grid">
-            <InternsList interns={props.interns} />
+            <InternsList interns={props.interns} batchId={props.batch.id} />
             <RightSidebarSection interns={props.interns} batch={props.batch} />
         </div>
     )

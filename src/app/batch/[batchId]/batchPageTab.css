@@ -210,6 +210,15 @@
     line-height: 1.6;
 }
 
+.view-less {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .observation-type {
     display: inline-block;
     padding: 2px 8px;
@@ -300,4 +309,13 @@
     font-size: 48px;
     margin-bottom: 16px;
     opacity: 0.5;
+}
+
+.view-more-btn {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border: none;
+    background-color: inherit;
+    color: #3b82f6;
 }

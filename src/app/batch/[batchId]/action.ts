@@ -1,4 +1,5 @@
 import { neon } from "@neondatabase/serverless";
+import { Observation } from "./types";
 
 export const fetchBatch = async (batchId: number) => {
     const sql = neon(`${process.env.DATABASE_URL}`);
@@ -87,4 +88,26 @@ export const countInternsWithoutRecentObservations = async (
     `;
 
     return result[0].count as number;
+}
+
+export const fetchObservations = async (batchId: number): Promise<Observation[]> => {
+    const sql = neon(`${process.env.DATABASE_URL}`);
+
+    const rows = await sql`
+        SELECT o.id, i.name as "internName", m.username as "mentorName", o.date, o.content
+        FROM observations o
+        JOIN interns i ON o.intern_id = i.id
+        JOIN mentors m ON o.mentor_id = m.id
+        WHERE o.batch_id = ${batchId} AND o.date >= CURRENT_DATE - INTERVAL '1 day' * 30
+        ORDER BY o.date DESC
+    `;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return rows.map((row: any) => ({
+        id: row.id as number,
+        internName: row.internName as string,
+        mentorName: row.mentorName as string,
+        date: new Date(row.date),
+        content: row.content as string
+    }));
 }
