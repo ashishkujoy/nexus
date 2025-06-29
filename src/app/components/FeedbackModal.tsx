@@ -271,6 +271,15 @@ type FeedbackModalProps = {
     onClose: () => void;
 }
 
+const codeToColor = (code: number): string | undefined => {
+    switch (code) {
+        case 4: return 'green';
+        case 3: return 'yellow';
+        case 2: return 'orange';
+        case 1: return 'red';
+    }
+}
+
 const FeedbackModal = (props: FeedbackModalProps) => {
     const [selectedBatch, setSelectedBatch] = useState(-1);
     const [selectedIntern, setSelectedIntern] = useState(-1);
@@ -298,7 +307,7 @@ const FeedbackModal = (props: FeedbackModalProps) => {
             date,
             notice,
             content,
-            colorCode: colorCode === -1 ? undefined : colorCode,
+            colorCode: codeToColor(colorCode),
         };
         setLoadingMsg('Submitting Feedback...');
         fetch('/api/batch', {

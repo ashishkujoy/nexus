@@ -1,11 +1,11 @@
 "use client";
-import { AlertTriangle, Calendar, Eye, FileText, Paintbrush, Users, X } from 'lucide-react';
+import { AlertTriangle, Calendar, Eye, FileText, Users, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import "./observationModal.css";
-import LoaderOverlay from './LoaderOverlay';
-import SuccessOverlay from './SuccessOverlay';
 import ErrorOverlay from './ErrorOverlay';
+import LoaderOverlay from './LoaderOverlay';
+import "./observationModal.css";
+import SuccessOverlay from './SuccessOverlay';
 
 const ModalHeader = (props: { onClose: () => void; }) => {
     return (

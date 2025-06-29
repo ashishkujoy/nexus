@@ -2,14 +2,14 @@ import { FeedbackIcon, InternIcon, ObservationIcon } from "@/app/components/Icon
 
 import AppHeader from "@/app/components/AppHeader";
 import { Skeleton } from "@/app/components/Skeleton";
+import { authOptions } from "@/app/lib/auth";
+import { getServerSession } from "next-auth";
 import { ReactNode, Suspense } from "react";
 import { fetchBatch, fetchInterns, fetchStats } from "./action";
 import BatchPageHeader from "./BatchPageHeader";
-import InternRow from "./InternRow";
+import BatchPageTab from "./BatchPageTab";
 import "./page.css";
 import QuickActions from "./QuickActionsSection";
-import { authOptions } from "@/app/lib/auth";
-import { getServerSession } from "next-auth";
 
 
 type ActionsProps = {
@@ -65,57 +65,15 @@ const RecentActivities = () => {
     )
 }
 
-const LoadingRow = () => {
-    return (
-        <tr className="intern-row">
-            <td>
-                <Skeleton width="100%" height="20px" />
-            </td>
-            <td>
-                <Skeleton width="100%" height="20px" className="table-cell" />
-            </td>
-            <td>
-                <Skeleton width="100px" height="20px" className="table-cell" />
-            </td>
-        </tr>
-    )
-}
-
-const LoadingRows = () => {
-    return <tbody>
-        <LoadingRow />
-        <LoadingRow />
-        <LoadingRow />
-        <LoadingRow />
-    </tbody>
-}
-
-type Intern = {
+export type Intern = {
     id: number;
     name: string;
     colorCode?: string;
     notice: boolean;
 }
 
-const InternRows = async (props: { interns: Promise<Intern[]> }) => {
+const InternsList = async (props: { interns: Promise<Intern[]> }) => {
     const interns = await props.interns;
-
-    return (
-        <tbody>
-            {
-                interns.map(intern => <InternRow
-                    key={intern.id}
-                    id={intern.id}
-                    name={intern.name}
-                    colorCode={intern.colorCode || undefined}
-                    notice={intern.notice}
-                />)
-            }
-        </tbody>
-    )
-}
-
-const InternsList = (props: { interns: Promise<Intern[]> }) => {
     return (
         <div className="card">
             <div className="card-header">
@@ -132,19 +90,7 @@ const InternsList = (props: { interns: Promise<Intern[]> }) => {
                 </div>
             </div>
             <div className="card-body" style={{ padding: "0", maxHeight: "500px", overflowY: "auto" }}>
-                <table className="interns-table">
-                    <thead>
-                        <tr>
-                            <th>Intern</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-
-                    <Suspense fallback={<LoadingRows />}>
-                        <InternRows interns={props.interns} />
-                    </Suspense>
-                </table>
+                <BatchPageTab interns={interns} />
             </div>
         </div>
     )

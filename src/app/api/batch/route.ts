@@ -89,10 +89,31 @@ type RecordFeedbackReqBody = {
     colorCode?: string;
 }
 
-const updateNotice = async (sql: NeonQueryFunction<false, false>, internId: number, notice: boolean) => {
-    return sql`UPDATE interns
-    SET notice = ${notice}
-    WHERE id = ${internId}`;
+const updateInternFields = async (
+    sql: NeonQueryFunction<false, false>, 
+    internId: number, 
+    notice?: boolean, 
+    colorCode?: string
+) => {
+    // Only execute if there are fields to update
+    if (notice === undefined && colorCode === undefined) {
+        return; // No updates needed
+    }
+    
+    // Use CASE statements for conditional updates
+    return sql`
+        UPDATE interns 
+        SET 
+            notice = CASE 
+                WHEN ${notice !== undefined} THEN ${notice} 
+                ELSE notice 
+            END,
+            color_code = CASE 
+                WHEN ${colorCode !== undefined} THEN ${colorCode} 
+                ELSE color_code 
+            END
+        WHERE id = ${internId}
+    `;
 }
 
 const recordFeedback = async (body: RecordFeedbackReqBody) => {
@@ -100,6 +121,7 @@ const recordFeedback = async (body: RecordFeedbackReqBody) => {
     const session = await getServerSession(authOptions);
     const mentorId = session?.user?.id;
     const sql = neon(`${process.env.DATABASE_URL}`);
+    
     try {
         // TODO: Add transaction handling for atomicity
         await sql`
@@ -107,9 +129,9 @@ const recordFeedback = async (body: RecordFeedbackReqBody) => {
         (mentor_id, intern_id, batch_id, date, notice, content, color_code) 
         VALUES (${mentorId}, ${body.internId}, ${body.batchId}, ${body.date}, ${body.notice}, ${body.content}, ${body.colorCode});`;
 
-        if (body.notice !== undefined) {
-            await updateNotice(sql, body.internId, body.notice!);
-        }
+        // Update intern fields efficiently if they are defined
+        await updateInternFields(sql, body.internId, body.notice, body.colorCode);
+        
         return new Response(JSON.stringify({ message: "Feedback recorded successfully" }), {
             status: 201,
             headers: { "Content-Type": "application/json" }
