@@ -1,5 +1,5 @@
 import { neon } from "@neondatabase/serverless";
-import { Observation } from "./types";
+import { Feedback, Observation } from "./types";
 
 export const fetchBatch = async (batchId: number) => {
     const sql = neon(`${process.env.DATABASE_URL}`);
@@ -109,5 +109,30 @@ export const fetchObservations = async (batchId: number): Promise<Observation[]>
         mentorName: row.mentorName as string,
         date: new Date(row.date),
         content: row.content as string
+    }));
+}
+
+export const fetchFeedbacks = async (batchId: number): Promise<Feedback[]> => {
+    const sql = neon(`${process.env.DATABASE_URL}`);
+
+    const rows = await sql`
+        SELECT f.id, i.name as "internName", m.username as "mentorName", f.date, f.content, f.notice, f.delivered, f.color_code as "colorCode"
+        FROM feedback f
+        JOIN interns i ON f.intern_id = i.id
+        JOIN mentors m ON f.mentor_id = m.id
+        WHERE f.batch_id = ${batchId} AND f.date >= CURRENT_DATE - INTERVAL '1 day' * 30
+        ORDER BY f.date DESC
+    `;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return rows.map((row: any) => ({
+        id: row.id as number,
+        internName: row.internName as string,
+        mentorName: row.mentorName as string,
+        date: new Date(row.date),
+        content: row.content as string,
+        notice: row.notice as boolean,
+        delivered: row.delivered as boolean,
+        colorCode: row.colorCode as (string | undefined)
     }));
 }

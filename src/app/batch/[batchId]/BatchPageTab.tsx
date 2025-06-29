@@ -5,6 +5,7 @@ import "./batchPageTab.css";
 import { Intern } from "./page";
 import { formatDate } from "../../date";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { Feedback } from "./types";
 
 type TabNavProps = {
     activeTab: string;
@@ -117,7 +118,46 @@ const ObservationsTab = (props: ObservationsTabProps) => {
     )
 }
 
-const BatchPageTab = (props: { interns: Intern[]; observations: Observation[] }) => {
+type FeedbacksTabProps = {
+    active: boolean;
+    feedbacks: Feedback[];
+}
+
+const FeedbackItem = (props: { feedback: Feedback }) => {
+    const { feedback: { internName, mentorName, date, content, } } = props;
+
+    return (
+        <div className="feedback-item">
+            <div className="feedback-header" style={{ display: "flex", justifyContent: "space-between" }}>
+                <div className="feedback-intern">{internName}</div>
+                <div>
+                    <span className="observation-type">{mentorName}</span>
+                    <span className="observation-date">{formatDate(date)}</span>
+                </div>
+            </div>
+            <div className="feedback-content">
+                {content}
+            </div>
+        </div>
+    )
+}
+
+const FeedbacksTab = (props: FeedbacksTabProps) => {
+    return (
+        <div id="feedback" className={`tab-content ${props.active && "active"}`}>
+            <div className="feedback-list">
+                {
+                    props.feedbacks.map(feedback => <FeedbackItem
+                        key={feedback.id}
+                        feedback={feedback}
+                    />)
+                }
+            </div>
+        </div>
+    )
+}
+
+const BatchPageTab = (props: { interns: Intern[]; observations: Observation[]; feedbacks: Feedback[] }) => {
     const [activeTab, setActiveTab] = useState("Interns");
     const tabs = ["Interns", "Observations", "Feedbacks"];
 
@@ -126,6 +166,7 @@ const BatchPageTab = (props: { interns: Intern[]; observations: Observation[] })
             <TabNav activeTab={activeTab} onTabChange={setActiveTab} tabs={tabs} />
             <InternsTab interns={props.interns} active={activeTab === tabs[0]} />
             <ObservationsTab active={activeTab === tabs[1]} observations={props.observations} />
+            <FeedbacksTab active={activeTab === tabs[2]} feedbacks={props.feedbacks} />
         </div>
     )
 }

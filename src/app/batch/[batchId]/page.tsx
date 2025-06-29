@@ -5,7 +5,7 @@ import { Skeleton } from "@/app/components/Skeleton";
 import { authOptions } from "@/app/lib/auth";
 import { getServerSession } from "next-auth";
 import { ReactNode, Suspense } from "react";
-import { fetchBatch, fetchInterns, fetchObservations, fetchStats } from "./action";
+import { fetchBatch, fetchFeedbacks, fetchInterns, fetchObservations, fetchStats } from "./action";
 import BatchPageHeader from "./BatchPageHeader";
 import BatchPageTab from "./BatchPageTab";
 import "./page.css";
@@ -73,7 +73,11 @@ export type Intern = {
 }
 
 const InternsList = async (props: { batchId: number; interns: Promise<Intern[]> }) => {
-    const [interns, observations] = await Promise.all([props.interns, fetchObservations(props.batchId)]);
+    const [interns, observations, feedbacks] = await Promise.all([
+        props.interns,
+        fetchObservations(props.batchId),
+        fetchFeedbacks(props.batchId),
+    ]);
 
     return (
         <div className="card">
@@ -91,7 +95,7 @@ const InternsList = async (props: { batchId: number; interns: Promise<Intern[]> 
                 </div>
             </div>
             <div className="card-body" style={{ padding: "0", maxHeight: "500px", overflowY: "auto" }}>
-                <BatchPageTab interns={interns} observations={observations} />
+                <BatchPageTab interns={interns} observations={observations} feedbacks={feedbacks} />
             </div>
         </div>
     )
