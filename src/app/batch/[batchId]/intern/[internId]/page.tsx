@@ -1,6 +1,7 @@
 import { FeedbackIcon, NoticeIcon, ObservationIcon, PlusIcon, TerminateIcon } from "@/app/components/Icons";
 import Image from "next/image";
 import "./page.css";
+import AppHeader from "@/app/components/AppHeader";
 
 type ProfileInfoProps = {
     name: string;
@@ -28,15 +29,6 @@ const ProfileInfo = (props: ProfileInfoProps) => {
                     <span className="detail-label">Batch:</span>
                     <span>{props.batch}</span>
                 </div>
-                <div className="detail-item">
-                    <span className="detail-label">Status Changed:</span>
-                    <span>{props.statusChanged}</span>
-                </div>
-            </div>
-
-            <div className="batch-info">
-                <div className="color-badge" style={{ backgroundColor: "#3b82f6" }}></div>
-                <span className="status-badge status-active">Active</span>
             </div>
         </div >
     )
@@ -166,7 +158,7 @@ const FeedbackSection = () => {
     )
 }
 
-const InternPage = () => {
+const MainContent = () => {
     return (
         <div className="intern-container">
             <div className="intern-header">
@@ -192,7 +184,19 @@ const InternPage = () => {
                 <FeedbackSection />
             </div>
         </div>
+    )
+}
 
+const InternPage = () => {
+    return (
+        <div className="main-container">
+            <div className="page-container">
+                <div className="main-content">
+                    <AppHeader />
+                    <MainContent />
+                </div>
+            </div>
+        </div>
     );
 }
 

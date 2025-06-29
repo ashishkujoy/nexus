@@ -70,6 +70,7 @@ export type Intern = {
     name: string;
     colorCode?: string;
     notice: boolean;
+    imgUrl: string;
 }
 
 const InternsList = async (props: { batchId: number; interns: Promise<Intern[]> }) => {

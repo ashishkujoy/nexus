@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS interns (
     batch_id INT NOT NULL,
     FOREIGN KEY (batch_id) REFERENCES batches(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    img_url TEXT NOT NULL ,
     UNIQUE (id, batch_id)
 );
 

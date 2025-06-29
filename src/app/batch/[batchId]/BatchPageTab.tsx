@@ -6,6 +6,7 @@ import { Intern } from "./page";
 import { formatDate } from "../../date";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { Feedback } from "./types";
+import Image from "next/image";
 
 type TabNavProps = {
     activeTab: string;
@@ -32,13 +33,13 @@ const TabNav = (props: TabNavProps) => {
     )
 }
 
-const InternCard = (props: { name: string; colorCode?: string }) => {
+const InternCard = (props: { name: string; colorCode?: string; imgUrl: string; }) => {
     const initials = props.name.split(" ").map(word => word[0]).join("").toUpperCase();
     const gotoInternProfile = () => window.location.href = window.location.pathname + `/intern/${props.name}`;
 
     return (
         <div className="intern-card" onClick={gotoInternProfile}>
-            <div className="intern-photo">{initials}</div>
+            <Image src={props.imgUrl} width={140} height={130} alt={""} />
             <div className={`intern-footer ${props.colorCode || "no-color"}`}>{props.name}</div>
         </div>
     )
@@ -56,6 +57,7 @@ const InternsTab = (props: InternsTabProps) => {
                 {props.interns.map(intern => <InternCard
                     key={intern.id}
                     name={intern.name}
+                    imgUrl={intern.imgUrl}
                     colorCode={intern.colorCode}
                 />)}
             </div>

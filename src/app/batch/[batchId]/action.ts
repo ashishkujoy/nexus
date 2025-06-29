@@ -21,7 +21,7 @@ export const fetchInterns = async (batchId: number) => {
     const sql = neon(`${process.env.DATABASE_URL}`);
 
     const rows = await sql`
-        SELECT  id, name, email, color_code as "colorCode", notice
+        SELECT  id, name, email, color_code as "colorCode", notice, img_url as "imgUrl"
         FROM interns
         WHERE batch_id = ${batchId}
         ORDER BY name ASC
@@ -33,7 +33,8 @@ export const fetchInterns = async (batchId: number) => {
         name: row.name as string,
         email: row.email as string,
         colorCode: row.colorCode as (string | undefined),
-        notice: row.notice as boolean
+        notice: row.notice as boolean,
+        imgUrl: row.imgUrl as string
     }));
 }
 
