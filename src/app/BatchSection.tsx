@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import BatchModal from "./components/BatchModal";
+import { formatDate } from "./date";
 
 type Batch = {
     id: number;
@@ -32,7 +33,7 @@ const BatchCard = (props: { batch: Batch }) => {
             <div className="batch-header">
                 <div className="batch-info">
                     <h4>{batch.name}</h4>
-                    <p>Started: {new Date(batch.startDate).toLocaleDateString()}</p>
+                    <p>Started: {formatDate(new Date(batch.startDate))}</p>
                 </div>
                 {batch.root && (
                     <span className="admin-badge">

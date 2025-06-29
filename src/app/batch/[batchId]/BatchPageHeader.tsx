@@ -31,7 +31,6 @@ const BatchPageHeader = (props: PageHeaderProps) => {
                     </div>
                 </div>
                 <div className="header-actions">
-                    <button className="btn btn-secondary">Export Report</button>
                     <button className="btn btn-primary" onClick={toggleModal}>+ Add Intern</button>
                 </div>
             </div>

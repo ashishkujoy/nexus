@@ -81,19 +81,6 @@ const InternsList = async (props: { batchId: number; interns: Promise<Intern[]> 
 
     return (
         <div className="card">
-            <div className="card-header">
-                <h3 className="card-title">Batch Interns</h3>
-                <div className="intern-filter-section">
-                    <select
-                        className="filter-dropdown">
-                        <option>All Interns</option>
-                        <option>Active</option>
-                        <option>Needs Attention</option>
-                        <option>Critical</option>
-                    </select>
-                    <button className="btn btn-secondary filter-btn">Filter</button>
-                </div>
-            </div>
             <div className="card-body" style={{ padding: "0", maxHeight: "500px", overflowY: "auto" }}>
                 <BatchPageTab interns={interns} observations={observations} feedbacks={feedbacks} />
             </div>
