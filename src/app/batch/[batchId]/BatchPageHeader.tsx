@@ -24,12 +24,10 @@ const BatchPageHeader = (props: PageHeaderProps) => {
     return (
         <div>
             <div className="header">
-                <div className="header-left">
+                <div className="header-left" style={{ display: "flex", alignItems: "center", gap: "16px" }}>
                     <h1 className="page-title">{props.title}</h1>
-                    <div className="batch-meta">
-                        <span>Started: {formatedDate(props.startDate)}</span>
-                        <span className="batch-status">Active</span>
-                    </div>
+                    <span>Started: {formatedDate(props.startDate)}</span>
+
                 </div>
                 {
                     props.root && <div className="header-actions">

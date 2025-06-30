@@ -1,8 +1,10 @@
-.observations-list, .feedback-list {
+.observations-list,
+.feedback-list {
     space-y: 16px;
 }
 
-.observation-item, .feedback-item {
+.observation-item,
+.feedback-item {
     background: #f8fafc;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
@@ -10,25 +12,29 @@
     margin-bottom: 16px;
 }
 
-.observation-header, .feedback-header {
+.observation-header,
+.feedback-header {
     display: flex;
     justify-content: between;
     align-items: center;
     margin-bottom: 12px;
 }
 
-.observation-intern, .feedback-intern {
+.observation-intern,
+.feedback-intern {
     font-weight: 600;
     color: #1e293b;
     font-size: 16px;
 }
 
-.observation-date, .feedback-date {
+.observation-date,
+.feedback-date {
     color: #64748b;
     font-size: 14px;
 }
 
-.observation-text, .feedback-text {
+.observation-text,
+.feedback-text {
     color: #374151;
     line-height: 1.6;
 }
@@ -49,4 +55,27 @@
     border: none;
     background-color: inherit;
     color: #3b82f6;
+}
+
+.color-badge {
+    width: 40px;
+    height: 12px;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+.color-badge.red {
+    background-color: #f50000;
+}
+
+.color-badge.orange {
+    background-color: #ea580c;
+}
+
+.color-badge.yellow {
+    background-color: #ca8a04;
+}
+
+.color-badge.green {
+    background-color: #16a34a;
 }

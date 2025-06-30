@@ -8,7 +8,7 @@ import "./observations.css";
 
 const ObservationItem = (props: { observation: Observation }) => {
     const [viewMore, setViewMore] = useState(false);
-    const { observation: { internName, mentorName, date, content } } = props;
+    const { observation: { internName, mentorName, date, content, watchout } } = props;
     const toggleViewMore = () => setViewMore(!viewMore);
 
     return (
@@ -16,7 +16,7 @@ const ObservationItem = (props: { observation: Observation }) => {
             <div className="observation-header" style={{ display: "flex", justifyContent: "space-between" }}>
                 <div className="observation-intern" style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                     <span>{internName}</span>
-                    {props.observation.watchout && <BinocularsIcon color="orange" size={18}/>}
+                    {watchout && <BinocularsIcon color="orange" size={18}/>}
                 </div>
                 <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                     <span className="observation-type">{mentorName}</span>
