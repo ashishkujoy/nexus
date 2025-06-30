@@ -33,8 +33,8 @@ const TabNav = (props: TabNavProps) => {
     )
 }
 
-const InternCard = (props: { name: string; colorCode?: string; imgUrl: string; }) => {
-    const gotoInternProfile = () => window.location.href = window.location.pathname + `/intern/${props.name}`;
+const InternCard = (props: { name: string; id: number; colorCode?: string; imgUrl: string; }) => {
+    const gotoInternProfile = () => window.location.href = window.location.pathname + `/intern/${props.id}`;
 
     return (
         <div className="intern-card" onClick={gotoInternProfile}>
@@ -55,6 +55,7 @@ const InternsTab = (props: InternsTabProps) => {
             <div className="interns-grid">
                 {props.interns.map(intern => <InternCard
                     key={intern.id}
+                    id={intern.id}
                     name={intern.name}
                     imgUrl={intern.imgUrl}
                     colorCode={intern.colorCode}

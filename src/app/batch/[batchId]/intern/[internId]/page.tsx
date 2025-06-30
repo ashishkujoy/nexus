@@ -1,14 +1,14 @@
+import AppHeader from "@/app/components/AppHeader";
 import { FeedbackIcon, NoticeIcon, ObservationIcon, PlusIcon, TerminateIcon } from "@/app/components/Icons";
 import Image from "next/image";
+import { Intern } from "../../page";
+import { Feedback, Observation } from "../../types";
+import { fetchFeedbacks, fetchIntern, fetchObservations } from "./action";
 import "./page.css";
-import AppHeader from "@/app/components/AppHeader";
 
 type ProfileInfoProps = {
     name: string;
     email: string;
-    gender: string;
-    batch: string;
-    statusChanged: string;
 }
 
 const ProfileInfo = (props: ProfileInfoProps) => {
@@ -20,14 +20,6 @@ const ProfileInfo = (props: ProfileInfoProps) => {
                 <div className="detail-item">
                     <span className="detail-label">Email:</span>
                     <span>{props.email}</span>
-                </div>
-                <div className="detail-item">
-                    <span className="detail-label">Gender:</span>
-                    <span>{props.gender}</span>
-                </div>
-                <div className="detail-item">
-                    <span className="detail-label">Batch:</span>
-                    <span>{props.batch}</span>
                 </div>
             </div>
         </div >
@@ -64,7 +56,7 @@ type ObservationProps = {
     watchOut?: boolean;
 }
 
-const Observation = (props: ObservationProps) => {
+const ObservationCard = (props: ObservationProps) => {
     return (
         <div className="list-item">
             <div className="list-item-header">
@@ -86,23 +78,23 @@ const ObservationSection = () => {
                 <ObservationIcon />
                 Observations
             </h2>
-            <Observation
+            <ObservationCard
                 content="Needs improvement in time management during sprint planning"
                 mentor="Maria Garcia"
                 date="Jun 20, 2024"
             />
-            <Observation
+            <ObservationCard
                 content="Excellent problem-solving skills demonstrated in debugging session"
                 mentor="John Smith"
                 date="Jun 25, 2024"
                 watchOut={true}
             />
-            <Observation
+            <ObservationCard
                 content="lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
                 mentor="Emily Johnson"
                 date="Jul 01, 2024"
             />
-            <Observation
+            <ObservationCard
                 content="Needs to improve communication skills during team meetings"
                 mentor="David Lee"
                 date="Jul 05, 2024"
@@ -118,7 +110,7 @@ type FeedbackProps = {
     date: string;
 }
 
-const Feedback = (props: FeedbackProps) => {
+const FeedbackCard = (props: FeedbackProps) => {
     return (
         <div className="list-item">
             <div className="list-item-header">
@@ -139,17 +131,17 @@ const FeedbackSection = () => {
                 <FeedbackIcon />
                 Feedback
             </h2>
-            <Feedback
+            <FeedbackCard
                 content="Great job on the recent project presentation, very well articulated"
                 mentor="Michael Brown"
                 date="Jun 15, 2024"
             />
-            <Feedback
+            <FeedbackCard
                 content="Needs to work on code quality and documentation practices"
                 mentor="Sarah Wilson"
                 date="Jun 10, 2024"
             />
-            <Feedback
+            <FeedbackCard
                 content="Excellent teamwork and collaboration during the last sprint"
                 mentor="Chris Evans"
                 date="Jun 05, 2024"
@@ -158,23 +150,27 @@ const FeedbackSection = () => {
     )
 }
 
-const MainContent = () => {
+type MainContentProps = {
+    intern: Intern;
+    feedbacks: Feedback[];
+    observations: Observation[];
+    batchId: number;
+}
+
+const MainContent = (props: MainContentProps) => {
     return (
         <div className="intern-container">
             <div className="intern-header">
                 <div className="intern-profile-section">
                     <Image
-                        src={`https://randomuser.me/api/portraits/men/${Math.floor(Math.random() * 100)}.jpg`}
-                        alt={"intern"}
-                        width={100}
-                        height={100} />
+                        src={props.intern.imgUrl}
+                        alt={props.intern.name}
+                        width={150}
+                        height={150} />
 
                     <ProfileInfo
-                        name="Sarah Johnson"
-                        email={"sarah.johnson@company.com"}
-                        gender={"Female"}
-                        batch={"STEP-2025"}
-                        statusChanged={"Jan 15, 2024"}
+                        name={props.intern.name}
+                        email={props.intern.email}
                     />
                 </div>
                 <QuickActions />
@@ -187,13 +183,23 @@ const MainContent = () => {
     )
 }
 
-const InternPage = () => {
+const InternPage = async ({ params }: { params: Promise<{ batchId: number; internId: number; }> }) => {
+    const { batchId, internId } = await params;
+    const [intern, feedbacks, observations] = await Promise.all([
+        fetchIntern(internId),
+        fetchFeedbacks(internId),
+        fetchObservations(internId),
+    ]);
+
+    feedbacks.forEach((feedback) => feedback.internName = intern.name);
+    observations.forEach((observation) => observation.internName = intern.name);
+
     return (
         <div className="main-container">
             <div className="page-container">
                 <div className="main-content">
                     <AppHeader />
-                    <MainContent />
+                    <MainContent intern={intern} feedbacks={feedbacks} observations={observations} batchId={batchId} />
                 </div>
             </div>
         </div>

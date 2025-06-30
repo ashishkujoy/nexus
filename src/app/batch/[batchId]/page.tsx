@@ -1,4 +1,4 @@
-import { FeedbackIcon, InternIcon, ObservationIcon } from "@/app/components/Icons";
+import { FeedbackIcon, ObservationIcon } from "@/app/components/Icons";
 
 import AppHeader from "@/app/components/AppHeader";
 import { Skeleton } from "@/app/components/Skeleton";
@@ -71,6 +71,7 @@ export type Intern = {
     colorCode?: string;
     notice: boolean;
     imgUrl: string;
+    email: string;
 }
 
 const InternsList = async (props: { batchId: number; interns: Promise<Intern[]> }) => {
