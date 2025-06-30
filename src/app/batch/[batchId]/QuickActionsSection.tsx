@@ -20,7 +20,6 @@ const QuickAction = (props: QuickActionProps) => {
             </div>
             <div className="quick-action-text">
                 <div className="quick-action-title">{props.title}</div>
-                <div className="quick-action-desc">{props.description}</div>
             </div>
         </div>
     )

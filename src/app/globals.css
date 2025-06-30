@@ -257,17 +257,21 @@ body {
 
 /* Stats Grid */
 .stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  display: flex;
+  flex-direction: column;
   margin-bottom: 24px;
+  border-radius: 8px;
+  padding: 5px;
 }
 
 .stat-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background: white;
-  padding: 16px;
-  border-radius: 8px;
+  padding: 5px 16px;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  color: #333;
 }
 
 .stat-content {
