@@ -15,6 +15,7 @@
 
 .intern-profile-section {
     display: flex;
+    flex-wrap: wrap;
     gap: 24px;
     align-items: flex-start;
     margin-bottom: 24px;
@@ -34,6 +35,8 @@
 
 .profile-name {
     font-size: 28px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
     font-weight: 700;
     color: #1e293b;
     margin-bottom: 8px;
@@ -51,6 +54,11 @@
     align-items: center;
     gap: 8px;
     color: #64748b;
+}
+
+.detail-item span {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .detail-label {
