@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS feedback (
     content TEXT NOT NULL,
     delivered BOOLEAN DEFAULT FALSE,
     delivered_at TIMESTAMP,
-    notice BOOLEAN DEFAULT FALSE
+    notice BOOLEAN DEFAULT FALSE,
     color_code VARCHAR(10)
 );
 

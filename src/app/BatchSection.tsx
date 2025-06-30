@@ -57,7 +57,7 @@ const Batchs = (props: { batchs: Batch[]; onNewBatch: () => void; allowBatchCrea
     const { batchs } = props;
 
     return (
-        <div className="section">
+        <div className="section" style={{ height: "calc(100vh - 90px);" }}>
             <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3 className="section-title">My Batches</h3>
                 {props.allowBatchCreation && <button className="btn btn-primary" onClick={props.onNewBatch}>+ Add Batch</button>}
@@ -73,7 +73,7 @@ const Batchs = (props: { batchs: Batch[]; onNewBatch: () => void; allowBatchCrea
 const EmptyBatch = (props: { onNewBatch: () => void; allowBatchCreation: boolean }) => {
     return (
         <div>
-            <div className="section">
+            <div className="section" style={{ height: "calc(100vh - 80px);" }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div className="section-title">My Batches</div>
                     {props.allowBatchCreation && <button className="btn btn-primary" onClick={props.onNewBatch}>+ Add Batch</button>}
