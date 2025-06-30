@@ -1,10 +1,13 @@
 import { neon } from "@neondatabase/serverless";
 import { Feedback, Observation } from "./types";
 
-export const fetchBatch = async (batchId: number) => {
+export const fetchBatch = async (mentorId: number, batchId: number) => {
     const sql = neon(`${process.env.DATABASE_URL}`);
 
-    const rows = await sql`SELECT * FROM batches WHERE id = ${batchId} LIMIT 1`
+    const rows = await sql`SELECT b.id, b.name, b.start_date, b.end_date, ma.permissions 
+    FROM mentorship_assignments ma
+    JOIN batches b ON ma.batch_id = b.id
+    WHERE ma.mentor_id = ${mentorId} AND ma.batch_id = ${batchId} LIMIT 1`
 
     if (rows.length === 0) {
         throw new Error(`Batch with ID ${batchId} not found`);
@@ -13,7 +16,12 @@ export const fetchBatch = async (batchId: number) => {
         id: batchId,
         name: rows[0].name,
         startDate: rows[0].start_date,
-        endDate: rows[0].end_date
+        endDate: rows[0].end_date,
+        permissions: rows[0].permissions as {
+            recordObservation: boolean;
+            recordFeedback: boolean;
+            programManager: boolean;
+        },
     };
 }
 

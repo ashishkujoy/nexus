@@ -10,6 +10,7 @@ import BatchPageHeader from "./BatchPageHeader";
 import BatchPageTab from "./BatchPageTab";
 import "./page.css";
 import QuickActions from "./QuickActionsSection";
+import { Permissions } from "./types";
 
 
 type ActionsProps = {
@@ -196,6 +197,7 @@ type Batch = {
     name: string;
     startDate: Date;
     endDate?: Date;
+    permissions: Permissions;
 }
 
 const MainContent = (props: { batch: Batch, mentorId: number }) => {
@@ -215,8 +217,8 @@ const MainContent = (props: { batch: Batch, mentorId: number }) => {
 
 const BatchPage = async ({ params }: { params: Promise<{ batchId: number }> }) => {
     const { batchId } = await params;
-    const batch = await fetchBatch(batchId);
     const session = await getServerSession(authOptions);
+    const batch = await fetchBatch(session?.user.id || -1, batchId);
 
     return (
         <div className="main-container">

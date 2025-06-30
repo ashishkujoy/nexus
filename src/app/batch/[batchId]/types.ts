@@ -16,3 +16,9 @@ export type Feedback = {
     delivered: boolean;
     colorCode?: string;
 }
+
+export type Permissions = {
+    recordObservation: boolean;
+    recordFeedback: boolean;
+    programManager: boolean;
+}

@@ -3,6 +3,7 @@ import FeedbackModal from "@/app/components/FeedbackModal";
 import { FeedbackIcon, ObservationIcon } from "@/app/components/Icons";
 import ObservationModal from "@/app/components/ObservationModal";
 import { ReactNode, useState } from "react";
+import type { Permissions } from "./types";
 
 type QuickActionProps = {
     title: string;
@@ -28,6 +29,7 @@ const QuickAction = (props: QuickActionProps) => {
 type Batch = {
     id: number;
     name: string;
+    permissions: Permissions;
 }
 
 type Intern = {
@@ -42,6 +44,12 @@ const QuickActions = (props: { batch: Batch; interns: Intern[] }) => {
     const toggleObservationModal = () => setShowObservationModal(!showObservationModal);
     const toggleFeedbackModal = () => setShowFeedbackModal(!showFeedbackModal);
 
+    const { permissions: { recordObservation, recordFeedback, programManager } } = props.batch;
+
+    if (!recordObservation && !recordFeedback && !programManager) {
+        return <></>
+    }
+
     return (
         <div>
             <div className="card">
@@ -49,20 +57,20 @@ const QuickActions = (props: { batch: Batch; interns: Intern[] }) => {
                     <h3 className="card-title">Quick Actions</h3>
                 </div>
                 <div className="card-body">
-                    <QuickAction
+                    {(recordObservation || programManager) && <QuickAction
                         title="Record Observation"
                         description="Add new observation for intern"
                         iconBackground="#e3f2fd"
                         icon={<ObservationIcon />}
                         onClick={toggleObservationModal}
-                    />
-                    <QuickAction
+                    />}
+                    {(recordFeedback || programManager) && <QuickAction
                         title="Provide Feedback"
                         description="Give feedback to intern"
                         iconBackground="#e8f5e8"
                         icon={<FeedbackIcon />}
                         onClick={toggleFeedbackModal}
-                    />
+                    />}
                 </div>
             </div>
             {showObservationModal && <ObservationModal
