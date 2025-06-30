@@ -1,12 +1,14 @@
 import AppHeader from "@/app/components/AppHeader";
+import Feedbacks from "@/app/components/Feedbacks";
 import { FeedbackIcon, NoticeIcon, ObservationIcon, PlusIcon, TerminateIcon } from "@/app/components/Icons";
+import Observations from "@/app/components/Observations";
+import { authOptions } from "@/app/lib/auth";
+import { getServerSession } from "next-auth";
 import Image from "next/image";
 import { Intern } from "../../page";
-import { Feedback, Observation } from "../../types";
-import { fetchFeedbacks, fetchIntern, fetchObservations } from "./action";
+import { Feedback, Observation, Permissions } from "../../types";
+import { fetchFeedbacks, fetchIntern, fetchObservations, fetchPermissions } from "./action";
 import "./page.css";
-import Observations from "@/app/components/Observations";
-import Feedbacks from "@/app/components/Feedbacks";
 
 type ProfileInfoProps = {
     name: string;
@@ -27,25 +29,36 @@ const ProfileInfo = (props: ProfileInfoProps) => {
     )
 }
 
-const QuickActions = () => {
+const QuickActions = (props: { permissions: Permissions }) => {
+    const { recordObservation, recordFeedback, programManager } = props.permissions;
+
     return (
         <div className="quick-actions">
-            <button className="action-btn btn-primary">
-                <PlusIcon />
-                Record Observation
-            </button>
-            <button className="action-btn btn-secondary">
-                <PlusIcon />
-                Record Feedback
-            </button>
-            <button className="action-btn btn-warning">
-                <NoticeIcon width={16} heigth={16} />
-                Mark Notice
-            </button>
-            <button className="action-btn btn-danger">
-                <TerminateIcon />
-                Terminate
-            </button>
+            {
+                (recordObservation || programManager) && <button className="action-btn btn-primary">
+                    <PlusIcon />
+                    Record Observation
+                </button>
+
+            }
+            {
+                (recordFeedback || programManager) && <button className="action-btn btn-secondary">
+                    <PlusIcon />
+                    Record Feedback
+                </button>
+            }
+            {
+                programManager && <button className="action-btn btn-warning">
+                    <NoticeIcon width={16} heigth={16} />
+                    Mark Notice
+                </button>
+            }
+            {
+                programManager && <button className="action-btn btn-danger">
+                    <TerminateIcon />
+                    Terminate
+                </button>
+            }
         </div>
     )
 }
@@ -79,6 +92,7 @@ type MainContentProps = {
     feedbacks: Feedback[];
     observations: Observation[];
     batchId: number;
+    permissions: Permissions;
 }
 
 const MainContent = (props: MainContentProps) => {
@@ -97,7 +111,7 @@ const MainContent = (props: MainContentProps) => {
                         email={props.intern.email}
                     />
                 </div>
-                <QuickActions />
+                <QuickActions permissions={props.permissions} />
             </div>
             <div className="content-grid">
                 <ObservationSection observations={props.observations} />
@@ -109,7 +123,11 @@ const MainContent = (props: MainContentProps) => {
 
 const InternPage = async ({ params }: { params: Promise<{ batchId: number; internId: number; }> }) => {
     const { batchId, internId } = await params;
-    const [intern, feedbacks, observations] = await Promise.all([
+    const session = await getServerSession(authOptions);
+    const userId = session?.user.id || -1;
+
+    const [permissions, intern, feedbacks, observations] = await Promise.all([
+        fetchPermissions(userId, batchId),
         fetchIntern(internId),
         fetchFeedbacks(internId),
         fetchObservations(internId),
@@ -123,7 +141,13 @@ const InternPage = async ({ params }: { params: Promise<{ batchId: number; inter
             <div className="page-container">
                 <div className="main-content">
                     <AppHeader />
-                    <MainContent intern={intern} feedbacks={feedbacks} observations={observations} batchId={batchId} />
+                    <MainContent
+                        intern={intern}
+                        feedbacks={feedbacks}
+                        observations={observations}
+                        batchId={batchId}
+                        permissions={permissions}
+                    />
                 </div>
             </div>
         </div>

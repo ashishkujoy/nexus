@@ -1,4 +1,14 @@
 import { neon } from "@neondatabase/serverless";
+import { Permissions } from "../../types";
+
+export const fetchPermissions = async (mentorId: number, batchId: number) => {
+    const sql = neon(`${process.env.DATABASE_URL}`);
+    const rows = await sql`SELECT permissions FROM mentorship_assignments WHERE mentor_id = ${mentorId} AND batch_id = ${batchId} LIMIT 1`;
+    if (rows.length === 0) {
+        throw new Error("Permissions not found for the given mentor and batch");
+    }
+    return rows[0].permissions as Permissions;
+}
 
 export const fetchFeedbacks = async (internId: number) => {
     console.log("Fetching feedbacks for internId:", internId);
