@@ -127,7 +127,7 @@ const InternPage = async ({ params }: { params: Promise<{ batchId: number; inter
     const userId = session?.user.id || -1;
 
     const [permissions, intern, feedbacks, observations] = await Promise.all([
-        fetchPermissions(userId, batchId),
+        fetchPermissions(userId, batchId, session?.user.isRoot || false),
         fetchIntern(internId),
         fetchFeedbacks(internId),
         fetchObservations(internId),

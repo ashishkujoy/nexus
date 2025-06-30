@@ -219,7 +219,7 @@ const MainContent = (props: { batch: Batch, mentorId: number; root: boolean }) =
 const BatchPage = async ({ params }: { params: Promise<{ batchId: number }> }) => {
     const { batchId } = await params;
     const session = await getServerSession(authOptions);
-    const batch = await fetchBatch(session?.user.id || -1, batchId);
+    const batch = await fetchBatch(session?.user.id || -1, +batchId, session?.user.isRoot || false);
 
     return (
         <div className="main-container">
