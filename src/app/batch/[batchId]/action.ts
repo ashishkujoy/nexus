@@ -103,7 +103,7 @@ export const fetchObservations = async (batchId: number): Promise<Observation[]>
     const sql = neon(`${process.env.DATABASE_URL}`);
 
     const rows = await sql`
-        SELECT o.id, i.name as "internName", m.username as "mentorName", o.date, o.content
+        SELECT o.id, i.name as "internName", m.username as "mentorName", o.date, o.content, o.watchout
         FROM observations o
         JOIN interns i ON o.intern_id = i.id
         JOIN mentors m ON o.mentor_id = m.id
@@ -117,7 +117,8 @@ export const fetchObservations = async (batchId: number): Promise<Observation[]>
         internName: row.internName as string,
         mentorName: row.mentorName as string,
         date: new Date(row.date),
-        content: row.content as string
+        content: row.content as string,
+        watchout: row.watchout as boolean
     }));
 }
 

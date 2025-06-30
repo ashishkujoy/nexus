@@ -56,6 +56,7 @@ export const fetchObservations = async (internId: number) => {
         mentorId: row.mentorId as number,
         mentorName: row.mentorName as string,
         internName: row.intern_name as string,
+        watchout: row.watchout as boolean
     }));
 }
 

@@ -1,8 +1,8 @@
 "use client";
+import { BinocularsIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { useState } from "react";
 import { Observation } from "../batch/[batchId]/types";
 import { formatDate } from "../date";
-import { ChevronUpIcon, ChevronDownIcon } from "lucide-react";
 
 import "./observations.css";
 
@@ -14,7 +14,10 @@ const ObservationItem = (props: { observation: Observation }) => {
     return (
         <div className="observation-item">
             <div className="observation-header" style={{ display: "flex", justifyContent: "space-between" }}>
-                <div className="observation-intern">{internName}</div>
+                <div className="observation-intern" style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                    <span>{internName}</span>
+                    {props.observation.watchout && <BinocularsIcon color="orange" size={18}/>}
+                </div>
                 <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                     <span className="observation-type">{mentorName}</span>
                     <span className="observation-date">{formatDate(date)}</span>

@@ -19,7 +19,6 @@ type Batch = {
 }
 
 const getPermissionBadges = (permissions: Permissions) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const badges = [];
     if (permissions.recordObservation) badges.push({ text: 'Observe', color: 'badge-blue' });
     if (permissions.recordFeedback) badges.push({ text: 'Feedback', color: 'badge-green' });

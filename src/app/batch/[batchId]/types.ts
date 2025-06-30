@@ -4,6 +4,7 @@ export type Observation = {
     mentorName: string;
     date: Date;
     content: string;
+    watchout: boolean;
 }
 
 export type Feedback = {
