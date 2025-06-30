@@ -1,12 +1,12 @@
 "use client";
 
+import Observations from "@/app/components/Observations";
+import Image from "next/image";
 import { useState } from "react";
+import { formatDate } from "../../date";
 import "./batchPageTab.css";
 import { Intern } from "./page";
-import { formatDate } from "../../date";
-import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
-import { Feedback } from "./types";
-import Image from "next/image";
+import { Feedback, Observation } from "./types";
 
 type TabNavProps = {
     activeTab: string;
@@ -65,40 +65,6 @@ const InternsTab = (props: InternsTabProps) => {
     )
 }
 
-type Observation = {
-    id: number;
-    internName: string;
-    mentorName: string;
-    date: Date;
-    content: string;
-}
-
-const ObservationItem = (props: { observation: Observation }) => {
-    const [viewMore, setViewMore] = useState(false);
-    const { observation: { internName, mentorName, date, content } } = props;
-    const toggleViewMore = () => setViewMore(!viewMore);
-
-    return (
-        <div className="observation-item">
-            <div className="observation-header" style={{ display: "flex", justifyContent: "space-between" }}>
-                <div className="observation-intern">{internName}</div>
-                <div>
-                    <span className="observation-type">{mentorName}</span>
-                    <span className="observation-date">{formatDate(date)}</span>
-                </div>
-            </div>
-            <div className={`observation-text ${!viewMore && "view-less"}`}>
-                {content}
-            </div>
-            <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <button onClick={toggleViewMore} className="view-more-btn">
-                    {viewMore ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                    <span>{viewMore ? "View Less" : "View More"}</span>
-                </button>
-            </div>
-        </div>
-    )
-}
 
 type ObservationsTabProps = {
     active: boolean;
@@ -108,14 +74,7 @@ type ObservationsTabProps = {
 const ObservationsTab = (props: ObservationsTabProps) => {
     return (
         <div id="observations" className={`tab-content ${props.active && "active"}`}>
-            <div className="observations-list">
-                {
-                    props.observations.map(observation => <ObservationItem
-                        key={observation.id}
-                        observation={observation}
-                    />)
-                }
-            </div>
+            <Observations observations={props.observations} />
         </div>
     )
 }

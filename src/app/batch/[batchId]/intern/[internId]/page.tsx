@@ -5,6 +5,7 @@ import { Intern } from "../../page";
 import { Feedback, Observation } from "../../types";
 import { fetchFeedbacks, fetchIntern, fetchObservations } from "./action";
 import "./page.css";
+import Observations from "@/app/components/Observations";
 
 type ProfileInfoProps = {
     name: string;
@@ -49,57 +50,14 @@ const QuickActions = () => {
     )
 }
 
-type ObservationProps = {
-    content: string;
-    mentor: string;
-    date: string;
-    watchOut?: boolean;
-}
-
-const ObservationCard = (props: ObservationProps) => {
-    return (
-        <div className="list-item">
-            <div className="list-item-header">
-                <div className="item-summary">{props.content}</div>
-                {props.watchOut && <span className="watch-out-badge">Watch Out</span>}
-            </div>
-            <div className="item-meta">
-                <span>{props.mentor}</span>
-                <span>{props.date}</span>
-            </div>
-        </div>
-    )
-}
-
-const ObservationSection = () => {
+const ObservationSection = (props: { observations: Observation[] }) => {
     return (
         <div className="section-card">
             <h2 className="section-title">
                 <ObservationIcon />
                 Observations
             </h2>
-            <ObservationCard
-                content="Needs improvement in time management during sprint planning"
-                mentor="Maria Garcia"
-                date="Jun 20, 2024"
-            />
-            <ObservationCard
-                content="Excellent problem-solving skills demonstrated in debugging session"
-                mentor="John Smith"
-                date="Jun 25, 2024"
-                watchOut={true}
-            />
-            <ObservationCard
-                content="lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                mentor="Emily Johnson"
-                date="Jul 01, 2024"
-            />
-            <ObservationCard
-                content="Needs to improve communication skills during team meetings"
-                mentor="David Lee"
-                date="Jul 05, 2024"
-                watchOut={true}
-            />
+            <Observations observations={props.observations} />
         </div>
     )
 }
@@ -176,7 +134,7 @@ const MainContent = (props: MainContentProps) => {
                 <QuickActions />
             </div>
             <div className="content-grid">
-                <ObservationSection />
+                <ObservationSection observations={props.observations}/>
                 <FeedbackSection />
             </div>
         </div>

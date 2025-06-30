@@ -1,0 +1,52 @@
+.observations-list {
+    space-y: 16px;
+}
+
+.observation-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 16px;
+}
+
+.observation-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.observation-intern {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 16px;
+}
+
+.observation-date {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.observation-text {
+    color: #374151;
+    line-height: 1.6;
+}
+
+.view-less {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.view-more-btn {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border: none;
+    background-color: inherit;
+    color: #3b82f6;
+}
