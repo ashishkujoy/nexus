@@ -1,9 +1,9 @@
 "use client";
 
+import Feedbacks from "@/app/components/Feedbacks";
 import Observations from "@/app/components/Observations";
 import Image from "next/image";
 import { useState } from "react";
-import { formatDate } from "../../date";
 import "./batchPageTab.css";
 import { Intern } from "./page";
 import { Feedback, Observation } from "./types";
@@ -84,36 +84,10 @@ type FeedbacksTabProps = {
     feedbacks: Feedback[];
 }
 
-const FeedbackItem = (props: { feedback: Feedback }) => {
-    const { feedback: { internName, mentorName, date, content, } } = props;
-
-    return (
-        <div className="feedback-item">
-            <div className="feedback-header" style={{ display: "flex", justifyContent: "space-between" }}>
-                <div className="feedback-intern">{internName}</div>
-                <div>
-                    <span className="observation-type">{mentorName}</span>
-                    <span className="observation-date">{formatDate(date)}</span>
-                </div>
-            </div>
-            <div className="feedback-content">
-                {content}
-            </div>
-        </div>
-    )
-}
-
 const FeedbacksTab = (props: FeedbacksTabProps) => {
     return (
         <div id="feedback" className={`tab-content ${props.active && "active"}`}>
-            <div className="feedback-list">
-                {
-                    props.feedbacks.map(feedback => <FeedbackItem
-                        key={feedback.id}
-                        feedback={feedback}
-                    />)
-                }
-            </div>
+            <Feedbacks feedbacks={props.feedbacks} />
         </div>
     )
 }

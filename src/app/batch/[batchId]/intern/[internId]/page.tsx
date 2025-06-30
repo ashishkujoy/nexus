@@ -6,6 +6,7 @@ import { Feedback, Observation } from "../../types";
 import { fetchFeedbacks, fetchIntern, fetchObservations } from "./action";
 import "./page.css";
 import Observations from "@/app/components/Observations";
+import Feedbacks from "@/app/components/Feedbacks";
 
 type ProfileInfoProps = {
     name: string;
@@ -16,7 +17,6 @@ const ProfileInfo = (props: ProfileInfoProps) => {
     return (
         <div className="profile-info">
             <h1 className="profile-name">{props.name}</h1>
-
             <div className="profile-details">
                 <div className="detail-item">
                     <span className="detail-label">Email:</span>
@@ -62,48 +62,14 @@ const ObservationSection = (props: { observations: Observation[] }) => {
     )
 }
 
-type FeedbackProps = {
-    content: string;
-    mentor: string;
-    date: string;
-}
-
-const FeedbackCard = (props: FeedbackProps) => {
-    return (
-        <div className="list-item">
-            <div className="list-item-header">
-                <div className="item-summary">{props.content}</div>
-            </div>
-            <div className="item-meta">
-                <span>{props.mentor}</span>
-                <span>{props.date}</span>
-            </div>
-        </div>
-    )
-}
-
-const FeedbackSection = () => {
+const FeedbackSection = (props: { feedbacks: Feedback[] }) => {
     return (
         <div className="section-card">
             <h2 className="section-title">
                 <FeedbackIcon />
                 Feedback
             </h2>
-            <FeedbackCard
-                content="Great job on the recent project presentation, very well articulated"
-                mentor="Michael Brown"
-                date="Jun 15, 2024"
-            />
-            <FeedbackCard
-                content="Needs to work on code quality and documentation practices"
-                mentor="Sarah Wilson"
-                date="Jun 10, 2024"
-            />
-            <FeedbackCard
-                content="Excellent teamwork and collaboration during the last sprint"
-                mentor="Chris Evans"
-                date="Jun 05, 2024"
-            />
+            <Feedbacks feedbacks={props.feedbacks} />
         </div>
     )
 }
@@ -134,8 +100,8 @@ const MainContent = (props: MainContentProps) => {
                 <QuickActions />
             </div>
             <div className="content-grid">
-                <ObservationSection observations={props.observations}/>
-                <FeedbackSection />
+                <ObservationSection observations={props.observations} />
+                <FeedbackSection feedbacks={props.feedbacks} />
             </div>
         </div>
     )
