@@ -4,24 +4,28 @@ import { useState } from "react";
 import BatchModal from "./components/BatchModal";
 import { formatDate } from "./date";
 
+type Permissions = {
+    recordObservation: boolean;
+    recordFeedback: boolean;
+    programManager: boolean;
+}
+
 type Batch = {
     id: number;
     name: string;
     startDate: string;
     root: boolean;
-    permissions: string[];
+    permissions: Permissions;
 }
 
-const getPermissionBadges = (permissions: string[]) => {
+const getPermissionBadges = (permissions: Permissions) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const badgeMap: any = {
-        recordObservation: { text: 'Observe', color: 'badge-blue' },
-        recordFeedback: { text: 'Feedback', color: 'badge-green' },
-        deliverFeedback: { text: 'Deliver', color: 'badge-purple' },
-        programManager: { text: 'PM', color: 'badge-red' }
-    };
+    const badges = [];
+    if (permissions.recordObservation) badges.push({ text: 'Observe', color: 'badge-blue' });
+    if (permissions.recordFeedback) badges.push({ text: 'Feedback', color: 'badge-green' });
+    if (permissions.recordFeedback) badges.push({ text: 'PM', color: 'badge-red' });
 
-    return permissions.map(perm => badgeMap[perm]).filter(Boolean);
+    return badges;
 };
 
 const BatchCard = (props: { batch: Batch }) => {
