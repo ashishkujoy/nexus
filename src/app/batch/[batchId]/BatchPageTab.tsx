@@ -34,12 +34,11 @@ const TabNav = (props: TabNavProps) => {
 }
 
 const InternCard = (props: { name: string; colorCode?: string; imgUrl: string; }) => {
-    const initials = props.name.split(" ").map(word => word[0]).join("").toUpperCase();
     const gotoInternProfile = () => window.location.href = window.location.pathname + `/intern/${props.name}`;
 
     return (
         <div className="intern-card" onClick={gotoInternProfile}>
-            <Image src={props.imgUrl} width={140} height={130} alt={""} />
+            <Image src={props.imgUrl} width={140} height={130} alt={""} style={{ objectFit: "cover" }} />
             <div className={`intern-footer ${props.colorCode || "no-color"}`}>{props.name}</div>
         </div>
     )
