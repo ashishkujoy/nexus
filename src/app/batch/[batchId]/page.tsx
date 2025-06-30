@@ -200,7 +200,7 @@ type Batch = {
     permissions: Permissions;
 }
 
-const MainContent = (props: { batch: Batch, mentorId: number }) => {
+const MainContent = (props: { batch: Batch, mentorId: number; root: boolean }) => {
     const internsPromise = fetchInterns(props.batch.id);
 
     return (
@@ -209,6 +209,7 @@ const MainContent = (props: { batch: Batch, mentorId: number }) => {
                 title={props.batch.name}
                 startDate={props.batch.startDate}
                 batchId={props.batch.id}
+                root={props.root}
             />
             <ContentGrid batch={props.batch} interns={internsPromise} mentorId={props.mentorId} />
         </main>
@@ -225,7 +226,7 @@ const BatchPage = async ({ params }: { params: Promise<{ batchId: number }> }) =
             <div className="page-container">
                 <div className="main-content">
                     <AppHeader />
-                    <MainContent batch={batch} mentorId={session?.user.id || 0} />
+                    <MainContent batch={batch} mentorId={session?.user.id || 0} root={session?.user.isRoot || false}/>
                 </div>
             </div>
         </div>

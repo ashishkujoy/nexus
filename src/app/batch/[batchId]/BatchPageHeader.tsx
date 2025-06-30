@@ -6,6 +6,7 @@ type PageHeaderProps = {
     title: string;
     startDate: Date;
     batchId: number;
+    root: boolean;
 }
 
 const formatedDate = (date: Date) => {
@@ -30,9 +31,11 @@ const BatchPageHeader = (props: PageHeaderProps) => {
                         <span className="batch-status">Active</span>
                     </div>
                 </div>
-                <div className="header-actions">
-                    <button className="btn btn-primary" onClick={toggleModal}>+ Add Intern</button>
-                </div>
+                {
+                    props.root && <div className="header-actions">
+                        <button className="btn btn-primary" onClick={toggleModal}>+ Add Intern</button>
+                    </div>
+                }
             </div>
             {showModal && <AddInternsModal
                 batchId={props.batchId}
