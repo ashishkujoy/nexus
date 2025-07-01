@@ -91,11 +91,12 @@ const DeliveryModal = (props: DeliveryModalProps) => {
 const FeedbackCard = (props: { feedback: Feedback }) => {
     const { feedback } = props;
     const [showDeliveryModal, setShowDeliveryModal] = useState(false);
+    const [showConversation, setShowConversation] = useState(false);
     const toggleDeliveryModal = () => setShowDeliveryModal(!showDeliveryModal);
-    console.log(showDeliveryModal)
+    const toggleShowConversation = () => setShowConversation(!showConversation);
+
     return (
         <div>
-
             <div className={`feedback-card ${feedback.colorCode}-card`}>
                 <div className="feedback-header">
                     <div className="feedback-info">
@@ -111,10 +112,19 @@ const FeedbackCard = (props: { feedback: Feedback }) => {
                     <div className="feedback-date">{formatDate(feedback.date)}</div>
                 </div>
                 <div className="feedback-actions">
-                    <button className="action-btn btn-deliver" onClick={toggleDeliveryModal}>Mark as Delivered</button>
-                    <button className="action-btn btn-secondary">View More</button>
+                    {feedback.delivered && <button className="action-btn btn-view-conversation" onClick={toggleShowConversation}>View Conversation</button>}
+                    {!feedback.delivered && <button className="action-btn btn-deliver" onClick={toggleDeliveryModal}>Mark as Delivered</button>}
+                    <button className="action-btn btn-secondary" onClick={toggleShowConversation}>View More</button>
+                </div>
+                <div className={`conversation-section ${!showConversation && "hidden"}`}>
+                    <div className="conversation-header">
+                        <div className="conversation-title">Feedback Conversation</div>
+                        <small style={{ color: "#6c757d" }}>Delivered on: 30/06/2025</small>
+                    </div>
+                    <div className="conversation-content">Sample conversation</div>
                 </div>
             </div>
+
             {showDeliveryModal && <DeliveryModal feedback={feedback} onClose={toggleDeliveryModal} onDeliver={() => {
                 toggleDeliveryModal();
                 window.location.reload();
