@@ -7,11 +7,10 @@ import { getServerSession } from "next-auth";
 import { ReactNode, Suspense } from "react";
 import { fetchBatch, fetchFeedbacks, fetchInterns, fetchObservations, fetchStats } from "./action";
 import BatchPageHeader from "./BatchPageHeader";
+import BatchClientSection from "./BatchSection";
 import "./page.css";
 import QuickActions from "./QuickActionsSection";
 import { Permissions } from "./types";
-import BatchSection from "@/app/BatchSection";
-import BatchClientSection from "./BatchSection";
 
 
 type ActionsProps = {

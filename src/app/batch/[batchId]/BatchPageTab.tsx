@@ -97,6 +97,7 @@ const getHash = () => window.location.hash.replace("#", "").toLocaleLowerCase();
 const BatchPageTab = (props: { interns: Intern[]; observations: Observation[]; feedbacks: Feedback[] }) => {
     const [activeTab, setActiveTab] = useState("Interns");
     const tabs = ["Interns", "Observations", "Feedbacks"];
+    
 
     useEffect(() => {
         const hash = getHash();
@@ -107,7 +108,7 @@ const BatchPageTab = (props: { interns: Intern[]; observations: Observation[]; f
                 default: return setActiveTab("Interns");
             }
         }
-    }, [(window || {}).location]);
+    }, [window.location, activeTab]);
 
     return (
         <div>
