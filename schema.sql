@@ -65,9 +65,19 @@ CREATE TABLE IF NOT EXISTS feedback (
     color_code VARCHAR(10)
 );
 
+CREATE TABLE IF NOT EXISTS feedback_conversation (
+  id SERIAL PRIMARY KEY,
+  feedback_id INT NOT NULL,
+  FOREIGN KEY (feedback_id) REFERENCES feedback(id),
+  mentor_id INT NOT NULL,
+  FOREIGN KEY (mentor_id) REFERENCES mentors(id),
+  content TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+
 -- NEXT AUTH
 
-CREATE TABLE verification_token
+CREATE TABLE IF NOT EXISTS verification_token
 (
   identifier TEXT NOT NULL,
   expires TIMESTAMPTZ NOT NULL,
@@ -76,7 +86,7 @@ CREATE TABLE verification_token
   PRIMARY KEY (identifier, token)
 );
  
-CREATE TABLE accounts
+CREATE TABLE IF NOT EXISTS accounts
 (
   id SERIAL,
   "userId" INTEGER NOT NULL,
@@ -94,7 +104,7 @@ CREATE TABLE accounts
   PRIMARY KEY (id)
 );
  
-CREATE TABLE sessions
+CREATE TABLE IF NOT EXISTS sessions
 (
   id SERIAL,
   "userId" INTEGER NOT NULL,
@@ -104,7 +114,7 @@ CREATE TABLE sessions
   PRIMARY KEY (id)
 );
  
-CREATE TABLE users
+CREATE TABLE IF NOT EXISTS users
 (
   id SERIAL,
   name VARCHAR(255),

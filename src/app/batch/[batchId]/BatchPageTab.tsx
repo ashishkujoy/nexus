@@ -3,7 +3,7 @@
 import Feedbacks from "@/app/components/Feedbacks";
 import Observations from "@/app/components/Observations";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./batchPageTab.css";
 import { Intern } from "./page";
 import { Feedback, Observation } from "./types";
@@ -92,9 +92,22 @@ const FeedbacksTab = (props: FeedbacksTabProps) => {
     )
 }
 
+const getHash = () => window.location.hash.replace("#", "").toLocaleLowerCase();
+
 const BatchPageTab = (props: { interns: Intern[]; observations: Observation[]; feedbacks: Feedback[] }) => {
     const [activeTab, setActiveTab] = useState("Interns");
     const tabs = ["Interns", "Observations", "Feedbacks"];
+
+    useEffect(() => {
+        const hash = getHash();
+        if (activeTab.toLocaleLowerCase() !== hash) {
+            switch (hash) {
+                case "observations": return setActiveTab("Observations");
+                case "feedbacks": return setActiveTab("Feedbacks");
+                default: return setActiveTab("Interns");
+            }
+        }
+    }, [(window || {}).location]);
 
     return (
         <div>

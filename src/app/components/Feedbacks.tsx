@@ -1,45 +1,124 @@
 "use client";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { Feedback } from "../batch/[batchId]/types";
 import { formatDate } from "../date";
 
-import "./observations.css"; // Reusing the same CSS for styling
-import { ChevronUpIcon, ChevronDownIcon, TriangleAlertIcon } from "lucide-react";
+import ErrorOverlay from "./ErrorOverlay";
+import "./feedbacks.css";
+import LoaderOverlay from "./LoaderOverlay";
+import SuccessOverlay from "./SuccessOverlay";
 
-const ColorBadge = (props: { colorCode: string }) => {
+type DeliveryModalProps = {
+    feedback: Feedback;
+    onClose: () => void;
+    onDeliver: () => void;
+}
+
+const DeliveryModal = (props: DeliveryModalProps) => {
+    const [loadingMsg, setLoadingMsg] = useState<string>("");
+    const [successMsg, setSuccessMsg] = useState<string>("");
+    const [errorMsg, setErrorMsg] = useState<string>("");
+
+    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        const conversationText = formData.get("conversation") as string;
+        if (loadingMsg || successMsg || errorMsg) {
+            return;
+        }
+        setLoadingMsg("Marking feedback as delivered...");
+        fetch("/api/batch", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                type: "DeliverFeedback",
+                feedbackId: props.feedback.id,
+                conversation: conversationText,
+            }),
+        })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json()
+                        .then(({ error }) => setErrorMsg(error || "Failed to mark feedback as delivered. Please try again."));
+                }
+                setSuccessMsg("Feedback marked as delivered successfully.");
+            })
+            .catch(() => setErrorMsg("An error occurred while marking feedback as delivered. Please try again."))
+            .finally(() => setLoadingMsg(""));
+    }
+
     return (
-        <div className={`color-badge ${props.colorCode}`}></div>
+        <div id="deliveryModal" className="modal active">
+            <div className="modal-content">
+                <div className="modal-header">
+                    <div className="modal-title">Record Feedback Delivery</div>
+                    <button className="close-btn" onClick={props.onClose}>&times;</button>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", marginBottom: "10px", gap: "10px" }}>
+                    {props.feedback.colorCode && <div className="form-group" style={{ opacity: 0.6, display: "flex", alignItems: "center", gap: "10px" }}>
+                        <label className="form-label" style={{ minWidth: "100px" }}>Color Code</label>
+                        <input className="feedback-input" id="colorCode" defaultValue={props.feedback.colorCode} readOnly />
+                    </div>}
+                    {props.feedback.notice && <div className="form-group" style={{ opacity: 0.6, display: "flex", alignItems: "center", gap: "10px" }}>
+                        <label className="form-label">Notice</label>
+                        <input type="checkbox" checked className="feedback-input" id="notice" readOnly />
+                    </div>}
+                </div>
+                <div className="form-group" style={{ opacity: 0.6 }}>
+                    <label className="form-label">Feedback</label>
+                    <input className="feedback-input" id="feedbackText" defaultValue={props.feedback.content} readOnly />
+                </div>
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label className="form-label">Conversation Record:</label>
+                        <textarea className="conversation-input" id="conversationText" placeholder="" name="conversation" required></textarea>
+                    </div>
+                    <div className="feedback-actions">
+                        <button className="action-btn btn-deliver" type="submit">Save & Mark as Delivered</button>
+                        <button className="action-btn btn-secondary" onClick={props.onClose}>Cancel</button>
+                    </div>
+                </form>
+            </div>
+            {loadingMsg && <LoaderOverlay title="Hold On" message={loadingMsg} />}
+            {successMsg && <SuccessOverlay title="Success" message={successMsg} onClose={props.onDeliver} />}
+            {errorMsg && <ErrorOverlay title="Error" message={errorMsg} onClose={() => setErrorMsg("")} />}
+        </div>
     )
 }
 
-const FeedbackItem = (props: { feedback: Feedback }) => {
-    const [viewMore, setViewMore] = useState(false);
-    const toggleViewMore = () => setViewMore(!viewMore);
-
-    const { feedback: { internName, mentorName, date, content, notice, colorCode } } = props;
-
+const FeedbackCard = (props: { feedback: Feedback }) => {
+    const { feedback } = props;
+    const [showDeliveryModal, setShowDeliveryModal] = useState(false);
+    const toggleDeliveryModal = () => setShowDeliveryModal(!showDeliveryModal);
+    console.log(showDeliveryModal)
     return (
-        <div className="observation-item">
-            <div className="observation-header" style={{ display: "flex", justifyContent: "space-between" }}>
-                <div className="observation-intern" style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                    <span>{internName}</span>
-                    {colorCode && <ColorBadge colorCode={colorCode} />}
-                    {notice && <TriangleAlertIcon color="red" size={18} />}
+        <div>
+
+            <div className={`feedback-card ${feedback.colorCode}-card`}>
+                <div className="feedback-header">
+                    <div className="feedback-info">
+                        <div className="feedback-name">{feedback.internName}</div>
+                        <div className="feedback-content">{feedback.content}</div>
+                    </div>
+                    <div className={`feedback-status status-${feedback.delivered ? "delivered" : "pending"}`}>
+                        {feedback.delivered ? "Delivered" : "Pending"}
+                    </div>
                 </div>
-                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                    <span className="observation-type">{mentorName}</span>
-                    <span className="observation-date">{formatDate(date)}</span>
+                <div className="feedback-meta">
+                    <div className="feedback-author">{feedback.mentorName}</div>
+                    <div className="feedback-date">{formatDate(feedback.date)}</div>
+                </div>
+                <div className="feedback-actions">
+                    <button className="action-btn btn-deliver" onClick={toggleDeliveryModal}>Mark as Delivered</button>
+                    <button className="action-btn btn-secondary">View More</button>
                 </div>
             </div>
-            <div className="observation-text">
-                {content}
-            </div>
-            <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <button onClick={toggleViewMore} className="view-more-btn">
-                    {viewMore ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                    <span>{viewMore ? "View Less" : "View More"}</span>
-                </button>
-            </div>
+            {showDeliveryModal && <DeliveryModal feedback={feedback} onClose={toggleDeliveryModal} onDeliver={() => {
+                toggleDeliveryModal();
+                window.location.reload();
+            }} />}
         </div>
     )
 }
@@ -48,7 +127,7 @@ const Feedbacks = (props: { feedbacks: Feedback[] }) => {
     return (
         <div className="observations-list">
             {
-                props.feedbacks.map(feedback => <FeedbackItem
+                props.feedbacks.map(feedback => <FeedbackCard
                     key={feedback.id}
                     feedback={feedback}
                 />)

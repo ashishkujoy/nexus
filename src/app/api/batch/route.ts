@@ -90,16 +90,16 @@ type RecordFeedbackReqBody = {
 }
 
 const updateInternFields = async (
-    sql: NeonQueryFunction<false, false>, 
-    internId: number, 
-    notice?: boolean, 
+    sql: NeonQueryFunction<false, false>,
+    internId: number,
+    notice?: boolean,
     colorCode?: string
 ) => {
     // Only execute if there are fields to update
     if (notice === undefined && colorCode === undefined) {
         return; // No updates needed
     }
-    
+
     // Use CASE statements for conditional updates
     return sql`
         UPDATE interns 
@@ -121,7 +121,7 @@ const recordFeedback = async (body: RecordFeedbackReqBody) => {
     const session = await getServerSession(authOptions);
     const mentorId = session?.user?.id;
     const sql = neon(`${process.env.DATABASE_URL}`);
-    
+
     try {
         // TODO: Add transaction handling for atomicity
         await sql`
@@ -131,13 +131,43 @@ const recordFeedback = async (body: RecordFeedbackReqBody) => {
 
         // Update intern fields efficiently if they are defined
         await updateInternFields(sql, body.internId, body.notice, body.colorCode);
-        
+
         return new Response(JSON.stringify({ message: "Feedback recorded successfully" }), {
             status: 201,
             headers: { "Content-Type": "application/json" }
         });
     } catch (error) {
         console.error("Error recording feedback:", error);
+        return new Response(JSON.stringify({ error: `${error}` }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" }
+        });
+    }
+}
+
+type DeliveryFeedbackReqBody = {
+    feedbackId: number;
+    conversation: string;
+}
+
+const deliverFeedback = async (body: DeliveryFeedbackReqBody) => {
+    const session = await getServerSession(authOptions);
+    const mentorId = session?.user?.id;
+
+    const sql = neon(`${process.env.DATABASE_URL}`);
+
+    try {
+        await sql`INSERT INTO feedback_conversation
+            (feedback_id, mentor_id, content)
+            VALUES (${body.feedbackId}, ${mentorId}, ${body.conversation});`
+
+        await sql`UPDATE feedback SET delivered = true WHERE id = ${body.feedbackId};`;
+        return new Response(JSON.stringify({ message: "Feedback delivered successfully" }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" }
+        });
+    } catch (error) {
+        console.error("Error delivering feedback:", error);
         return new Response(JSON.stringify({ error: `${error}` }), {
             status: 500,
             headers: { "Content-Type": "application/json" }
@@ -152,6 +182,7 @@ export const POST = async (req: Request) => {
         case "OnboardInterns": return onboardInterns(body);
         case "RecordObservation": return recordObservation(body);
         case "RecordFeedback": return recordFeedback(body);
+        case "DeliverFeedback": return deliverFeedback(body);
     }
     return createBatch(body);
 }

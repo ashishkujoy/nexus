@@ -7,10 +7,11 @@ import { getServerSession } from "next-auth";
 import { ReactNode, Suspense } from "react";
 import { fetchBatch, fetchFeedbacks, fetchInterns, fetchObservations, fetchStats } from "./action";
 import BatchPageHeader from "./BatchPageHeader";
-import BatchPageTab from "./BatchPageTab";
 import "./page.css";
 import QuickActions from "./QuickActionsSection";
 import { Permissions } from "./types";
+import BatchSection from "@/app/BatchSection";
+import BatchClientSection from "./BatchSection";
 
 
 type ActionsProps = {
@@ -75,7 +76,7 @@ export type Intern = {
     email: string;
 }
 
-const InternsList = async (props: { batchId: number; interns: Promise<Intern[]> }) => {
+const MainSection = async (props: { batchId: number; interns: Promise<Intern[]> }) => {
     const [interns, observations, feedbacks] = await Promise.all([
         props.interns,
         fetchObservations(props.batchId),
@@ -85,7 +86,7 @@ const InternsList = async (props: { batchId: number; interns: Promise<Intern[]> 
     return (
         <div className="card">
             <div className="card-body" style={{ padding: "0", overflowY: "auto" }}>
-                <BatchPageTab interns={interns} observations={observations} feedbacks={feedbacks} />
+                <BatchClientSection interns={interns} observations={observations} feedbacks={feedbacks} />
             </div>
         </div>
     )
@@ -105,7 +106,7 @@ const RightSidebarSection = async (props: { interns: Promise<Intern[]>, batch: B
 const ContentGrid = (props: { batch: Batch; interns: Promise<Intern[]>; mentorId: number; }) => {
     return (
         <div className="content-grid">
-            <InternsList interns={props.interns} batchId={props.batch.id} />
+            <MainSection interns={props.interns} batchId={props.batch.id} />
             <RightSidebarSection interns={props.interns} batch={props.batch} mentorId={props.mentorId} />
         </div>
     )
@@ -226,7 +227,7 @@ const BatchPage = async ({ params }: { params: Promise<{ batchId: number }> }) =
             <div className="page-container">
                 <div className="main-content">
                     <AppHeader />
-                    <MainContent batch={batch} mentorId={session?.user.id || 0} root={session?.user.isRoot || false}/>
+                    <MainContent batch={batch} mentorId={session?.user.id || 0} root={session?.user.isRoot || false} />
                 </div>
             </div>
         </div>
