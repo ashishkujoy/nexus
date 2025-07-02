@@ -97,7 +97,11 @@ const getHash = () => window.location.hash.replace("#", "").toLocaleLowerCase();
 const BatchPageTab = (props: { interns: Intern[]; observations: Observation[]; feedbacks: Feedback[] }) => {
     const [activeTab, setActiveTab] = useState("Interns");
     const tabs = ["Interns", "Observations", "Feedbacks"];
-    
+
+    const onTabChange = (tab: string) => {
+        setActiveTab(tab);
+        window.location.hash = tab.toLocaleLowerCase();
+    }
 
     useEffect(() => {
         const hash = getHash();
@@ -112,7 +116,7 @@ const BatchPageTab = (props: { interns: Intern[]; observations: Observation[]; f
 
     return (
         <div>
-            <TabNav activeTab={activeTab} onTabChange={setActiveTab} tabs={tabs} />
+            <TabNav activeTab={activeTab} onTabChange={onTabChange} tabs={tabs} />
             <InternsTab interns={props.interns} active={activeTab === tabs[0]} />
             <ObservationsTab active={activeTab === tabs[1]} observations={props.observations} />
             <FeedbacksTab active={activeTab === tabs[2]} feedbacks={props.feedbacks} />
