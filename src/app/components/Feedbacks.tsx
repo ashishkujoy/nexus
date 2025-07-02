@@ -1,6 +1,6 @@
 "use client";
-import { FormEvent, useState } from "react";
-import { Feedback } from "../batch/[batchId]/types";
+import { FormEvent, use, useEffect, useState } from "react";
+import { Feedback, type FeedbackConversation } from "../batch/[batchId]/types";
 import { formatDate } from "../date";
 
 import ErrorOverlay from "./ErrorOverlay";
@@ -88,6 +88,45 @@ const DeliveryModal = (props: DeliveryModalProps) => {
     )
 }
 
+const FeedbackConversation = (props: { feedback: Feedback; hidden: boolean }) => {
+    const [conversation, setConversation] = useState<FeedbackConversation>({
+        id: -1,
+        feedbackId: props.feedback.id,
+        deliveredBy: "Loading ...",
+        deliveredAt: new Date(),
+        content: "Loading Conversation ...",
+    });
+
+    useEffect(() => {
+        if (props.hidden || conversation.id !== -1) return;
+        fetch("/api/batch", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                type: "GetFeedbackConversation",
+                feedbackId: props.feedback.id,
+            }),
+        })
+            .then(res => res.json())
+            .then(setConversation);
+
+    }, [props.feedback.id, props.hidden, conversation]);
+
+    console.log("Conversation....", conversation);
+
+    return (
+        <div className={`conversation-section ${props.hidden && "hidden"}`}>
+            <div className="conversation-header">
+                <div className="conversation-title">Feedback Conversation</div>
+                <small style={{ color: "#6c757d" }}>Delivered on: {formatDate(new Date(Date.parse(conversation!.deliveredAt)) || new Date())}</small>
+            </div>
+            <div className="conversation-content">{conversation!.content}</div>
+        </div>
+    )
+}
+
 const FeedbackCard = (props: { feedback: Feedback }) => {
     const { feedback } = props;
     const [showDeliveryModal, setShowDeliveryModal] = useState(false);
@@ -116,13 +155,7 @@ const FeedbackCard = (props: { feedback: Feedback }) => {
                     {!feedback.delivered && <button className="action-btn btn-deliver" onClick={toggleDeliveryModal}>Mark as Delivered</button>}
                     <button className="action-btn btn-secondary" onClick={toggleShowConversation}>View More</button>
                 </div>
-                <div className={`conversation-section ${!showConversation && "hidden"}`}>
-                    <div className="conversation-header">
-                        <div className="conversation-title">Feedback Conversation</div>
-                        <small style={{ color: "#6c757d" }}>Delivered on: 30/06/2025</small>
-                    </div>
-                    <div className="conversation-content">Sample conversation</div>
-                </div>
+                <FeedbackConversation feedback={feedback} hidden={!showConversation} />
             </div>
 
             {showDeliveryModal && <DeliveryModal feedback={feedback} onClose={toggleDeliveryModal} onDeliver={() => {

@@ -175,6 +175,42 @@ const deliverFeedback = async (body: DeliveryFeedbackReqBody) => {
     }
 }
 
+const getFeedbackConversation = async (body: { feedbackId: number }) => {
+    const sql = neon(`${process.env.DATABASE_URL}`);
+    try {
+        const rows = await sql`
+        SELECT fc.id, fc.content, fc.created_at as "createdAt", m.username as "mentorName"
+        FROM feedback_conversation fc
+        JOIN mentors m ON fc.mentor_id = m.id
+        WHERE feedback_id = ${body.feedbackId} 
+        LIMIT 1;`;
+        if (rows.length === 0) {
+            return new Response(JSON.stringify({ error: "No conversation found for this feedback" }), {
+                status: 404,
+                headers: { "Content-Type": "application/json" }
+            });
+        }
+        const conversation = {
+            id: rows[0].id as number,
+            feedbackId: body.feedbackId as number,
+            deliveredBy: rows[0].mentorName as string,
+            deliveredAt: new Date(rows[0].createdAt),
+            content: rows[0].content as string,
+        }
+
+        return new Response(JSON.stringify(conversation), {
+            status: 200,
+            headers: { "Content-Type": "application/json" }
+        });
+    } catch (error) {
+        console.error("Error fetching feedback conversation:", error);
+        return new Response(JSON.stringify({ error: `${error}` }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" }
+        });
+    }
+}
+
 export const POST = async (req: Request) => {
     const body = await req.json();
     switch (body.type) {
@@ -183,6 +219,7 @@ export const POST = async (req: Request) => {
         case "RecordObservation": return recordObservation(body);
         case "RecordFeedback": return recordFeedback(body);
         case "DeliverFeedback": return deliverFeedback(body);
+        case "GetFeedbackConversation": return getFeedbackConversation(body);
     }
     return createBatch(body);
 }

@@ -23,3 +23,11 @@ export type Permissions = {
     recordFeedback: boolean;
     programManager: boolean;
 }
+
+export type FeedbackConversation = {
+    id: number;
+    feedbackId: number;
+    deliveredBy: string;
+    deliveredAt: Date;
+    content: string;
+}
