@@ -114,8 +114,6 @@ const FeedbackConversation = (props: { feedback: Feedback; hidden: boolean }) =>
 
     }, [props.feedback.id, props.hidden, conversation]);
 
-    console.log("Conversation....", conversation);
-
     return (
         <div className={`conversation-section ${props.hidden && "hidden"}`}>
             <div className="conversation-header">

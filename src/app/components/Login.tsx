@@ -9,15 +9,14 @@ const Login = () => {
             <div className="login-container">
                 <div className="login-logo-section">
                     <div className="login-logo">
-                        <div className="login-logo-icon">🎓</div>
-                        <div className="login-logo-text">Classroom Campanion</div>
+                        <div className="login-logo-text">Nexus</div>
                     </div>
-                    <div className="login-logo-subtitle">Learning Management System</div>
+                    <div className="login-logo-subtitle">Feedback Management System</div>
                 </div>
 
                 <div className="login-welcome-text">
                     <h1>Welcome Back</h1>
-                    <p>Sign in to access the classroom campanion</p>
+                    <p>Sign in to access the nexus</p>
                 </div>
 
                 <button className="google-login-btn" onClick={() => signIn("google")}>
