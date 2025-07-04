@@ -112,7 +112,7 @@ const BatchPageTab = (props: { interns: Intern[]; observations: Observation[]; f
                 default: return setActiveTab("Interns");
             }
         }
-    }, [window.location, activeTab]);
+    }, [activeTab]);
 
     return (
         <div>

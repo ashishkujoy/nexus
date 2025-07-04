@@ -1,5 +1,5 @@
 "use client";
-import { FormEvent, use, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Feedback, type FeedbackConversation } from "../batch/[batchId]/types";
 import { formatDate } from "../date";
 
@@ -110,7 +110,7 @@ const FeedbackConversation = (props: { feedback: Feedback; hidden: boolean }) =>
             }),
         })
             .then(res => res.json())
-            .then(setConversation);
+            .then(conv => setConversation({...conv, date: new Date(Date.parse(conv.date as string))}));
 
     }, [props.feedback.id, props.hidden, conversation]);
 
@@ -120,7 +120,7 @@ const FeedbackConversation = (props: { feedback: Feedback; hidden: boolean }) =>
         <div className={`conversation-section ${props.hidden && "hidden"}`}>
             <div className="conversation-header">
                 <div className="conversation-title">Feedback Conversation</div>
-                <small style={{ color: "#6c757d" }}>Delivered on: {formatDate(new Date(Date.parse(conversation!.deliveredAt)) || new Date())}</small>
+                <small style={{ color: "#6c757d" }}>Delivered on: {formatDate(conversation!.deliveredAt)}</small>
             </div>
             <div className="conversation-content">{conversation!.content}</div>
         </div>
