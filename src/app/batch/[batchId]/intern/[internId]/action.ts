@@ -25,7 +25,7 @@ export const fetchFeedbacks = async (internId: number) => {
         FROM feedbacks f
         JOIN mentors m ON f.mentor_id = m.id
         WHERE intern_id = ${internId}
-        ORDER BY created_at DESC
+        ORDER BY f.created_at DESC
     `;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -51,7 +51,7 @@ export const fetchObservations = async (internId: number) => {
         FROM observations o
         JOIN mentors m ON o.mentor_id = m.id
         WHERE intern_id = ${internId}
-        ORDER BY created_at DESC
+        ORDER BY o.created_at DESC
     `;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
