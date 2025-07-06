@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS observations (
     FOREIGN KEY (intern_id) REFERENCES interns(id),
     batch_id INT NOT NULL,
     FOREIGN KEY (batch_id) REFERENCES batches(id),
-    date TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL,
     content TEXT NOT NULL,
     watchout BOOLEAN DEFAULT FALSE
 );

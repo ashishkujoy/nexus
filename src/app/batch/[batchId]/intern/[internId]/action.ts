@@ -48,11 +48,11 @@ export const fetchObservations = async (internId: number) => {
     const sql = neon(`${process.env.DATABASE_URL}`);
 
     const rows = await sql`
-        SELECT o.id, o.content, o.date, o.mentor_id as "mentorId", m.username as "mentorName", o.watchout
+        SELECT o.id, o.content, o.created_at as "date", o.mentor_id as "mentorId", m.username as "mentorName", o.watchout
         FROM observations o
         JOIN mentors m ON o.mentor_id = m.id
         WHERE intern_id = ${internId}
-        ORDER BY date DESC
+        ORDER BY created_at DESC
     `;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

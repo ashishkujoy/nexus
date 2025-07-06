@@ -110,7 +110,7 @@ export const countInternsWithoutRecentObservations = async (
             WHERE o.intern_id = i.id 
             AND o.mentor_id = ${mentorId}
             AND o.batch_id = ${batchId}
-            AND o.date >= CURRENT_DATE - INTERVAL '1 day' * ${days}
+            AND o.created_at >= CURRENT_DATE - INTERVAL '1 day' * ${days}
         )
     `;
 
@@ -121,12 +121,12 @@ export const fetchObservations = async (batchId: number): Promise<Observation[]>
     const sql = neon(`${process.env.DATABASE_URL}`);
 
     const rows = await sql`
-        SELECT o.id, i.name as "internName", m.username as "mentorName", o.date, o.content, o.watchout
+        SELECT o.id, i.name as "internName", m.username as "mentorName", o.created_at as "date", o.content, o.watchout
         FROM observations o
         JOIN interns i ON o.intern_id = i.id
         JOIN mentors m ON o.mentor_id = m.id
-        WHERE o.batch_id = ${batchId} AND o.date >= CURRENT_DATE - INTERVAL '1 day' * 30
-        ORDER BY o.date DESC
+        WHERE o.batch_id = ${batchId} AND o.created_at >= CURRENT_DATE - INTERVAL '1 day' * 30
+        ORDER BY o.created_at DESC
     `;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
