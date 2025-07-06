@@ -28,14 +28,14 @@ const createBatch = async (body: NewBatchReqBody) => {
 
 type OnboardInternsReqBody = {
     batchId: number;
-    interns: { name: string; email: string }[];
+    interns: { name: string; email: string; img_url: string }[];
 }
 
 const onboardInterns = async (body: OnboardInternsReqBody) => {
     const sql = neon(`${process.env.DATABASE_URL}`);
     try {
         for (const intern of body.interns) {
-            await sql`INSERT INTO interns (batch_id, name, email) VALUES (${body.batchId}, ${intern.name}, ${intern.email});`;
+            await sql`INSERT INTO interns (batch_id, name, email, img_url) VALUES (${body.batchId}, ${intern.name}, ${intern.email}, ${intern.img_url});`;
         }
         return new Response(JSON.stringify({ message: "Interns onboarded successfully" }), {
             status: 201,

@@ -13,10 +13,11 @@ type Props = {
 
 const parseInternsCSV = (content: string) => {
     return content.trim().split("\n").map(line => {
-        const [name, email] = line.split(",");
+        const [name, email, img_url] = line.split(",");
         return {
             name: name.replaceAll("\"", "").trim(),
             email: email.replaceAll("\"", "").trim(),
+            img_url: (img_url || "").replaceAll("\"", "").trim(),
         };
     });
 }
@@ -72,7 +73,7 @@ const AddInternsModal = (props: Props) => {
                     <div className="form-group">
                         <label>Upload CSV File</label>
                         <input type="file" accept=".csv" name="file" required />
-                        <div className="help-text">Choose a csv file of format: name,email</div>
+                        <div className="help-text">Choose a csv file of format: name,email,img_url</div>
                     </div>
                     <div style={{ display: "flex", gap: "10px", textAlign: "right", marginTop: "20px", justifyContent: "flex-end" }}>
                         <button type="button" className="btn btn-secondary" onClick={props.onClose}>Cancel</button>
