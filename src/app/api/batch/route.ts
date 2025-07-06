@@ -65,7 +65,7 @@ const recordObservation = async (body: RecordObservationReqBody) => {
     try {
         await sql`
         INSERT INTO observations 
-        (mentor_id, intern_id, batch_id, date, watchout, content) 
+        (mentor_id, intern_id, batch_id, created_at, watchout, content) 
         VALUES (${mentorId}, ${body.internId}, ${body.batchId}, ${body.date}, ${body.watchOut}, ${body.content});`;
         return new Response(JSON.stringify({ message: "Observation recorded successfully" }), {
             status: 201,
@@ -117,7 +117,6 @@ const updateInternFields = async (
 }
 
 const recordFeedback = async (body: RecordFeedbackReqBody) => {
-    console.log("Recording feedback:", body);
     const session = await getServerSession(authOptions);
     const mentorId = session?.user?.id;
     const sql = neon(`${process.env.DATABASE_URL}`);
@@ -125,8 +124,8 @@ const recordFeedback = async (body: RecordFeedbackReqBody) => {
     try {
         // TODO: Add transaction handling for atomicity
         await sql`
-        INSERT INTO feedback 
-        (mentor_id, intern_id, batch_id, date, notice, content, color_code) 
+        INSERT INTO feedbacks
+        (mentor_id, intern_id, batch_id, created_at, notice, content, color_code) 
         VALUES (${mentorId}, ${body.internId}, ${body.batchId}, ${body.date}, ${body.notice}, ${body.content}, ${body.colorCode});`;
 
         // Update intern fields efficiently if they are defined
@@ -180,7 +179,7 @@ const getFeedbackConversation = async (body: { feedbackId: number }) => {
     try {
         const rows = await sql`
         SELECT fc.id, fc.content, fc.created_at as "createdAt", m.username as "mentorName"
-        FROM feedback_conversation fc
+        FROM feedback_conversations fc
         JOIN mentors m ON fc.mentor_id = m.id
         WHERE feedback_id = ${body.feedbackId} 
         LIMIT 1;`;

@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS observations (
     watchout BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE IF NOT EXISTS feedback (
+CREATE TABLE IF NOT EXISTS feedbacks (
     id SERIAL PRIMARY KEY,
     mentor_id INT NOT NULL,
     FOREIGN KEY (mentor_id) REFERENCES mentors(id),
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS feedback (
     FOREIGN KEY (intern_id) REFERENCES interns(id),
     batch_id INT NOT NULL,
     FOREIGN KEY (batch_id) REFERENCES batches(id),
-    date TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL,
     content TEXT NOT NULL,
     delivered BOOLEAN DEFAULT FALSE,
     delivered_at TIMESTAMP,
@@ -65,10 +65,10 @@ CREATE TABLE IF NOT EXISTS feedback (
     color_code VARCHAR(10)
 );
 
-CREATE TABLE IF NOT EXISTS feedback_conversation (
+CREATE TABLE IF NOT EXISTS feedback_conversations (
   id SERIAL PRIMARY KEY,
   feedback_id INT NOT NULL,
-  FOREIGN KEY (feedback_id) REFERENCES feedback(id),
+  FOREIGN KEY (feedback_id) REFERENCES feedbacks(id),
   mentor_id INT NOT NULL,
   FOREIGN KEY (mentor_id) REFERENCES mentors(id),
   content TEXT NOT NULL,

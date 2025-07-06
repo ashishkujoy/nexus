@@ -18,15 +18,14 @@ export const fetchPermissions = async (mentorId: number, batchId: number, root: 
 }
 
 export const fetchFeedbacks = async (internId: number) => {
-    console.log("Fetching feedbacks for internId:", internId);
     const sql = neon(`${process.env.DATABASE_URL}`);
 
     const rows = await sql`
-        SELECT f.id, f.content, f.date, f.mentor_id as "mentorId", m.username as "mentorName", f.delivered, f.delivered_at, f.notice, f.color_code as "colorCode"
-        FROM feedback f
+        SELECT f.id, f.content, f.created_at as date, f.mentor_id as "mentorId", m.username as "mentorName", f.delivered, f.delivered_at, f.notice, f.color_code as "colorCode"
+        FROM feedbacks f
         JOIN mentors m ON f.mentor_id = m.id
         WHERE intern_id = ${internId}
-        ORDER BY date DESC
+        ORDER BY created_at DESC
     `;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

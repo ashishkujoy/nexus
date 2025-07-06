@@ -85,7 +85,7 @@ const pendingFeedbacks = async (batchId: number) => {
 
     const rows = await sql`
         SELECT COUNT(*) as count
-        FROM feedback
+        FROM feedbacks
         WHERE batch_id = ${batchId}
         AND delivered = false
     `;
@@ -144,12 +144,12 @@ export const fetchFeedbacks = async (batchId: number): Promise<Feedback[]> => {
     const sql = neon(`${process.env.DATABASE_URL}`);
 
     const rows = await sql`
-        SELECT f.id, i.name as "internName", m.username as "mentorName", f.date, f.content, f.notice, f.delivered, f.color_code as "colorCode"
-        FROM feedback f
+        SELECT f.id, i.name as "internName", m.username as "mentorName", f.created_at as date, f.content, f.notice, f.delivered, f.color_code as "colorCode"
+        FROM feedbacks f
         JOIN interns i ON f.intern_id = i.id
         JOIN mentors m ON f.mentor_id = m.id
-        WHERE f.batch_id = ${batchId} AND f.date >= CURRENT_DATE - INTERVAL '1 day' * 30
-        ORDER BY f.date DESC
+        WHERE f.batch_id = ${batchId} AND f.created_at >= CURRENT_DATE - INTERVAL '1 day' * 30
+        ORDER BY f.created_at DESC
     `;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
