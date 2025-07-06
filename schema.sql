@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS feedback_conversations (
   FOREIGN KEY (mentor_id) REFERENCES mentors(id),
   content TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
+);
 
 -- NEXT AUTH
 
@@ -124,4 +124,26 @@ CREATE TABLE IF NOT EXISTS users
  
   PRIMARY KEY (id)
 );
- 
+
+-- INDEXES FOR PERFORMANCE OPTIMIZATION
+-- Critical indexes for batch activity queries
+CREATE INDEX IF NOT EXISTS idx_observations_batch_created_at ON observations(batch_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_feedbacks_batch_created_at ON feedbacks(batch_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_feedbacks_batch_delivered_at ON feedbacks(batch_id, delivered_at DESC) WHERE delivered_at IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_interns_batch_created_at ON interns(batch_id, created_at DESC) WHERE notice = TRUE;
+
+-- Composite indexes for common queries
+CREATE INDEX IF NOT EXISTS idx_observations_intern_batch ON observations(intern_id, batch_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_feedbacks_intern_batch ON feedbacks(intern_id, batch_id, created_at DESC);
+
+-- Additional performance indexes
+CREATE INDEX IF NOT EXISTS idx_feedbacks_delivered ON feedbacks(delivered, delivered_at) WHERE delivered = TRUE;
+CREATE INDEX IF NOT EXISTS idx_interns_notice ON interns(notice, created_at) WHERE notice = TRUE;
+
+-- Indexes for mentorship assignments
+CREATE INDEX IF NOT EXISTS idx_mentorship_assignments_batch ON mentorship_assignments(batch_id);
+CREATE INDEX IF NOT EXISTS idx_mentorship_assignments_mentor ON mentorship_assignments(mentor_id);
+
+-- Indexes for feedback conversations
+CREATE INDEX IF NOT EXISTS idx_feedback_conversations_feedback ON feedback_conversations(feedback_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_feedback_conversations_mentor ON feedback_conversations(mentor_id, created_at DESC);
