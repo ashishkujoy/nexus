@@ -171,7 +171,7 @@ const BatchPageTab = (props: { interns: Intern[]; observations: Observation[]; f
         <div>
             <TabNav activeTab={activeTab} onTabChange={onTabChange} tabs={tabs} />
             <div>
-                <FilterSection filter={filter} setFilter={(filter) => setFilter(filter)} />
+                <FilterSection filter={filter} setFilter={(filter) => setFilter(filter)} activeTab={activeTab}/>
                 <InternsTab interns={interns} active={activeTab === tabs[0]} />
                 <ObservationsTab active={activeTab === tabs[1]} observations={observations} />
                 <FeedbacksTab active={activeTab === tabs[2]} feedbacks={feedbacks} />
