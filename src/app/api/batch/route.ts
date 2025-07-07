@@ -156,11 +156,11 @@ const deliverFeedback = async (body: DeliveryFeedbackReqBody) => {
     const sql = neon(`${process.env.DATABASE_URL}`);
 
     try {
-        await sql`INSERT INTO feedback_conversation
+        await sql`INSERT INTO feedback_conversations
             (feedback_id, mentor_id, content)
             VALUES (${body.feedbackId}, ${mentorId}, ${body.conversation});`
 
-        await sql`UPDATE feedback SET delivered = true WHERE id = ${body.feedbackId};`;
+        await sql`UPDATE feedbacks SET delivered = true WHERE id = ${body.feedbackId};`;
         return new Response(JSON.stringify({ message: "Feedback delivered successfully" }), {
             status: 200,
             headers: { "Content-Type": "application/json" }
