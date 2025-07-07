@@ -3,10 +3,11 @@
 import Feedbacks from "@/app/components/Feedbacks";
 import Observations from "@/app/components/Observations";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./batchPageTab.css";
 import { Intern } from "./page";
 import { Feedback, Observation } from "./types";
+import FilterSection, { Filter } from "@/app/components/BatchFilterSection";
 
 type TabNavProps = {
     activeTab: string;
@@ -94,9 +95,61 @@ const FeedbacksTab = (props: FeedbacksTabProps) => {
 
 const getHash = () => window.location.hash.replace("#", "").toLocaleLowerCase();
 
+const filterInterns = (interns: Intern[], filter: Filter) => {
+    return interns.filter(intern => {
+        if (filter.name && !intern.name.toLocaleLowerCase().includes(filter.name.toLocaleLowerCase())) {
+            return false;
+        }
+        if (filter.colorCode && intern.colorCode !== filter.colorCode) {
+            return false;
+        }
+        if (filter.notice && !intern.notice) {
+            return false;
+        }
+        return true;
+    });
+}
+
+const filterObservations = (observations: Observation[], filter: Filter) => {
+    return observations.filter(obs => {
+        if (filter.name && !obs.internName.toLocaleLowerCase().includes(filter.name.toLocaleLowerCase())) {
+            return false;
+        }
+        return true;
+    });
+}
+
+const filterFeedbacks = (feedbacks: Feedback[], filter: Filter) => {
+    return feedbacks.filter(feedback => {
+        if (filter.name && !feedback.internName.toLocaleLowerCase().includes(filter.name.toLocaleLowerCase())) {
+            return false;
+        }
+        if (filter.colorCode && feedback.colorCode !== filter.colorCode) {
+            return false;
+        }
+        if (filter.notice && !feedback.notice) {
+            return false;
+        }
+        if (filter.undeliveredFeedback && feedback.delivered) {
+            return false;
+        }
+        return true;
+    });
+}
+
 const BatchPageTab = (props: { interns: Intern[]; observations: Observation[]; feedbacks: Feedback[] }) => {
     const [activeTab, setActiveTab] = useState("Interns");
     const tabs = ["Interns", "Observations", "Feedbacks"];
+    const [filter, setFilter] = useState<Filter>({
+        name: "",
+        colorCode: undefined,
+        notice: undefined,
+        undeliveredFeedback: undefined
+    });
+
+    const interns = useMemo(() => filterInterns(props.interns, filter), [filter, props.interns]);
+    const observations = useMemo(() => filterObservations(props.observations, filter), [filter, props.observations]);
+    const feedbacks = useMemo(() => filterFeedbacks(props.feedbacks, filter), [filter, props.feedbacks]);
 
     const onTabChange = (tab: string) => {
         setActiveTab(tab);
@@ -117,9 +170,12 @@ const BatchPageTab = (props: { interns: Intern[]; observations: Observation[]; f
     return (
         <div>
             <TabNav activeTab={activeTab} onTabChange={onTabChange} tabs={tabs} />
-            <InternsTab interns={props.interns} active={activeTab === tabs[0]} />
-            <ObservationsTab active={activeTab === tabs[1]} observations={props.observations} />
-            <FeedbacksTab active={activeTab === tabs[2]} feedbacks={props.feedbacks} />
+            <div>
+                <FilterSection filter={filter} setFilter={(filter) => setFilter(filter)} />
+                <InternsTab interns={interns} active={activeTab === tabs[0]} />
+                <ObservationsTab active={activeTab === tabs[1]} observations={observations} />
+                <FeedbacksTab active={activeTab === tabs[2]} feedbacks={feedbacks} />
+            </div>
         </div>
     )
 }
