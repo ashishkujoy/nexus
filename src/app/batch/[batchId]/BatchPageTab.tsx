@@ -103,8 +103,8 @@ const filterInterns = (interns: Intern[], filter: Filter) => {
         if (filter.colorCode && intern.colorCode !== filter.colorCode) {
             return false;
         }
-        if (filter.notice && !intern.notice) {
-            return false;
+        if (filter.notice !== undefined) {
+            return filter.notice === intern.notice;
         }
         return true;
     });
@@ -130,10 +130,9 @@ const filterFeedbacks = (feedbacks: Feedback[], filter: Filter) => {
         if (filter.notice && !feedback.notice) {
             return false;
         }
-        if (filter.undeliveredFeedback && feedback.delivered) {
-            return false;
-        }
-        return true;
+        if (filter.feedbacks === "All") return true;
+
+        return filter.feedbacks === "Delivered" ? feedback.delivered : !feedback.delivered;
     });
 }
 
@@ -144,7 +143,7 @@ const BatchPageTab = (props: { interns: Intern[]; observations: Observation[]; f
         name: "",
         colorCode: undefined,
         notice: undefined,
-        undeliveredFeedback: undefined
+        feedbacks: "All"
     });
 
     const interns = useMemo(() => filterInterns(props.interns, filter), [filter, props.interns]);
@@ -171,7 +170,7 @@ const BatchPageTab = (props: { interns: Intern[]; observations: Observation[]; f
         <div>
             <TabNav activeTab={activeTab} onTabChange={onTabChange} tabs={tabs} />
             <div>
-                <FilterSection filter={filter} setFilter={(filter) => setFilter(filter)} activeTab={activeTab}/>
+                <FilterSection filter={filter} setFilter={(filter) => setFilter(filter)} activeTab={activeTab} />
                 <InternsTab interns={interns} active={activeTab === tabs[0]} />
                 <ObservationsTab active={activeTab === tabs[1]} observations={observations} />
                 <FeedbacksTab active={activeTab === tabs[2]} feedbacks={feedbacks} />
