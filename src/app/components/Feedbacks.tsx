@@ -110,7 +110,7 @@ const FeedbackConversation = (props: { feedback: Feedback; hidden: boolean }) =>
             }),
         })
             .then(res => res.json())
-            .then(conv => setConversation({...conv, date: new Date(Date.parse(conv.date as string))}));
+            .then(conv => setConversation({ ...conv, date: new Date(Date.parse(conv.date as string)) }));
 
     }, [props.feedback.id, props.hidden, conversation]);
 
@@ -127,31 +127,36 @@ const FeedbackConversation = (props: { feedback: Feedback; hidden: boolean }) =>
 
 const FeedbackCard = (props: { feedback: Feedback }) => {
     const { feedback } = props;
+    const [collapsed, setCollapsed] = useState(true);
     const [showDeliveryModal, setShowDeliveryModal] = useState(false);
     const [showConversation, setShowConversation] = useState(false);
     const toggleDeliveryModal = () => setShowDeliveryModal(!showDeliveryModal);
     const toggleShowConversation = () => setShowConversation(!showConversation);
+    const toggleCollapsed = () => setCollapsed(!collapsed);
 
     return (
         <div>
             <div className={`feedback-card ${feedback.colorCode}-card`}>
                 <div className="feedback-header">
                     <div className="feedback-info">
-                        <div className="feedback-name">{feedback.internName}</div>
-                        <div className="feedback-content">{feedback.content}</div>
-                    </div>
-                    <div className={`feedback-status status-${feedback.delivered ? "delivered" : "pending"}`}>
-                        {feedback.delivered ? "Delivered" : "Pending"}
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
+                            <div className="feedback-name">{feedback.internName}</div>
+                            <div className={`feedback-status status-${feedback.delivered ? "delivered" : "pending"}`}>
+                                {feedback.delivered ? "Delivered" : "Pending"}
+                            </div>
+                        </div>
+                        <div className="feedback-meta">
+                            <div className="feedback-author">{feedback.mentorName}</div>
+                            <div className="feedback-date">{formatDate(feedback.date)}</div>
+                        </div>
+                        <div className={`feedback-content ${collapsed && "view-less"}`}>{feedback.content}</div>
                     </div>
                 </div>
-                <div className="feedback-meta">
-                    <div className="feedback-author">{feedback.mentorName}</div>
-                    <div className="feedback-date">{formatDate(feedback.date)}</div>
-                </div>
+
                 <div className="feedback-actions">
                     {feedback.delivered && <button className="action-btn btn-view-conversation" onClick={toggleShowConversation}>View Conversation</button>}
                     {!feedback.delivered && <button className="action-btn btn-deliver" onClick={toggleDeliveryModal}>Mark as Delivered</button>}
-                    <button className="action-btn btn-secondary" onClick={toggleShowConversation}>View More</button>
+                    <button className="action-btn btn-secondary" onClick={toggleCollapsed}>{collapsed ? "View More" : "View Less"}</button>
                 </div>
                 <FeedbackConversation feedback={feedback} hidden={!showConversation} />
             </div>
