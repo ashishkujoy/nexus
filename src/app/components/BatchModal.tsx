@@ -40,10 +40,10 @@ const DateSelector = (props: { title: string; name: string; required: boolean })
     )
 }
 
-const ModalFooter = () => {
+const ModalFooter = (props: {onClose: () => void;}) => {
     return (
         <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
-            <button className="cancel-btn">
+            <button className="cancel-btn" onClick={props.onClose}>
                 Cancel
             </button>
             <button className="submit-btn" type="submit">
@@ -107,7 +107,7 @@ const BatchModal = (props: BatchModalProps) => {
                                 </div>
                                 <DateSelector title="Start Date" name="startDate" required={true} />
                                 <DateSelector title="End Date" name="endDate" required={false} />
-                                <ModalFooter />
+                                <ModalFooter onClose={props.onClose}/>
                             </div>
                         </div>
                     </form>

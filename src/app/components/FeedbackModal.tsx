@@ -242,10 +242,10 @@ const ContentSection = (props: ContentSectionProps) => {
     )
 }
 
-const ModalFooter = () => {
+const ModalFooter = (props: { onClose: () => void; }) => {
     return (
         <div className="modal-footer">
-            <button className="cancel-btn">
+            <button className="cancel-btn" onClick={props.onClose}>
                 Cancel
             </button>
             <button className="submit-btn" type="submit">
@@ -370,7 +370,7 @@ const FeedbackModal = (props: FeedbackModalProps) => {
                             />
                         </div>
                     </div>
-                    <ModalFooter />
+                    <ModalFooter onClose={props.onClose} />
                 </form>
             </div>
             {loadingMsg && <LoaderOverlay title="Hold On" message={loadingMsg} />}
