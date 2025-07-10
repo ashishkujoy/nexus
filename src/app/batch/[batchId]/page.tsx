@@ -1,5 +1,3 @@
-import { FeedbackIcon, ObservationIcon } from "@/app/components/Icons";
-
 import AppHeader from "@/app/components/AppHeader";
 import { Skeleton } from "@/app/components/Skeleton";
 import { authOptions } from "@/app/lib/auth";
@@ -12,59 +10,6 @@ import "./page.css";
 import QuickActions from "./QuickActionsSection";
 import { Permissions } from "./types";
 
-
-type ActionsProps = {
-    internName: string;
-    type: string;
-    time: string;
-    icon: ReactNode;
-    background: string;
-    color: string;
-}
-
-const Activity = (props: ActionsProps) => {
-    return (
-        <div className="activity-item">
-            <div className="activity-icon" style={{ background: props.background, color: props.color }}>
-                {props.icon}
-            </div>
-            <div className="activity-content">
-                <div className="activity-text">
-                    <strong>{props.internName}</strong> {props.type}
-                </div>
-                <div className="activity-time">{props.time}</div>
-            </div>
-        </div>
-    )
-}
-
-const RecentActivities = () => {
-    return (
-        <div className="card">
-            <div className="card-header">
-                <h3 className="card-title">Recent Activity</h3>
-            </div>
-            <div className="card-body">
-                <Activity
-                    internName={"James Smith"}
-                    type={"observation recorded"}
-                    time={"2 hour ago"}
-                    icon={<ObservationIcon />}
-                    background={"#e3f2fd"}
-                    color={"#1976d2"}
-                />
-                <Activity
-                    internName={"Avacado Mishra"}
-                    type={"feedback delivered"}
-                    time={"25 min ago"}
-                    icon={<FeedbackIcon />}
-                    background={"#e8f5e8"}
-                    color={"#2e7d32"}
-                />
-            </div>
-        </div>
-    )
-}
 
 export type Intern = {
     id: number;
@@ -97,7 +42,6 @@ const RightSidebarSection = async (props: { interns: Promise<Intern[]>, batch: B
         <div className="sidebar-section">
             <Stats batchId={props.batch.id} mentorId={props.mentorId} />
             <QuickActions interns={interns} batch={props.batch} />
-            <RecentActivities />
         </div>
     )
 }
