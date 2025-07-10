@@ -125,8 +125,8 @@ const FeedbackConversation = (props: { feedback: Feedback; hidden: boolean }) =>
     )
 }
 
-const FeedbackCard = (props: { feedback: Feedback }) => {
-    const { feedback } = props;
+const FeedbackCard = (props: { feedback: Feedback, canDeliver: boolean }) => {
+    const { feedback, canDeliver } = props;
     const [collapsed, setCollapsed] = useState(true);
     const [showDeliveryModal, setShowDeliveryModal] = useState(false);
     const [showConversation, setShowConversation] = useState(false);
@@ -155,7 +155,7 @@ const FeedbackCard = (props: { feedback: Feedback }) => {
 
                 <div className="feedback-actions">
                     {feedback.delivered && <button className="action-btn btn-view-conversation" onClick={toggleShowConversation}>View Conversation</button>}
-                    {!feedback.delivered && <button className="action-btn btn-deliver" onClick={toggleDeliveryModal}>Mark as Delivered</button>}
+                    {canDeliver && !feedback.delivered && <button className="action-btn btn-deliver" onClick={toggleDeliveryModal}>Mark as Delivered</button>}
                     <button className="action-btn btn-secondary" onClick={toggleCollapsed}>{collapsed ? "View More" : "View Less"}</button>
                 </div>
                 <FeedbackConversation feedback={feedback} hidden={!showConversation} />
@@ -169,13 +169,14 @@ const FeedbackCard = (props: { feedback: Feedback }) => {
     )
 }
 
-const Feedbacks = (props: { feedbacks: Feedback[] }) => {
+const Feedbacks = (props: { feedbacks: Feedback[]; canDeliver: boolean }) => {
     return (
         <div className="observations-list">
             {
                 props.feedbacks.map(feedback => <FeedbackCard
                     key={feedback.id}
                     feedback={feedback}
+                    canDeliver={props.canDeliver}
                 />)
             }
         </div>

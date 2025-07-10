@@ -75,14 +75,14 @@ const ObservationSection = (props: { observations: Observation[] }) => {
     )
 }
 
-const FeedbackSection = (props: { feedbacks: Feedback[] }) => {
+const FeedbackSection = (props: { feedbacks: Feedback[]; canDeliver: boolean }) => {
     return (
         <div className="section-card">
             <h2 className="section-title">
                 <FeedbackIcon />
                 Feedback
             </h2>
-            <Feedbacks feedbacks={props.feedbacks} />
+            <Feedbacks feedbacks={props.feedbacks} canDeliver={props.canDeliver} />
         </div>
     )
 }
@@ -115,7 +115,7 @@ const MainContent = (props: MainContentProps) => {
             </div>
             <div className="content-grid">
                 <ObservationSection observations={props.observations} />
-                <FeedbackSection feedbacks={props.feedbacks} />
+                <FeedbackSection feedbacks={props.feedbacks} canDeliver={props.permissions.programManager}/>
             </div>
         </div>
     )

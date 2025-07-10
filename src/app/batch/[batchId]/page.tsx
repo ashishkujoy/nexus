@@ -20,7 +20,7 @@ export type Intern = {
     email: string;
 }
 
-const MainSection = async (props: { batchId: number; interns: Promise<Intern[]> }) => {
+const MainSection = async (props: { batchId: number; interns: Promise<Intern[]>; canDeliver: boolean }) => {
     const [interns, observations, feedbacks] = await Promise.all([
         props.interns,
         fetchObservations(props.batchId),
@@ -30,7 +30,7 @@ const MainSection = async (props: { batchId: number; interns: Promise<Intern[]> 
     return (
         <div className="card">
             <div className="card-body" style={{ padding: "0", overflowY: "auto" }}>
-                <BatchClientSection interns={interns} observations={observations} feedbacks={feedbacks} />
+                <BatchClientSection interns={interns} observations={observations} feedbacks={feedbacks} canDeliver={props.canDeliver} />
             </div>
         </div>
     )
@@ -49,7 +49,7 @@ const RightSidebarSection = async (props: { interns: Promise<Intern[]>, batch: B
 const ContentGrid = (props: { batch: Batch; interns: Promise<Intern[]>; mentorId: number; }) => {
     return (
         <div className="content-grid">
-            <MainSection interns={props.interns} batchId={props.batch.id} />
+            <MainSection interns={props.interns} batchId={props.batch.id} canDeliver={props.batch.permissions.programManager} />
             <RightSidebarSection interns={props.interns} batch={props.batch} mentorId={props.mentorId} />
         </div>
     )

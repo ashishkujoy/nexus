@@ -83,12 +83,13 @@ const ObservationsTab = (props: ObservationsTabProps) => {
 type FeedbacksTabProps = {
     active: boolean;
     feedbacks: Feedback[];
+    canDeliver: boolean;
 }
 
 const FeedbacksTab = (props: FeedbacksTabProps) => {
     return (
         <div id="feedback" className={`tab-content ${props.active && "active"}`}>
-            <Feedbacks feedbacks={props.feedbacks} />
+            <Feedbacks feedbacks={props.feedbacks} canDeliver={props.canDeliver} />
         </div>
     )
 }
@@ -136,7 +137,12 @@ const filterFeedbacks = (feedbacks: Feedback[], filter: Filter) => {
     });
 }
 
-const BatchPageTab = (props: { interns: Intern[]; observations: Observation[]; feedbacks: Feedback[] }) => {
+const BatchPageTab = (props: {
+    interns: Intern[];
+    observations: Observation[];
+    feedbacks: Feedback[];
+    canDeliver: boolean;
+}) => {
     const [activeTab, setActiveTab] = useState("Interns");
     const tabs = ["Interns", "Observations", "Feedbacks"];
     const [filter, setFilter] = useState<Filter>({
@@ -173,7 +179,7 @@ const BatchPageTab = (props: { interns: Intern[]; observations: Observation[]; f
                 <FilterSection filter={filter} setFilter={(filter) => setFilter(filter)} activeTab={activeTab} />
                 <InternsTab interns={interns} active={activeTab === tabs[0]} />
                 <ObservationsTab active={activeTab === tabs[1]} observations={observations} />
-                <FeedbacksTab active={activeTab === tabs[2]} feedbacks={feedbacks} />
+                <FeedbacksTab active={activeTab === tabs[2]} feedbacks={feedbacks} canDeliver={props.canDeliver} />
             </div>
         </div>
     )
