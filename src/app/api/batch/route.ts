@@ -210,12 +210,37 @@ const getFeedbackConversation = async (body: { feedbackId: number }) => {
     }
 }
 
+const recordObservations = async (body: { observations: RecordObservationReqBody[] }) => {
+    const session = await getServerSession(authOptions);
+    const mentorId = session?.user?.id;
+    const sql = neon(`${process.env.DATABASE_URL}`);
+    try {
+        for (const observation of body.observations) {
+            await sql`
+            INSERT INTO observations 
+            (mentor_id, intern_id, batch_id, created_at, watchout, content) 
+            VALUES (${mentorId}, ${observation.internId}, ${observation.batchId}, ${observation.date}, ${observation.watchOut}, ${observation.content});`;
+        }
+        return new Response(JSON.stringify({ message: "Observations recorded successfully" }), {
+            status: 201,
+            headers: { "Content-Type": "application/json" }
+        });
+    } catch (error) {
+        console.error("Error recording observations:", error);
+        return new Response(JSON.stringify({ error: `${error}` }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" }
+        });
+    }
+}
+
 export const POST = async (req: Request) => {
     const body = await req.json();
     switch (body.type) {
         case "CreateBatch": return createBatch(body);
         case "OnboardInterns": return onboardInterns(body);
         case "RecordObservation": return recordObservation(body);
+        case "RecordObservations": return recordObservations(body);
         case "RecordFeedback": return recordFeedback(body);
         case "DeliverFeedback": return deliverFeedback(body);
         case "GetFeedbackConversation": return getFeedbackConversation(body);
