@@ -6,6 +6,7 @@ import "./observationModal.css";
 import LoaderOverlay from './LoaderOverlay';
 import SuccessOverlay from './SuccessOverlay';
 import ErrorOverlay from './ErrorOverlay';
+import MarkdownRenderer from './MarkdownView';
 
 const ModalHeader = (props: { onClose: () => void; }) => {
     return (
@@ -193,15 +194,6 @@ type ContentSectionProps = {
 const ContentSection = (props: ContentSectionProps) => {
     const [isPreview, setIsPreview] = useState(false);
 
-    const markdownToHtml = (markdown: string) => {
-        return markdown
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            .replace(/`(.*?)`/g, '<code class="bg-gray-100 px-1 py-0.5 rounded text-sm">$1</code>')
-            .replace(/\n\n/g, '</p><p class="mb-3">')
-            .replace(/\n/g, '<br>')
-            .replace(/^(.+)$/, '<p class="mb-3">$1</p>');
-    };
     return (
         <div className="form-group">
             <div className="form-header">
@@ -214,14 +206,7 @@ const ContentSection = (props: ContentSectionProps) => {
 
             {isPreview ? (
                 <div className="preview-box">
-                    <div
-                        className="prose"
-                        dangerouslySetInnerHTML={{
-                            __html: props.content
-                                ? markdownToHtml(props.content)
-                                : '<p class="modal-subtitle italic">No content to preview</p>'
-                        }}
-                    />
+                    <MarkdownRenderer content={props.content} />
                 </div>
             ) : (
                 <textarea

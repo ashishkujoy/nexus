@@ -6,6 +6,7 @@ import { formatDate } from "../date";
 import ErrorOverlay from "./ErrorOverlay";
 import "./feedbacks.css";
 import LoaderOverlay from "./LoaderOverlay";
+import MarkdownRenderer from "./MarkdownView";
 import SuccessOverlay from "./SuccessOverlay";
 
 type DeliveryModalProps = {
@@ -120,7 +121,9 @@ const FeedbackConversation = (props: { feedback: Feedback; hidden: boolean }) =>
                 <div className="conversation-title">Feedback Conversation</div>
                 <small style={{ color: "#6c757d" }}>Delivered on: {formatDate(conversation!.deliveredAt)}</small>
             </div>
-            <div className="conversation-content">{conversation!.content}</div>
+            <div className="conversation-content">
+                <MarkdownRenderer content={conversation.content} />
+            </div>
         </div>
     )
 }
@@ -149,7 +152,9 @@ const FeedbackCard = (props: { feedback: Feedback, canDeliver: boolean }) => {
                             <div className="feedback-author">{feedback.mentorName}</div>
                             <div className="feedback-date">{formatDate(feedback.date)}</div>
                         </div>
-                        <div className={`feedback-content ${collapsed && "view-less"}`}>{feedback.content}</div>
+                        <div className={`feedback-content ${collapsed && "view-less"}`}>
+                            <MarkdownRenderer content={feedback.content} />
+                        </div>
                     </div>
                 </div>
 

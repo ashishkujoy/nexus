@@ -5,6 +5,7 @@ import { Observation } from "../batch/[batchId]/types";
 import { formatDate } from "../date";
 
 import "./observations.css";
+import MarkdownRenderer from "./MarkdownView";
 
 const ObservationItem = (props: { observation: Observation }) => {
     const [viewMore, setViewMore] = useState(false);
@@ -16,7 +17,7 @@ const ObservationItem = (props: { observation: Observation }) => {
             <div className="observation-header" style={{ display: "flex", justifyContent: "space-between" }}>
                 <div className="observation-intern" style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                     <span>{internName}</span>
-                    {watchout && <BinocularsIcon color="orange" size={18}/>}
+                    {watchout && <BinocularsIcon color="orange" size={18} />}
                 </div>
                 <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                     <span className="observation-type">{mentorName}</span>
@@ -24,7 +25,8 @@ const ObservationItem = (props: { observation: Observation }) => {
                 </div>
             </div>
             <div className={`observation-text ${!viewMore && "view-less"}`}>
-                {content}
+                <MarkdownRenderer content={content} />
+
             </div>
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
                 <button onClick={toggleViewMore} className="view-more-btn">

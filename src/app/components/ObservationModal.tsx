@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import ErrorOverlay from './ErrorOverlay';
 import LoaderOverlay from './LoaderOverlay';
+import MarkdownRenderer from './MarkdownView';
 import "./observationModal.css";
 import SuccessOverlay from './SuccessOverlay';
 
@@ -155,15 +156,6 @@ type ContentSectionProps = {
 const ContentSection = (props: ContentSectionProps) => {
     const [isPreview, setIsPreview] = useState(false);
 
-    const markdownToHtml = (markdown: string) => {
-        return markdown
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            .replace(/`(.*?)`/g, '<code class="bg-gray-100 px-1 py-0.5 rounded text-sm">$1</code>')
-            .replace(/\n\n/g, '</p><p class="mb-3">')
-            .replace(/\n/g, '<br>')
-            .replace(/^(.+)$/, '<p class="mb-3">$1</p>');
-    };
     return (
         <div className="form-group">
             <div className="form-header">
@@ -176,14 +168,7 @@ const ContentSection = (props: ContentSectionProps) => {
 
             {isPreview ? (
                 <div className="preview-box">
-                    <div
-                        className="prose"
-                        dangerouslySetInnerHTML={{
-                            __html: props.content
-                                ? markdownToHtml(props.content)
-                                : '<p class="modal-subtitle italic">No content to preview</p>'
-                        }}
-                    />
+                    <MarkdownRenderer content={props.content} />
                 </div>
             ) : (
                 <textarea
@@ -196,10 +181,6 @@ const ContentSection = (props: ContentSectionProps) => {
                     required
                 />
             )}
-
-            <p className="preview-note">
-                Supports markdown formatting. Use **bold**, *italic*, and `code` syntax.
-            </p>
         </div>
     )
 }
