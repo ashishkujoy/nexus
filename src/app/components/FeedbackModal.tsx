@@ -238,7 +238,7 @@ const ModalFooter = (props: { onClose: () => void; }) => {
                 Cancel
             </button>
             <button className="submit-btn" type="submit">
-                Submit Observation
+                Submit Feedback
             </button>
         </div>
     )
