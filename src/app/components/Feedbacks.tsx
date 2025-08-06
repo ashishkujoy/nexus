@@ -69,7 +69,8 @@ const DeliveryModal = (props: DeliveryModalProps) => {
                 </div>
                 <div className="form-group" style={{ opacity: 0.6 }}>
                     <label className="form-label">Feedback</label>
-                    <input className="feedback-input" id="feedbackText" defaultValue={props.feedback.content} readOnly />
+                    <MarkdownRenderer content={props.feedback.content} />
+                    <input className="feedback-input" id="feedbackText" defaultValue={props.feedback.content} readOnly hidden/>
                 </div>
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">

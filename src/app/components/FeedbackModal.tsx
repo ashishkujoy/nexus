@@ -193,12 +193,16 @@ type ContentSectionProps = {
 
 const ContentSection = (props: ContentSectionProps) => {
     const [isPreview, setIsPreview] = useState(false);
+    const togglePreview = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        setIsPreview(!isPreview)
+    };
 
     return (
         <div className="form-group">
             <div className="form-header">
-                <label className="label">Observation Content *</label>
-                <button onClick={() => setIsPreview(!isPreview)} className="toggle-preview-btn">
+                <label className="label">Feedback Content *</label>
+                <button onClick={togglePreview} className="toggle-preview-btn">
                     <Eye className="icon-sm" />
                     {isPreview ? 'Edit' : 'Preview'}
                 </button>
