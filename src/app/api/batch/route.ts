@@ -3,51 +3,8 @@ import { sql } from "@/app/lib/db";
 import { NeonQueryFunction } from "@neondatabase/serverless";
 import { getServerSession } from "next-auth/next";
 
-type NewBatchReqBody = {
-    name: string;
-    startDate: string;
-    endDate?: string;
-}
 
-const createBatch = async (body: NewBatchReqBody) => {
-    try {
-        await sql`INSERT INTO batches (name, start_date, end_date) VALUES (${body.name}, ${body.startDate}, ${body.endDate});`
-    } catch (error) {
-        console.error("Error creating batch:", error);
-        return new Response(JSON.stringify({ error: `${error}` }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" }
-        });
-    }
 
-    return new Response(JSON.stringify({ message: "Batch created successfully" }), {
-        status: 201,
-        headers: { "Content-Type": "application/json" }
-    });
-}
-
-type OnboardInternsReqBody = {
-    batchId: number;
-    interns: { name: string; email: string; img_url: string }[];
-}
-
-const onboardInterns = async (body: OnboardInternsReqBody) => {
-    try {
-        for (const intern of body.interns) {
-            await sql`INSERT INTO interns (batch_id, name, email, img_url) VALUES (${body.batchId}, ${intern.name}, ${intern.email}, ${intern.img_url});`;
-        }
-        return new Response(JSON.stringify({ message: "Interns onboarded successfully" }), {
-            status: 201,
-            headers: { "Content-Type": "application/json" }
-        });
-    } catch (error) {
-        console.error("Error onboarding interns:", error);
-        return new Response(JSON.stringify({ error: `${error}` }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" }
-        });
-    }
-}
 
 type RecordObservationReqBody = {
     internId: number;
@@ -230,13 +187,10 @@ const recordObservations = async (body: { observations: RecordObservationReqBody
 export const POST = async (req: Request) => {
     const body = await req.json();
     switch (body.type) {
-        case "CreateBatch": return createBatch(body);
-        case "OnboardInterns": return onboardInterns(body);
         case "RecordObservation": return recordObservation(body);
         case "RecordObservations": return recordObservations(body);
         case "RecordFeedback": return recordFeedback(body);
         case "DeliverFeedback": return deliverFeedback(body);
         case "GetFeedbackConversation": return getFeedbackConversation(body);
     }
-    return createBatch(body);
 }

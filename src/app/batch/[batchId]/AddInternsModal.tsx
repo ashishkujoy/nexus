@@ -38,14 +38,12 @@ const AddInternsModal = (props: Props) => {
         const content = await (formData.get("file") as File).text();
         setLoading(true);
         try {
-            const res = await fetch("/api/batch", {
+            const res = await fetch(`/api/batches/${props.batchId}/interns`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    type: "OnboardInterns",
-                    batchId: props.batchId,
                     interns: parseInternsCSV(content),
                 }),
             });
