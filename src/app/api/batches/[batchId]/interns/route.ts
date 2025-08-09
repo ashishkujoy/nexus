@@ -91,48 +91,4 @@ export async function POST(
     }
 }
 
-// Optional: Add GET method to list interns in a batch
-export async function GET(
-    req: Request,
-    { params }: { params: { batchId: string } }
-) {
-    try {
-        // Verify authentication
-        const session = await getServerSession(authOptions);
-        if (!session?.user?.id) {
-            return new Response(JSON.stringify({ error: "Unauthorized" }), {
-                status: 401,
-                headers: { "Content-Type": "application/json" }
-            });
-        }
 
-        // Validate batchId parameter
-        const batchId = parseInt(params.batchId);
-        if (isNaN(batchId)) {
-            return new Response(JSON.stringify({ error: "Invalid batch ID" }), {
-                status: 400,
-                headers: { "Content-Type": "application/json" }
-            });
-        }
-
-        // Fetch interns for the batch
-        const interns = await sql`
-            SELECT id, name, email, img_url, notice, color_code, terminated, created_at
-            FROM interns 
-            WHERE batch_id = ${batchId}
-            ORDER BY created_at ASC
-        `;
-
-        return new Response(JSON.stringify(interns), {
-            status: 200,
-            headers: { "Content-Type": "application/json" }
-        });
-
-    } catch (error) {
-        console.error("Error fetching interns:", error);
-        return new Response(JSON.stringify({ error: "Failed to fetch interns" }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" }
-        });
-    }
-}
