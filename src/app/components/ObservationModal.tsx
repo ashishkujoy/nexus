@@ -235,22 +235,20 @@ const ObservationModal = (props: ObservationModalProps) => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const reqBody = {
-            batchId: +selectedBatch,
-            internId: +selectedIntern,
-            date,
-            watchOut,
-            content
+            observations: [{
+                internId: +selectedIntern,
+                date,
+                watchOut,
+                content
+            }]
         };
         setLoadingMsg('Submitting observation...');
-        fetch('/api/batch', {
+        fetch(`/api/batches/${selectedBatch}/observations`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                type: 'RecordObservation',
-                ...reqBody
-            })
+            body: JSON.stringify(reqBody)
         })
             .then(async (r) => {
                 if (!r.ok) {
