@@ -1,4 +1,4 @@
-import { neon } from "@neondatabase/serverless";
+import { sql } from "../../../../lib/db";
 import { Permissions } from "../../types";
 
 export const fetchPermissions = async (mentorId: number, batchId: number, root: boolean) => {
@@ -9,7 +9,6 @@ export const fetchPermissions = async (mentorId: number, batchId: number, root: 
             programManager: true,
         };
     }
-    const sql = neon(`${process.env.DATABASE_URL}`);
     const rows = await sql`SELECT permissions FROM mentorship_assignments WHERE mentor_id = ${mentorId} AND batch_id = ${batchId} LIMIT 1`;
     if (rows.length === 0) {
         throw new Error("Permissions not found for the given mentor and batch");
@@ -18,8 +17,6 @@ export const fetchPermissions = async (mentorId: number, batchId: number, root: 
 }
 
 export const fetchFeedbacks = async (internId: number) => {
-    const sql = neon(`${process.env.DATABASE_URL}`);
-
     const rows = await sql`
         SELECT f.id, f.content, f.created_at as date, f.mentor_id as "mentorId", m.username as "mentorName", f.delivered, f.delivered_at, f.notice, f.color_code as "colorCode"
         FROM feedbacks f
@@ -44,8 +41,6 @@ export const fetchFeedbacks = async (internId: number) => {
 }
 
 export const fetchObservations = async (internId: number) => {
-    const sql = neon(`${process.env.DATABASE_URL}`);
-
     const rows = await sql`
         SELECT o.id, o.content, o.created_at as "date", o.mentor_id as "mentorId", m.username as "mentorName", o.watchout
         FROM observations o
@@ -67,9 +62,8 @@ export const fetchObservations = async (internId: number) => {
 }
 
 export const fetchIntern = async (internId: number) => {
-    const sql = neon(`${process.env.DATABASE_URL}`);
     const rows = await sql`
-        SELECT id, name, color_code as "colorCode", notice, email, img_url as "imgUrl"
+        SELECT id, name, color_code as "colorCode", notice, email, img_url as "imgUrl", terminated
         FROM interns
         WHERE id = ${internId}
         LIMIT 1
@@ -81,6 +75,7 @@ export const fetchIntern = async (internId: number) => {
     return {
         id: rows[0].id as number,
         name: rows[0].name as string,
+        terminated: rows[0].terminated as boolean,
         colorCode: rows[0].colorCode as string,
         notice: rows[0].notice as boolean,
         email: rows[0].email as string,

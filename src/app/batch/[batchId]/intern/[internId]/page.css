@@ -1,3 +1,26 @@
+.name-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.name-section span {
+    background: #b4b6ba;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+.notice-badge {
+    display: flex;
+    gap: 4px;
+}
+
+.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
 .intern-container {
     width: 98%;
     margin: 0 auto;

@@ -14,6 +14,7 @@ import { Permissions } from "./types";
 export type Intern = {
     id: number;
     name: string;
+    terminated: boolean;
     colorCode?: string;
     notice: boolean;
     imgUrl: string;

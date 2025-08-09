@@ -1,5 +1,6 @@
 import { authOptions } from "@/app/lib/auth";
-import { neon, NeonQueryFunction } from "@neondatabase/serverless";
+import { sql } from "@/app/lib/db";
+import { NeonQueryFunction } from "@neondatabase/serverless";
 import { getServerSession } from "next-auth/next";
 
 type NewBatchReqBody = {
@@ -9,7 +10,6 @@ type NewBatchReqBody = {
 }
 
 const createBatch = async (body: NewBatchReqBody) => {
-    const sql = neon(`${process.env.DATABASE_URL}`);
     try {
         await sql`INSERT INTO batches (name, start_date, end_date) VALUES (${body.name}, ${body.startDate}, ${body.endDate});`
     } catch (error) {
@@ -32,7 +32,6 @@ type OnboardInternsReqBody = {
 }
 
 const onboardInterns = async (body: OnboardInternsReqBody) => {
-    const sql = neon(`${process.env.DATABASE_URL}`);
     try {
         for (const intern of body.interns) {
             await sql`INSERT INTO interns (batch_id, name, email, img_url) VALUES (${body.batchId}, ${intern.name}, ${intern.email}, ${intern.img_url});`;
@@ -61,7 +60,6 @@ type RecordObservationReqBody = {
 const recordObservation = async (body: RecordObservationReqBody) => {
     const session = await getServerSession(authOptions);
     const mentorId = session?.user?.id;
-    const sql = neon(`${process.env.DATABASE_URL}`);
     try {
         await sql`
         INSERT INTO observations 
@@ -119,7 +117,6 @@ const updateInternFields = async (
 const recordFeedback = async (body: RecordFeedbackReqBody) => {
     const session = await getServerSession(authOptions);
     const mentorId = session?.user?.id;
-    const sql = neon(`${process.env.DATABASE_URL}`);
 
     try {
         // TODO: Add transaction handling for atomicity
@@ -153,8 +150,6 @@ const deliverFeedback = async (body: DeliveryFeedbackReqBody) => {
     const session = await getServerSession(authOptions);
     const mentorId = session?.user?.id;
 
-    const sql = neon(`${process.env.DATABASE_URL}`);
-
     try {
         await sql`INSERT INTO feedback_conversations
             (feedback_id, mentor_id, content)
@@ -175,7 +170,6 @@ const deliverFeedback = async (body: DeliveryFeedbackReqBody) => {
 }
 
 const getFeedbackConversation = async (body: { feedbackId: number }) => {
-    const sql = neon(`${process.env.DATABASE_URL}`);
     try {
         const rows = await sql`
         SELECT fc.id, fc.content, fc.created_at as "createdAt", m.username as "mentorName"
@@ -213,7 +207,6 @@ const getFeedbackConversation = async (body: { feedbackId: number }) => {
 const recordObservations = async (body: { observations: RecordObservationReqBody[] }) => {
     const session = await getServerSession(authOptions);
     const mentorId = session?.user?.id;
-    const sql = neon(`${process.env.DATABASE_URL}`);
     try {
         for (const observation of body.observations) {
             await sql`

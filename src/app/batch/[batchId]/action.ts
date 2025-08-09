@@ -1,9 +1,7 @@
-import { neon } from "@neondatabase/serverless";
+import { sql } from "../../lib/db";
 import { Feedback, Observation } from "./types";
 
 export const fetchBatch = async (mentorId: number, batchId: number, root: boolean) => {
-    const sql = neon(`${process.env.DATABASE_URL}`);
-
     if (root) {
         const rows = await sql`SELECT b.id, b.name, b.start_date, b.end_date FROM batches b WHERE b.id = ${batchId} LIMIT 1`;
         if (rows.length === 0) {
@@ -44,10 +42,8 @@ export const fetchBatch = async (mentorId: number, batchId: number, root: boolea
 }
 
 export const fetchInterns = async (batchId: number) => {
-    const sql = neon(`${process.env.DATABASE_URL}`);
-
     const rows = await sql`
-        SELECT  id, name, email, color_code as "colorCode", notice, img_url as "imgUrl"
+        SELECT  id, name, email, color_code as "colorCode", notice, img_url as "imgUrl", terminated
         FROM interns
         WHERE batch_id = ${batchId}
         ORDER BY name ASC
@@ -60,6 +56,7 @@ export const fetchInterns = async (batchId: number) => {
         email: row.email as string,
         colorCode: row.colorCode as (string | undefined),
         notice: row.notice as boolean,
+        terminated: row.terminated as boolean,
         imgUrl: row.imgUrl as string
     }));
 }
@@ -81,8 +78,6 @@ export const fetchStats = async (batchId: number, mentorId: number) => {
 }
 
 const pendingFeedbacks = async (batchId: number) => {
-    const sql = neon(`${process.env.DATABASE_URL}`);
-
     const rows = await sql`
         SELECT COUNT(*) as count
         FROM feedbacks
@@ -98,8 +93,6 @@ export const countInternsWithoutRecentObservations = async (
     mentorId: number,
     days: number
 ): Promise<number> => {
-    const sql = neon(`${process.env.DATABASE_URL}`);
-
     const result = await sql`
         SELECT COUNT(*) as count
         FROM interns i
@@ -118,8 +111,6 @@ export const countInternsWithoutRecentObservations = async (
 }
 
 export const fetchObservations = async (batchId: number): Promise<Observation[]> => {
-    const sql = neon(`${process.env.DATABASE_URL}`);
-
     const rows = await sql`
         SELECT o.id, i.name as "internName", m.username as "mentorName", o.created_at as "date", o.content, o.watchout
         FROM observations o
@@ -141,8 +132,6 @@ export const fetchObservations = async (batchId: number): Promise<Observation[]>
 }
 
 export const fetchFeedbacks = async (batchId: number): Promise<Feedback[]> => {
-    const sql = neon(`${process.env.DATABASE_URL}`);
-
     const rows = await sql`
         SELECT f.id, i.name as "internName", m.username as "mentorName", f.created_at as date, f.content, f.notice, f.delivered, f.color_code as "colorCode"
         FROM feedbacks f

@@ -1,8 +1,7 @@
 import NeonAdapter from '@auth/neon-adapter';
-import { neon } from "@neondatabase/serverless";
 import { AuthOptions } from 'next-auth';
 import Google from 'next-auth/providers/google';
-import { pool } from './db';
+import { pool, sql } from './db';
 
 export type User = {
     id: number;
@@ -13,7 +12,6 @@ export type User = {
 }
 
 const getUserDetails = async (email: string): Promise<{ isRoot: boolean; id: number }> => {
-    const sql = neon(`${process.env.DATABASE_URL}`);
     const rows = await sql`SELECT id, root FROM mentors WHERE email = ${email} LIMIT 1;`;
     if (!rows || rows.length === 0) throw new Error('User not found');
 
@@ -25,7 +23,7 @@ const getUserDetails = async (email: string): Promise<{ isRoot: boolean; id: num
 
 export const authOptions: AuthOptions = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    adapter: NeonAdapter(pool) as any,
+    adapter: NeonAdapter(pool as any) as any,
     providers: [
         Google({
             clientId: process.env.GOOGLE_CLIENT_ID!,

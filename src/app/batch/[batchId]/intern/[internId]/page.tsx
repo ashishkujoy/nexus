@@ -1,6 +1,6 @@
 import AppHeader from "@/app/components/AppHeader";
 import Feedbacks from "@/app/components/Feedbacks";
-import { FeedbackIcon, NoticeIcon, ObservationIcon, PlusIcon, TerminateIcon } from "@/app/components/Icons";
+import { FeedbackIcon, NoticeIcon, ObservationIcon } from "@/app/components/Icons";
 import Observations from "@/app/components/Observations";
 import { authOptions } from "@/app/lib/auth";
 import { getServerSession } from "next-auth";
@@ -9,16 +9,30 @@ import { Intern } from "../../page";
 import { Feedback, Observation, Permissions } from "../../types";
 import { fetchFeedbacks, fetchIntern, fetchObservations, fetchPermissions } from "./action";
 import "./page.css";
+import QuickActions from "./QuickAction";
 
 type ProfileInfoProps = {
     name: string;
     email: string;
+    terminated: boolean;
+    notice: boolean;
 }
 
 const ProfileInfo = (props: ProfileInfoProps) => {
     return (
         <div className="profile-info">
-            <h1 className="profile-name">{props.name}</h1>
+            <div className="name-section">
+                <h1 className="profile-name">{props.name}</h1>
+                {
+                    props.notice && !props.terminated && <span className="notice-badge">
+                        <NoticeIcon width={16} />
+                        Notice
+                    </span>
+                }
+                {
+                    props.terminated && <span className="terminated-badge">Terminated</span>
+                }
+            </div>
             <div className="profile-details">
                 <div className="detail-item">
                     <span className="detail-label">Email:</span>
@@ -26,40 +40,6 @@ const ProfileInfo = (props: ProfileInfoProps) => {
                 </div>
             </div>
         </div >
-    )
-}
-
-const QuickActions = (props: { permissions: Permissions }) => {
-    const { recordObservation, recordFeedback, programManager } = props.permissions;
-
-    return (
-        <div className="quick-actions">
-            {
-                (recordObservation || programManager) && <button className="action-btn btn-primary">
-                    <PlusIcon />
-                    Record Observation
-                </button>
-
-            }
-            {
-                (recordFeedback || programManager) && <button className="action-btn btn-secondary">
-                    <PlusIcon />
-                    Record Feedback
-                </button>
-            }
-            {
-                programManager && <button className="action-btn btn-warning">
-                    <NoticeIcon width={16} heigth={16} />
-                    Mark Notice
-                </button>
-            }
-            {
-                programManager && <button className="action-btn btn-danger">
-                    <TerminateIcon />
-                    Terminate
-                </button>
-            }
-        </div>
     )
 }
 
@@ -109,13 +89,20 @@ const MainContent = (props: MainContentProps) => {
                     <ProfileInfo
                         name={props.intern.name}
                         email={props.intern.email}
+                        terminated={props.intern.terminated}
+                        notice={props.intern.notice}
                     />
                 </div>
-                <QuickActions permissions={props.permissions} />
+                <QuickActions
+                    permissions={props.permissions}
+                    internId={props.intern.id}
+                    notice={props.intern.notice}
+                    terminated={props.intern.terminated}
+                />
             </div>
             <div className="content-grid">
                 <ObservationSection observations={props.observations} />
-                <FeedbackSection feedbacks={props.feedbacks} canDeliver={props.permissions.programManager}/>
+                <FeedbackSection feedbacks={props.feedbacks} canDeliver={props.permissions.programManager} />
             </div>
         </div>
     )

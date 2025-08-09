@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS interns (
     color_code VARCHAR(10),
     notice BOOLEAN DEFAULT FALSE,
     batch_id INT NOT NULL,
+    terminated BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (batch_id) REFERENCES batches(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     img_url TEXT NOT NULL ,
