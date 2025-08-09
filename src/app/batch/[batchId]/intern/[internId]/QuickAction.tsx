@@ -7,7 +7,7 @@ import { useCallback, useState } from "react";
 import { Permissions } from "../../types";
 import SuccessOverlay from "@/app/components/SuccessOverlay";
 
-const QuickActions = (props: { permissions: Permissions; internId: number; notice: boolean; terminated: boolean }) => {
+const QuickActions = (props: { permissions: Permissions; batchId: number; internId: number; notice: boolean; terminated: boolean }) => {
     const { recordObservation, recordFeedback, programManager } = props.permissions;
     const [loadingMsg, setLoadingMsg] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
@@ -15,9 +15,8 @@ const QuickActions = (props: { permissions: Permissions; internId: number; notic
 
     const terminateIntern = useCallback(() => {
         setLoadingMsg("Terminating intern...");
-        fetch(`/api/batch/intern/terminate`, {
-            method: "POST",
-            body: JSON.stringify({ internId: props.internId }),
+        fetch(`/api/batches/${props.batchId}/interns/${props.internId}`, {
+            method: "DELETE",
             headers: {
                 "Content-Type": "application/json"
             }
@@ -32,7 +31,7 @@ const QuickActions = (props: { permissions: Permissions; internId: number; notic
             })
             .catch(err => setErrorMsg(`An error occurred while terminating the intern. ${err.message}`))
             .finally(() => setLoadingMsg(""));
-    }, [props.internId])
+    }, [props.batchId, props.internId])
 
     const clearError = useCallback(() => setErrorMsg(""), []);
     const clearSuccess = useCallback(() => setSuccessMsg(""), []);

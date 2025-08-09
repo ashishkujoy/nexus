@@ -95,6 +95,7 @@ const MainContent = (props: MainContentProps) => {
                 </div>
                 <QuickActions
                     permissions={props.permissions}
+                    batchId={props.batchId}
                     internId={props.intern.id}
                     notice={props.intern.notice}
                     terminated={props.intern.terminated}
