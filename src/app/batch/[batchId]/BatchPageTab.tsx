@@ -3,7 +3,7 @@
 import Feedbacks from "@/app/components/Feedbacks";
 import Observations from "@/app/components/Observations";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, memo, useCallback } from "react";
 import "./batchPageTab.css";
 import { Intern } from "./page";
 import { Feedback, Observation } from "./types";
@@ -16,11 +16,13 @@ type TabNavProps = {
     onTabChange: (tab: string) => void;
 }
 
-const TabBtn = (props: { title: string, active: boolean, onClick: () => void }) => {
+const TabBtn = memo((props: { title: string, active: boolean, onClick: () => void }) => {
     return (
         <button className={`tab-btn ${props.active && "active"}`} onClick={props.onClick}>{props.title}</button>
     )
-}
+});
+
+TabBtn.displayName = 'TabBtn';
 
 const TabNav = (props: TabNavProps) => {
     return (
@@ -35,14 +37,41 @@ const TabNav = (props: TabNavProps) => {
     )
 }
 
-const InternCard = (props: { name: string; id: number; colorCode?: string; imgUrl: string; batchId: number }) => {
+const InternCard = memo((props: { name: string; id: number; colorCode?: string; imgUrl: string; batchId: number }) => {
     return (
         <Link href={`/batch/${props.batchId}/intern/${props.id}`} className="intern-card" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <Image src={props.imgUrl} width={140} height={130} alt={""} style={{ objectFit: "cover" }} />
+            <Image src={props.imgUrl} width={140} height={130} alt={props.name} style={{ objectFit: "cover" }} />
             <div className={`intern-footer ${props.colorCode || "no-color"}`}>{props.name}</div>
         </Link>
     )
-}
+}, (prevProps, nextProps) => {
+    // Custom comparison for optimal performance
+    return prevProps.id === nextProps.id && 
+           prevProps.name === nextProps.name &&
+           prevProps.colorCode === nextProps.colorCode &&
+           prevProps.imgUrl === nextProps.imgUrl &&
+           prevProps.batchId === nextProps.batchId;
+});
+
+InternCard.displayName = 'InternCard';
+
+// Memoized grid component for better performance
+const InternsGrid = memo(({ interns, batchId }: { interns: Intern[], batchId: number }) => {
+    return (
+        <div className="interns-grid">
+            {interns.map(intern => <InternCard
+                key={intern.id}
+                id={intern.id}
+                name={intern.name}
+                imgUrl={intern.imgUrl}
+                colorCode={intern.colorCode}
+                batchId={batchId}
+            />)}
+        </div>
+    );
+});
+
+InternsGrid.displayName = 'InternsGrid';
 
 type InternsTabProps = {
     interns: Intern[];
@@ -53,16 +82,7 @@ type InternsTabProps = {
 const InternsTab = (props: InternsTabProps) => {
     return (
         <div id="interns" className={`tab-content ${props.active && "active"}`}>
-            <div className="interns-grid">
-                {props.interns.map(intern => <InternCard
-                    key={intern.id}
-                    id={intern.id}
-                    name={intern.name}
-                    imgUrl={intern.imgUrl}
-                    colorCode={intern.colorCode}
-                    batchId={props.batchId}
-                />)}
-            </div>
+            <InternsGrid interns={props.interns} batchId={props.batchId} />
         </div>
     )
 }
@@ -98,32 +118,46 @@ const FeedbacksTab = (props: FeedbacksTabProps) => {
 const getHash = () => window.location.hash.replace("#", "").toLocaleLowerCase();
 
 const filterInterns = (interns: Intern[], filter: Filter) => {
+    // Early return if no filters applied
+    if (!filter.name && !filter.colorCode && filter.notice === undefined) {
+        return interns;
+    }
+
+    // Pre-compute filter values to avoid repeated operations
+    const nameFilter = filter.name?.toLowerCase();
+
     return interns.filter(intern => {
-        if (filter.name && !intern.name.toLocaleLowerCase().includes(filter.name.toLocaleLowerCase())) {
+        if (nameFilter && !intern.name.toLowerCase().includes(nameFilter)) {
             return false;
         }
         if (filter.colorCode && intern.colorCode !== filter.colorCode) {
             return false;
         }
-        if (filter.notice !== undefined) {
-            return filter.notice === intern.notice;
+        if (filter.notice !== undefined && filter.notice !== intern.notice) {
+            return false;
         }
         return true;
     });
 }
 
 const filterObservations = (observations: Observation[], filter: Filter) => {
+    // Early return if no name filter
+    if (!filter.name) {
+        return observations;
+    }
+
+    const nameFilter = filter.name.toLowerCase();
     return observations.filter(obs => {
-        if (filter.name && !obs.internName.toLocaleLowerCase().includes(filter.name.toLocaleLowerCase())) {
-            return false;
-        }
-        return true;
+        return obs.internName.toLowerCase().includes(nameFilter);
     });
 }
 
 const filterFeedbacks = (feedbacks: Feedback[], filter: Filter) => {
+    // Pre-compute filter values
+    const nameFilter = filter.name?.toLowerCase();
+    
     return feedbacks.filter(feedback => {
-        if (filter.name && !feedback.internName.toLocaleLowerCase().includes(filter.name.toLocaleLowerCase())) {
+        if (nameFilter && !feedback.internName.toLowerCase().includes(nameFilter)) {
             return false;
         }
         if (filter.colorCode && feedback.colorCode !== filter.colorCode) {
@@ -158,10 +192,10 @@ const BatchPageTab = (props: {
     const observations = useMemo(() => filterObservations(props.observations, filter), [filter, props.observations]);
     const feedbacks = useMemo(() => filterFeedbacks(props.feedbacks, filter), [filter, props.feedbacks]);
 
-    const onTabChange = (tab: string) => {
+    const onTabChange = useCallback((tab: string) => {
         setActiveTab(tab);
-        window.location.hash = tab.toLocaleLowerCase();
-    }
+        window.location.hash = tab.toLowerCase();
+    }, []);
 
     useEffect(() => {
         const hash = getHash();

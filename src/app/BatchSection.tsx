@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, memo } from "react";
 import Link from "next/link";
 import BatchModal from "./components/BatchModal";
 import { formatDate } from "./date";
@@ -28,7 +28,7 @@ const getPermissionBadges = (permissions: Permissions) => {
     return badges;
 };
 
-const BatchCard = (props: { batch: Batch }) => {
+const BatchCard = memo((props: { batch: Batch }) => {
     const { batch } = props;
 
     return (
@@ -54,7 +54,9 @@ const BatchCard = (props: { batch: Batch }) => {
             </div>
         </Link>
     )
-}
+});
+
+BatchCard.displayName = 'BatchCard';
 
 const Batchs = (props: { batchs: Batch[]; onNewBatch: () => void; allowBatchCreation: boolean }) => {
     const { batchs } = props;

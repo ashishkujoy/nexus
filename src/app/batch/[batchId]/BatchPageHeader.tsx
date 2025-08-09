@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import AddInternsModal from "./AddInternsModal";
 
 type PageHeaderProps = {
@@ -19,7 +19,10 @@ const formatedDate = (date: Date) => {
 
 const BatchPageHeader = (props: PageHeaderProps) => {
     const [showModal, setShowModal] = useState(false);
-    const toggleModal = () => setShowModal(!showModal);
+    
+    const toggleModal = useCallback(() => {
+        setShowModal(prev => !prev);
+    }, []);
 
     return (
         <div>

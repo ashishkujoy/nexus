@@ -1,9 +1,20 @@
 "use client";
-import FeedbackModal from "@/app/components/FeedbackModal";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/app/components/Skeleton";
 import { FeedbackIcon, ObservationIcon } from "@/app/components/Icons";
-import ObservationModal from "@/app/components/ObservationModal";
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, memo, useCallback } from "react";
 import type { Permissions } from "./types";
+
+// Lazy-loaded modals for better performance
+const FeedbackModal = dynamic(() => import("@/app/components/FeedbackModal"), {
+    loading: () => <Skeleton width="600px" height="400px" />,
+    ssr: false
+});
+
+const ObservationModal = dynamic(() => import("@/app/components/ObservationModal"), {
+    loading: () => <Skeleton width="600px" height="400px" />,
+    ssr: false
+});
 
 type QuickActionProps = {
     title: string;
@@ -13,7 +24,7 @@ type QuickActionProps = {
     onClick: () => void;
 }
 
-const QuickAction = (props: QuickActionProps) => {
+const QuickAction = memo((props: QuickActionProps) => {
     return (
         <div className="quick-action" onClick={props.onClick}>
             <div className="quick-action-icon" style={{ background: props.iconBackground }}>
@@ -24,7 +35,9 @@ const QuickAction = (props: QuickActionProps) => {
             </div>
         </div>
     )
-}
+});
+
+QuickAction.displayName = 'QuickAction';
 
 type Batch = {
     id: number;
@@ -41,8 +54,13 @@ const QuickActions = (props: { batch: Batch; interns: Intern[] }) => {
     const [showObservationModal, setShowObservationModal] = useState(false);
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
-    const toggleObservationModal = () => setShowObservationModal(!showObservationModal);
-    const toggleFeedbackModal = () => setShowFeedbackModal(!showFeedbackModal);
+    const toggleObservationModal = useCallback(() => {
+        setShowObservationModal(prev => !prev);
+    }, []);
+
+    const toggleFeedbackModal = useCallback(() => {
+        setShowFeedbackModal(prev => !prev);
+    }, []);
 
     const { permissions: { recordObservation, recordFeedback, programManager } } = props.batch;
 
