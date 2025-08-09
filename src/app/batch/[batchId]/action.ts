@@ -62,31 +62,48 @@ export const fetchInterns = async (batchId: number) => {
 }
 
 export const fetchStats = async (batchId: number, mentorId: number) => {
-    const [interns, pendingObservations, pendingFeedback] = await Promise.all([
-        fetchInterns(batchId),
-        countInternsWithoutRecentObservations(batchId, mentorId, 15),
-        pendingFeedbacks(batchId)
-    ]);
-    return (
-        {
-            totalInterns: interns.length,
-            pendingObservations,
-            pendingFeedback,
-            activeNotices: interns.filter(intern => intern.notice).length,
-        }
-    )
-}
-
-const pendingFeedbacks = async (batchId: number) => {
-    const rows = await sql`
-        SELECT COUNT(*) as count
-        FROM feedbacks
-        WHERE batch_id = ${batchId}
-        AND delivered = false
+    const result = await sql`
+        WITH intern_stats AS (
+            SELECT 
+                COUNT(*) as total_interns,
+                COUNT(*) FILTER (WHERE notice = true) as active_notices
+            FROM interns 
+            WHERE batch_id = ${batchId}
+        ),
+        observation_stats AS (
+            SELECT COUNT(*) as pending_observations
+            FROM interns i
+            WHERE i.batch_id = ${batchId}
+            AND NOT EXISTS (
+                SELECT 1 FROM observations o 
+                WHERE o.intern_id = i.id 
+                AND o.mentor_id = ${mentorId}
+                AND o.batch_id = ${batchId}
+                AND o.created_at >= CURRENT_DATE - INTERVAL '15 days'
+            )
+        ),
+        feedback_stats AS (
+            SELECT COUNT(*) as pending_feedback
+            FROM feedbacks
+            WHERE batch_id = ${batchId} AND delivered = false
+        )
+        SELECT 
+            i.total_interns,
+            i.active_notices,
+            o.pending_observations,
+            f.pending_feedback
+        FROM intern_stats i, observation_stats o, feedback_stats f
     `;
-
-    return rows[0].count as number;
+    
+    return {
+        totalInterns: result[0].total_interns,
+        pendingObservations: result[0].pending_observations,
+        pendingFeedback: result[0].pending_feedback,
+        activeNotices: result[0].active_notices,
+    };
 }
+
+
 
 export const countInternsWithoutRecentObservations = async (
     batchId: number,
