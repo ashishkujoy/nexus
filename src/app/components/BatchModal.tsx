@@ -66,28 +66,27 @@ const BatchModal = (props: BatchModalProps) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         const req = Object.fromEntries(formData.entries());
-        setLoadingMsg(`Creating batch ${req.batchName}...`);
-        fetch("/api/batch", {
+        setLoadingMsg(`Creating batch ${req.name}...`);
+        fetch("/api/batches", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                type: "CreateBatch",
                 name: req.name,
                 startDate: req.startDate,
-                endDate: req.endDate || null,
+                endDate: req.endDate || undefined,
             }),
         })
             .then(async (res) => {
                 if (!res.ok) {
                     const error = await res.json();
-                    setErrorMsg(`Failed to create batch ${req.batchName}. ${error.error || "Please try again."}`);
+                    setErrorMsg(`Failed to create batch ${req.name}. ${error.error || "Please try again."}`);
                     return;
                 }
-                setSuccessMsg(`Batch ${req.batchName} created successfully!`);
+                setSuccessMsg(`Batch ${req.name} created successfully!`);
             })
-            .catch(() => setErrorMsg(`Failed to create batch ${req.batchName}. Please try again.`))
+            .catch(() => setErrorMsg(`Failed to create batch ${req.name}. Please try again.`))
             .finally(() => setLoadingMsg(""));
     }
 
