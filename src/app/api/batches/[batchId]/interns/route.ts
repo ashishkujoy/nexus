@@ -1,71 +1,59 @@
 import { authOptions } from "@/app/lib/auth";
 import { sql } from "@/app/lib/db";
 import { getServerSession } from "next-auth/next";
+import { z } from "zod";
+import { validateRequest, validateNumericId, createSuccessResponse, ErrorResponses } from "@/app/lib/api-utils";
 
-type Intern = {
-    name: string;
-    email: string;
-    img_url: string;
-}
+// Zod schemas for validation
+const InternSchema = z.object({
+    name: z.string().min(1, "Name is required"),
+    email: z.string().email("Invalid email format"),
+    img_url: z.string().url("Invalid image URL").optional().or(z.literal("")),
+});
 
-type OnboardInternsRequest = {
-    interns: Intern[];
-}
+const OnboardInternsRequestSchema = z.object({
+    interns: z.array(InternSchema).min(1, "At least one intern is required"),
+});
+
+
 
 export async function POST(
     req: Request,
-    { params }: { params: { batchId: string } }
+    { params }: { params: Promise<{ batchId: string }> }
 ) {
     try {
         // Verify authentication
         const session = await getServerSession(authOptions);
         if (!session?.user?.id) {
-            return new Response(JSON.stringify({ error: "Unauthorized" }), {
-                status: 401,
-                headers: { "Content-Type": "application/json" }
-            });
+            return ErrorResponses.unauthorized();
         }
 
+        const { batchId: batchIdParam } = await params;
+        
         // Validate batchId parameter
-        const batchId = parseInt(params.batchId);
-        if (isNaN(batchId)) {
-            return new Response(JSON.stringify({ error: "Invalid batch ID" }), {
-                status: 400,
-                headers: { "Content-Type": "application/json" }
-            });
+        const batchIdValidation = validateNumericId(batchIdParam, "batch ID");
+        if (!batchIdValidation.success) {
+            return batchIdValidation.response;
         }
+        const batchId = batchIdValidation.id;
 
         // Verify batch exists
         const batchExists = await sql`
             SELECT id FROM batches WHERE id = ${batchId}
         `;
         if (batchExists.length === 0) {
-            return new Response(JSON.stringify({ error: "Batch not found" }), {
-                status: 404,
-                headers: { "Content-Type": "application/json" }
-            });
+            return ErrorResponses.notFound("Batch");
         }
 
-        // Parse request body
-        const body: OnboardInternsRequest = await req.json();
+        // Parse and validate request body
+        const rawBody = await req.json();
+        const validation = validateRequest(rawBody, OnboardInternsRequestSchema);
         
-        // Validate request body
-        if (!body.interns || !Array.isArray(body.interns) || body.interns.length === 0) {
-            return new Response(JSON.stringify({ error: "Interns array is required and must not be empty" }), {
-                status: 400,
-                headers: { "Content-Type": "application/json" }
-            });
+        if (!validation.success) {
+            return validation.response;
         }
-
-        // Validate each intern
-        for (const intern of body.interns) {
-            if (!intern.name || !intern.email) {
-                return new Response(JSON.stringify({ error: "Each intern must have a name and email" }), {
-                    status: 400,
-                    headers: { "Content-Type": "application/json" }
-                });
-            }
-        }
+        
+        const body = validation.data;
 
         // Insert interns
         for (const intern of body.interns) {
@@ -75,19 +63,13 @@ export async function POST(
             `;
         }
 
-        return new Response(JSON.stringify({ 
+        return createSuccessResponse({ 
             message: `${body.interns.length} intern(s) onboarded successfully` 
-        }), {
-            status: 201,
-            headers: { "Content-Type": "application/json" }
-        });
+        }, 201);
 
     } catch (error) {
         console.error("Error onboarding interns:", error);
-        return new Response(JSON.stringify({ error: "Failed to onboard interns" }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" }
-        });
+        return ErrorResponses.internalServerError("Failed to onboard interns");
     }
 }
 
