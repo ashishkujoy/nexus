@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import BatchModal from "./components/BatchModal";
 import { formatDate } from "./date";
 
@@ -29,10 +30,9 @@ const getPermissionBadges = (permissions: Permissions) => {
 
 const BatchCard = (props: { batch: Batch }) => {
     const { batch } = props;
-    const gotoBatch = () => window.location.href = `/batch/${batch.id}`;
 
     return (
-        <div className="batch-card" style={{ cursor: 'pointer' }} onClick={gotoBatch}>
+        <Link href={`/batch/${batch.id}`} className="batch-card" style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}>
             <div className="batch-header">
                 <div className="batch-info">
                     <h4>{batch.name}</h4>
@@ -52,7 +52,7 @@ const BatchCard = (props: { batch: Batch }) => {
                     </span>
                 ))}
             </div>
-        </div>
+        </Link>
     )
 }
 

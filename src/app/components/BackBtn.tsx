@@ -1,17 +1,18 @@
 import { MoveLeft } from "lucide-react";
-
+import { useRouter, usePathname } from "next/navigation";
 
 const BackBtn = () => {
-    const path = window.location.pathname;
+    const router = useRouter();
+    const path = usePathname();
 
     const goBack = () => {
         if (path.includes("/intern/")) {
             const batchId = path.split("/")[2];
-            window.location.href = `/batch/${batchId}`;
+            router.push(`/batch/${batchId}`);
             return;
         }
 
-        window.location.href = "/";
+        router.push("/");
     }
 
     if (path === "/" || path === "/") {

@@ -31,7 +31,7 @@ const MainSection = async (props: { batchId: number; interns: Promise<Intern[]>;
     return (
         <div className="card">
             <div className="card-body" style={{ padding: "0", overflowY: "auto" }}>
-                <BatchClientSection interns={interns} observations={observations} feedbacks={feedbacks} canDeliver={props.canDeliver} />
+                <BatchClientSection interns={interns} observations={observations} feedbacks={feedbacks} canDeliver={props.canDeliver} batchId={props.batchId} />
             </div>
         </div>
     )

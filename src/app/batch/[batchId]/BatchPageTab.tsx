@@ -8,6 +8,7 @@ import "./batchPageTab.css";
 import { Intern } from "./page";
 import { Feedback, Observation } from "./types";
 import FilterSection, { Filter } from "@/app/components/BatchFilterSection";
+import Link from "next/link";
 
 type TabNavProps = {
     activeTab: string;
@@ -34,20 +35,19 @@ const TabNav = (props: TabNavProps) => {
     )
 }
 
-const InternCard = (props: { name: string; id: number; colorCode?: string; imgUrl: string; }) => {
-    const gotoInternProfile = () => window.location.href = window.location.pathname + `/intern/${props.id}`;
-
+const InternCard = (props: { name: string; id: number; colorCode?: string; imgUrl: string; batchId: number }) => {
     return (
-        <div className="intern-card" onClick={gotoInternProfile}>
+        <Link href={`/batch/${props.batchId}/intern/${props.id}`} className="intern-card" style={{ textDecoration: 'none', color: 'inherit' }}>
             <Image src={props.imgUrl} width={140} height={130} alt={""} style={{ objectFit: "cover" }} />
             <div className={`intern-footer ${props.colorCode || "no-color"}`}>{props.name}</div>
-        </div>
+        </Link>
     )
 }
 
 type InternsTabProps = {
     interns: Intern[];
     active: boolean;
+    batchId: number;
 }
 
 const InternsTab = (props: InternsTabProps) => {
@@ -60,6 +60,7 @@ const InternsTab = (props: InternsTabProps) => {
                     name={intern.name}
                     imgUrl={intern.imgUrl}
                     colorCode={intern.colorCode}
+                    batchId={props.batchId}
                 />)}
             </div>
         </div>
@@ -142,6 +143,7 @@ const BatchPageTab = (props: {
     observations: Observation[];
     feedbacks: Feedback[];
     canDeliver: boolean;
+    batchId: number;
 }) => {
     const [activeTab, setActiveTab] = useState("Interns");
     const tabs = ["Interns", "Observations", "Feedbacks"];
@@ -177,7 +179,7 @@ const BatchPageTab = (props: {
             <TabNav activeTab={activeTab} onTabChange={onTabChange} tabs={tabs} />
             <div>
                 <FilterSection filter={filter} setFilter={(filter) => setFilter(filter)} activeTab={activeTab} />
-                <InternsTab interns={interns} active={activeTab === tabs[0]} />
+                <InternsTab interns={interns} active={activeTab === tabs[0]} batchId={props.batchId} />
                 <ObservationsTab active={activeTab === tabs[1]} observations={observations} />
                 <FeedbacksTab active={activeTab === tabs[2]} feedbacks={feedbacks} canDeliver={props.canDeliver} />
             </div>

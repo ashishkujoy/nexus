@@ -6,7 +6,7 @@ const BatchPageTab = dynamic(() => import("./BatchPageTab"), {
     ssr: false,
 });
 
-const BatchClientSection = (props: { interns: Intern[]; observations: Observation[]; feedbacks: Feedback[]; canDeliver: boolean }) => {
+const BatchClientSection = (props: { interns: Intern[]; observations: Observation[]; feedbacks: Feedback[]; canDeliver: boolean; batchId: number }) => {
     return <BatchPageTab {...props} />
 }
 
