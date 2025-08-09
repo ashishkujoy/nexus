@@ -28,14 +28,12 @@ const DeliveryModal = (props: DeliveryModalProps) => {
             return;
         }
         setLoadingMsg("Marking feedback as delivered...");
-        fetch("/api/batch", {
+        fetch(`/api/feedbacks/${props.feedback.id}/deliver`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                type: "DeliverFeedback",
-                feedbackId: props.feedback.id,
                 conversation: conversationText,
             }),
         })
@@ -101,15 +99,11 @@ const FeedbackConversation = (props: { feedback: Feedback; hidden: boolean }) =>
 
     useEffect(() => {
         if (props.hidden || conversation.id !== -1) return;
-        fetch("/api/batch", {
-            method: "POST",
+        fetch(`/api/feedbacks/${props.feedback.id}/conversation`, {
+            method: "GET",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-                type: "GetFeedbackConversation",
-                feedbackId: props.feedback.id,
-            }),
         })
             .then(res => res.json())
             .then(conv => setConversation({ ...conv, date: new Date(Date.parse(conv.date as string)) }));

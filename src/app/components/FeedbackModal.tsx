@@ -291,7 +291,6 @@ const FeedbackModal = (props: FeedbackModalProps) => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const reqBody = {
-            batchId: +selectedBatch,
             internId: +selectedIntern,
             date,
             notice,
@@ -299,15 +298,12 @@ const FeedbackModal = (props: FeedbackModalProps) => {
             colorCode: codeToColor(colorCode),
         };
         setLoadingMsg('Submitting Feedback...');
-        fetch('/api/batch', {
+        fetch(`/api/batches/${selectedBatch}/feedbacks`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                type: 'RecordFeedback',
-                ...reqBody
-            })
+            body: JSON.stringify(reqBody)
         })
             .then(async (r) => {
                 if (!r.ok) {

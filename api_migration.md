@@ -8,16 +8,16 @@ Completed APIs:
 /api/batches/route.ts - Batch creation (POST)
 /api/batches/[batchId]/interns/route.ts - Intern onboarding (POST)
 /api/batches/[batchId]/observations/route.ts - Observations (POST - always expects array of observations)
+/api/batches/[batchId]/feedbacks/route.ts - Feedback creation (POST)
+/api/feedbacks/[feedbackId]/deliver/route.ts - Feedback delivery (POST)
+/api/feedbacks/[feedbackId]/conversation/route.ts - Feedback conversation (GET)
 
 Created Utilities:
 /src/app/lib/api-utils.ts - Common validation and response functions
 
 Remaining API's
-1. Feedbacks API - /api/batches/[batchId]/feedbacks/route.ts
-2. Feedback Delivery API - /api/feedbacks/[feedbackId]/deliver/route.ts
-3. Feedback Conversation API - /api/feedbacks/[feedbackId]/conversation/route.ts
-4. Individual Intern API - /api/batches/[batchId]/interns/[internId]/route.ts ( Update intern fields, terminate intern)
-5. Refactor Terminate API - /api/batch/intern/terminate/route.ts
+1. Individual Intern API - /api/batches/[batchId]/interns/[internId]/route.ts ( Update intern fields, terminate intern)
+2. Refactor Terminate API - /api/batch/intern/terminate/route.ts
 
 Step by Step process to follow:
 For each API migration
@@ -46,4 +46,4 @@ Files to Reference
 - /src/app/api/batch/route.ts - Monolithic API (source to extract from)
 
 Start With
-Begin with Feedbacks API (/api/batches/[batchId]/feedbacks/route.ts) as it's the next logical step and has clear operations to migrate.
+Begin with Individual Intern API (/api/batches/[batchId]/interns/[internId]/route.ts) as it's the next logical step and has clear operations to migrate.
