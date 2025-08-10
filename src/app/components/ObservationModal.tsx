@@ -1,6 +1,6 @@
 "use client";
 import { AlertTriangle, Calendar, Eye, FileText, Users, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import ErrorOverlay from './ErrorOverlay';
 import LoaderOverlay from './LoaderOverlay';
@@ -155,12 +155,16 @@ type ContentSectionProps = {
 
 const ContentSection = (props: ContentSectionProps) => {
     const [isPreview, setIsPreview] = useState(false);
+    const onPreviewToggle = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        setIsPreview((prev) => !prev);
+    }, [setIsPreview]);
 
     return (
         <div className="form-group">
             <div className="form-header">
                 <label className="label">Observation Content *</label>
-                <button onClick={() => setIsPreview(!isPreview)} className="toggle-preview-btn">
+                <button onClick={onPreviewToggle} className="toggle-preview-btn">
                     <Eye className="icon-sm" />
                     {isPreview ? 'Edit' : 'Preview'}
                 </button>
