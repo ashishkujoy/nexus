@@ -14,3 +14,16 @@
 .search-input {
     min-width: 200px;
 }
+
+.select-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.icon-right {
+    position: absolute;
+    right: 10px;
+    pointer-events: none;
+}
