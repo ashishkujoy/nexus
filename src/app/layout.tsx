@@ -6,6 +6,7 @@ import "./globals.css";
 import { authOptions } from "./lib/auth";
 import Login from "./components/Login";
 import SessionProviderWrapper from "./components/SessionProviderWrapper";
+import { QueryProvider } from "./components/QueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,9 +35,11 @@ export default async function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         {
           !session ? <Login /> : (
-            <SessionProviderWrapper>
-              {children}
-            </SessionProviderWrapper>
+            <QueryProvider>
+              <SessionProviderWrapper>
+                {children}
+              </SessionProviderWrapper>
+            </QueryProvider>
           )
         }
       </body>
