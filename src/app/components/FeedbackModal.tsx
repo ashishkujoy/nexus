@@ -1,6 +1,7 @@
 "use client";
 import { AlertTriangle, Calendar, Eye, FileText, Paintbrush, Users, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 
 import "./observationModal.css";
 import LoaderOverlay from './LoaderOverlay';
@@ -276,9 +277,31 @@ const FeedbackModal = (props: FeedbackModalProps) => {
     const [notice, setNotice] = useState(false);
     const [colorCode, setColorCode] = useState(-1);
     const [content, setContent] = useState('');
-    const [loadingMsg, setLoadingMsg] = useState('');
-    const [successMsg, setSuccessMsg] = useState('');
-    const [errorMsg, setErrorMsg] = useState('');
+    
+    const feedbackMutation = useMutation({
+        mutationFn: async (reqBody: {
+            internId: number;
+            date: string;
+            notice: boolean;
+            content: string;
+            colorCode: string | undefined;
+        }) => {
+            const response = await fetch(`/api/batches/${selectedBatch}/feedbacks`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reqBody)
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to submit feedback');
+            }
+            
+            return response.json();
+        }
+    });
 
     useEffect(() => {
         if (props.batches.length === 1) {
@@ -297,23 +320,8 @@ const FeedbackModal = (props: FeedbackModalProps) => {
             content,
             colorCode: codeToColor(colorCode),
         };
-        setLoadingMsg('Submitting Feedback...');
-        fetch(`/api/batches/${selectedBatch}/feedbacks`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(reqBody)
-        })
-            .then(async (r) => {
-                if (!r.ok) {
-                    const errorData = await r.json();
-                    return setErrorMsg(`Error: ${errorData.error || 'Failed to submit feedback'}`);
-                }
-                setSuccessMsg('Feedback recorded successfully!');
-            })
-            .catch(() => setErrorMsg('Failed to submit feedback'))
-            .finally(() => setLoadingMsg(''));
+        
+        feedbackMutation.mutate(reqBody);
     }
 
     return (
@@ -358,13 +366,13 @@ const FeedbackModal = (props: FeedbackModalProps) => {
                     <ModalFooter onClose={props.onClose} />
                 </form>
             </div>
-            {loadingMsg && <LoaderOverlay title="Hold On" message={loadingMsg} />}
-            {successMsg && <SuccessOverlay title="Success" message={successMsg} onClose={() => {
-                setSuccessMsg('');
+            {feedbackMutation.isPending && <LoaderOverlay title="Hold On" message="Submitting Feedback..." />}
+            {feedbackMutation.isSuccess && <SuccessOverlay title="Success" message="Feedback recorded successfully!" onClose={() => {
+                feedbackMutation.reset();
                 props.onClose();
                 window.location.reload();
             }} />}
-            {errorMsg && <ErrorOverlay title="Error" message={errorMsg} onClose={() => setErrorMsg('')} />}
+            {feedbackMutation.isError && <ErrorOverlay title="Error" message={feedbackMutation.error?.message || "Failed to submit feedback"} onClose={() => feedbackMutation.reset()} />}
         </div>
     );
 };
