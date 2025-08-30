@@ -1,5 +1,6 @@
 "use client";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Feedback, type FeedbackConversation } from "../batch/[batchId]/types";
 import { formatDate } from "../date";
 
@@ -89,45 +90,54 @@ const DeliveryModal = (props: DeliveryModalProps) => {
 }
 
 const FeedbackConversation = (props: { feedback: Feedback; hidden: boolean }) => {
-    const [conversation, setConversation] = useState<FeedbackConversation>({
-        id: -1,
-        feedbackId: props.feedback.id,
-        deliveredBy: "Loading ...",
-        deliveredAt: new Date(),
-        content: "Loading Conversation ...",
+    const { data: conversation, isLoading, error } = useQuery({
+        queryKey: ['feedback-conversation', props.feedback.id],
+        queryFn: async () => {
+            const response = await fetch(`/api/feedbacks/${props.feedback.id}/conversation`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            if (!response.ok) {
+                throw new Error('Failed to fetch conversation');
+            }
+            const conv = await response.json();
+            return { ...conv, date: new Date(Date.parse(conv.date as string)) };
+        },
+        enabled: !props.hidden,
     });
 
-    useEffect(() => {
-        if (props.hidden || conversation.id !== -1) return;
-        
-        const controller = new AbortController();
-        
-        fetch(`/api/feedbacks/${props.feedback.id}/conversation`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            signal: controller.signal
-        })
-            .then(res => res.json())
-            .then(conv => setConversation({ ...conv, date: new Date(Date.parse(conv.date as string)) }))
-            .catch(err => {
-                if (err.name !== 'AbortError') {
-                    console.error('Failed to fetch conversation:', err);
-                }
-            });
-        
-        return () => controller.abort();
-    }, [props.feedback.id, props.hidden, conversation]);
+    if (isLoading) {
+        return (
+            <div className={`conversation-section ${props.hidden && "hidden"}`}>
+                <div className="conversation-header">
+                    <div className="conversation-title">Feedback Conversation</div>
+                </div>
+                <div className="conversation-content">Loading Conversation ...</div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className={`conversation-section ${props.hidden && "hidden"}`}>
+                <div className="conversation-header">
+                    <div className="conversation-title">Feedback Conversation</div>
+                </div>
+                <div className="conversation-content">Failed to load conversation</div>
+            </div>
+        );
+    }
 
     return (
         <div className={`conversation-section ${props.hidden && "hidden"}`}>
             <div className="conversation-header">
                 <div className="conversation-title">Feedback Conversation</div>
-                <small style={{ color: "#6c757d" }}>Delivered on: {formatDate(conversation!.deliveredAt)}</small>
+                <small style={{ color: "#6c757d" }}>Delivered on: {formatDate(conversation?.deliveredAt || new Date())}</small>
             </div>
             <div className="conversation-content">
-                <MarkdownRenderer content={conversation.content} />
+                <MarkdownRenderer content={conversation?.content || ''} />
             </div>
         </div>
     )
