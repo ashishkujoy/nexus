@@ -1,9 +1,10 @@
 import { Calendar, FileText, X } from "lucide-react";
 import "./observationModal.css";
-import { FormEvent, useState } from "react";
+import { FormEvent } from "react";
 import LoaderOverlay from "./LoaderOverlay";
 import SuccessOverlay from "./SuccessOverlay";
 import ErrorOverlay from "./ErrorOverlay";
+import { useMutation } from "@tanstack/react-query";
 
 const ModalHeader = (props: { onClose: () => void; }) => {
     return (
@@ -58,36 +59,43 @@ type BatchModalProps = {
 }
 
 const BatchModal = (props: BatchModalProps) => {
-    const [loadingMsg, setLoadingMsg] = useState<string>("");
-    const [successMsg, setSuccessMsg] = useState<string>("");
-    const [errorMsg, setErrorMsg] = useState<string>("");
+    const createBatchMutation = useMutation({
+        mutationFn: async (batchData: {
+            name: string;
+            startDate: string;
+            endDate?: string;
+        }) => {
+            const response = await fetch("/api/batches", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: batchData.name,
+                    startDate: batchData.startDate,
+                    endDate: batchData.endDate || undefined,
+                }),
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || "Failed to create batch. Please try again.");
+            }
+            
+            return response.json();
+        }
+    });
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         const req = Object.fromEntries(formData.entries());
-        setLoadingMsg(`Creating batch ${req.name}...`);
-        fetch("/api/batches", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                name: req.name,
-                startDate: req.startDate,
-                endDate: req.endDate || undefined,
-            }),
-        })
-            .then(async (res) => {
-                if (!res.ok) {
-                    const error = await res.json();
-                    setErrorMsg(`Failed to create batch ${req.name}. ${error.error || "Please try again."}`);
-                    return;
-                }
-                setSuccessMsg(`Batch ${req.name} created successfully!`);
-            })
-            .catch(() => setErrorMsg(`Failed to create batch ${req.name}. Please try again.`))
-            .finally(() => setLoadingMsg(""));
+        
+        createBatchMutation.mutate({
+            name: req.name as string,
+            startDate: req.startDate as string,
+            endDate: req.endDate as string || undefined,
+        });
     }
 
     return (
@@ -112,13 +120,13 @@ const BatchModal = (props: BatchModalProps) => {
                     </form>
                 </div>
             </div>
-            {loadingMsg && <LoaderOverlay title="Hold On" message={loadingMsg} />}
-            {successMsg && <SuccessOverlay title="Success" message={successMsg} onClose={() => {
-                setSuccessMsg("");
+            {createBatchMutation.isPending && <LoaderOverlay title="Hold On" message="Creating batch..." />}
+            {createBatchMutation.isSuccess && <SuccessOverlay title="Success" message="Batch created successfully!" onClose={() => {
+                createBatchMutation.reset();
                 window.location.reload();
                 props.onClose();
             }} />}
-            {errorMsg && <ErrorOverlay title="Error" message={errorMsg} onClose={() => setErrorMsg("")} />}
+            {createBatchMutation.isError && <ErrorOverlay title="Error" message={createBatchMutation.error?.message || "Failed to create batch. Please try again."} onClose={() => createBatchMutation.reset()} />}
         </div>
     )
 }

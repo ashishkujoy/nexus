@@ -1,6 +1,7 @@
 "use client";
 import { AlertTriangle, Calendar, Eye, FileText, Users, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 
 import ErrorOverlay from './ErrorOverlay';
 import LoaderOverlay from './LoaderOverlay';
@@ -224,9 +225,32 @@ const ObservationModal = (props: ObservationModalProps) => {
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [watchOut, setWatchOut] = useState(false);
     const [content, setContent] = useState('');
-    const [loadingMsg, setLoadingMsg] = useState('');
-    const [successMsg, setSuccessMsg] = useState('');
-    const [errorMsg, setErrorMsg] = useState('');
+    
+    const observationMutation = useMutation({
+        mutationFn: async (reqBody: {
+            observations: Array<{
+                internId: number;
+                date: string;
+                watchOut: boolean;
+                content: string;
+            }>;
+        }) => {
+            const response = await fetch(`/api/batches/${selectedBatch}/observations`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reqBody)
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to submit observation');
+            }
+            
+            return response.json();
+        }
+    });
 
     useEffect(() => {
         if (props.batches.length === 1) {
@@ -246,23 +270,8 @@ const ObservationModal = (props: ObservationModalProps) => {
                 content
             }]
         };
-        setLoadingMsg('Submitting observation...');
-        fetch(`/api/batches/${selectedBatch}/observations`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(reqBody)
-        })
-            .then(async (r) => {
-                if (!r.ok) {
-                    const errorData = await r.json();
-                    return setErrorMsg(`Error: ${errorData.error || 'Failed to submit observation'}`);
-                }
-                setSuccessMsg('Observation recorded successfully!');
-            })
-            .catch(() => setErrorMsg('Failed to submit observation'))
-            .finally(() => setLoadingMsg(''));
+        
+        observationMutation.mutate(reqBody);
     }
 
     return (
@@ -303,13 +312,13 @@ const ObservationModal = (props: ObservationModalProps) => {
                     <ModalFooter onClose={props.onClose} />
                 </form>
             </div>
-            {loadingMsg && <LoaderOverlay title="Hold On" message={loadingMsg} />}
-            {successMsg && <SuccessOverlay title="Success" message={successMsg} onClose={() => {
-                setSuccessMsg('');
+            {observationMutation.isPending && <LoaderOverlay title="Hold On" message="Submitting observation..." />}
+            {observationMutation.isSuccess && <SuccessOverlay title="Success" message="Observation recorded successfully!" onClose={() => {
+                observationMutation.reset();
                 props.onClose();
                 window.location.reload();
             }} />}
-            {errorMsg && <ErrorOverlay title="Error" message={errorMsg} onClose={() => setErrorMsg('')} />}
+            {observationMutation.isError && <ErrorOverlay title="Error" message={observationMutation.error?.message || "Failed to submit observation"} onClose={() => observationMutation.reset()} />}
         </div>
     );
 };

@@ -1,7 +1,8 @@
 import ErrorOverlay from "@/app/components/ErrorOverlay";
 import LoaderOverlay from "@/app/components/LoaderOverlay";
 import SuccessOverlay from "@/app/components/SuccessOverlay";
-import { FormEvent, useState } from "react";
+import { FormEvent } from "react";
+import { useMutation } from "@tanstack/react-query";
 
 import "./modal.css";
 
@@ -23,22 +24,9 @@ const parseInternsCSV = (content: string) => {
 }
 
 const AddInternsModal = (props: Props) => {
-    const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState(false);
-    const [error, setError] = useState<string>("");
-
-    const onSuccess = () => {
-        setSuccess(false);
-        props.onInternsAdded();
-    }
-
-    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        const content = await (formData.get("file") as File).text();
-        setLoading(true);
-        try {
-            const res = await fetch(`/api/batches/${props.batchId}/interns`, {
+    const addInternsMutation = useMutation({
+        mutationFn: async (content: string) => {
+            const response = await fetch(`/api/batches/${props.batchId}/interns`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -47,17 +35,25 @@ const AddInternsModal = (props: Props) => {
                     interns: parseInternsCSV(content),
                 }),
             });
-            setLoading(false);
-            if (!res.ok) {
-                const errorData = await res.json();
-                setError(errorData.error || "Failed to onboard interns");
-                return;
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to onboard interns");
             }
-            setSuccess(true);
-        } catch {
-            setLoading(false);
-            setError("An unexpected error occurred");
+            
+            return response.json();
+        },
+        onSuccess: () => {
+            props.onInternsAdded();
         }
+    });
+
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        const content = await (formData.get("file") as File).text();
+        
+        addInternsMutation.mutate(content);
     }
 
     return (
@@ -79,9 +75,9 @@ const AddInternsModal = (props: Props) => {
                     </div>
                 </form>
             </div>
-            {loading && <LoaderOverlay title="Hold On" message="Onboarding Interns" />}
-            {success && <SuccessOverlay title={"Successfully onboarded Interns"} message={""} onClose={onSuccess} />}
-            {error && <ErrorOverlay title={"Failed to update Interns"} message={error} onClose={() => setError("")} />}
+            {addInternsMutation.isPending && <LoaderOverlay title="Hold On" message="Onboarding Interns" />}
+            {addInternsMutation.isSuccess && <SuccessOverlay title={"Successfully onboarded Interns"} message={""} onClose={() => addInternsMutation.reset()} />}
+            {addInternsMutation.isError && <ErrorOverlay title={"Failed to update Interns"} message={addInternsMutation.error?.message || "An unexpected error occurred"} onClose={() => addInternsMutation.reset()} />}
         </div>
 
     )
