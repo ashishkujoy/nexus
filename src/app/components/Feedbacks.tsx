@@ -99,15 +99,25 @@ const FeedbackConversation = (props: { feedback: Feedback; hidden: boolean }) =>
 
     useEffect(() => {
         if (props.hidden || conversation.id !== -1) return;
+        
+        const controller = new AbortController();
+        
         fetch(`/api/feedbacks/${props.feedback.id}/conversation`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
             },
+            signal: controller.signal
         })
             .then(res => res.json())
-            .then(conv => setConversation({ ...conv, date: new Date(Date.parse(conv.date as string)) }));
-
+            .then(conv => setConversation({ ...conv, date: new Date(Date.parse(conv.date as string)) }))
+            .catch(err => {
+                if (err.name !== 'AbortError') {
+                    console.error('Failed to fetch conversation:', err);
+                }
+            });
+        
+        return () => controller.abort();
     }, [props.feedback.id, props.hidden, conversation]);
 
     return (
