@@ -1,6 +1,6 @@
 "use client";
 import { FormEvent, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Feedback, type FeedbackConversation } from "../batch/[batchId]/types";
 import { formatDate } from "../date";
 
@@ -17,36 +17,40 @@ type DeliveryModalProps = {
 }
 
 const DeliveryModal = (props: DeliveryModalProps) => {
-    const [loadingMsg, setLoadingMsg] = useState<string>("");
-    const [successMsg, setSuccessMsg] = useState<string>("");
-    const [errorMsg, setErrorMsg] = useState<string>("");
+    const deliverMutation = useMutation({
+        mutationFn: async (conversationText: string) => {
+            const response = await fetch(`/api/feedbacks/${props.feedback.id}/deliver`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    conversation: conversationText,
+                }),
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to mark feedback as delivered. Please try again.");
+            }
+            
+            return response.json();
+        },
+        onSuccess: () => {
+            props.onDeliver();
+        },
+    });
 
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         const conversationText = formData.get("conversation") as string;
-        if (loadingMsg || successMsg || errorMsg) {
+        
+        if (deliverMutation.isPending) {
             return;
         }
-        setLoadingMsg("Marking feedback as delivered...");
-        fetch(`/api/feedbacks/${props.feedback.id}/deliver`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                conversation: conversationText,
-            }),
-        })
-            .then(res => {
-                if (!res.ok) {
-                    return res.json()
-                        .then(({ error }) => setErrorMsg(error || "Failed to mark feedback as delivered. Please try again."));
-                }
-                setSuccessMsg("Feedback marked as delivered successfully.");
-            })
-            .catch(() => setErrorMsg("An error occurred while marking feedback as delivered. Please try again."))
-            .finally(() => setLoadingMsg(""));
+        
+        deliverMutation.mutate(conversationText);
     }
 
     return (
@@ -82,9 +86,9 @@ const DeliveryModal = (props: DeliveryModalProps) => {
                     </div>
                 </form>
             </div>
-            {loadingMsg && <LoaderOverlay title="Hold On" message={loadingMsg} />}
-            {successMsg && <SuccessOverlay title="Success" message={successMsg} onClose={props.onDeliver} />}
-            {errorMsg && <ErrorOverlay title="Error" message={errorMsg} onClose={() => setErrorMsg("")} />}
+            {deliverMutation.isPending && <LoaderOverlay title="Hold On" message="Marking feedback as delivered..." />}
+            {deliverMutation.isSuccess && <SuccessOverlay title="Success" message="Feedback marked as delivered successfully." onClose={props.onDeliver} />}
+            {deliverMutation.isError && <ErrorOverlay title="Error" message={deliverMutation.error?.message || "An error occurred while marking feedback as delivered. Please try again."} onClose={() => deliverMutation.reset()} />}
         </div>
     )
 }
