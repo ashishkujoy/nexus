@@ -2,8 +2,9 @@
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/app/components/Skeleton";
 import { FeedbackIcon, ObservationIcon } from "@/app/components/Icons";
-import { ReactNode, useState, memo, useCallback } from "react";
+import { ReactNode, memo } from "react";
 import type { Permissions } from "./types";
+import { useModalStore } from "../../stores/modalStore";
 
 // Lazy-loaded modals for better performance
 const FeedbackModal = dynamic(() => import("@/app/components/FeedbackModal"), {
@@ -51,16 +52,14 @@ type Intern = {
 }
 
 const QuickActions = (props: { batch: Batch; interns: Intern[] }) => {
-    const [showObservationModal, setShowObservationModal] = useState(false);
-    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-
-    const toggleObservationModal = useCallback(() => {
-        setShowObservationModal(prev => !prev);
-    }, []);
-
-    const toggleFeedbackModal = useCallback(() => {
-        setShowFeedbackModal(prev => !prev);
-    }, []);
+    const { 
+        feedbackModal, 
+        observationModal, 
+        openFeedbackModal, 
+        closeFeedbackModal, 
+        openObservationModal, 
+        closeObservationModal 
+    } = useModalStore();
 
     const { permissions: { recordObservation, recordFeedback, programManager } } = props.batch;
 
@@ -80,26 +79,26 @@ const QuickActions = (props: { batch: Batch; interns: Intern[] }) => {
                         description="Add new observation for intern"
                         iconBackground="#e3f2fd"
                         icon={<ObservationIcon />}
-                        onClick={toggleObservationModal}
+                        onClick={openObservationModal}
                     />}
                     {(recordFeedback || programManager) && <QuickAction
                         title="Provide Feedback"
                         description="Give feedback to intern"
                         iconBackground="#e8f5e8"
                         icon={<FeedbackIcon />}
-                        onClick={toggleFeedbackModal}
+                        onClick={openFeedbackModal}
                     />}
                 </div>
             </div>
-            {showObservationModal && <ObservationModal
+            {observationModal && <ObservationModal
                 batches={[props.batch]}
                 internsByBatch={{ [props.batch.id]: props.interns }}
-                onClose={toggleObservationModal}
+                onClose={closeObservationModal}
             />}
-            {showFeedbackModal && <FeedbackModal
+            {feedbackModal && <FeedbackModal
                 batches={[props.batch]}
                 internsByBatch={{ [props.batch.id]: props.interns }}
-                onClose={toggleFeedbackModal}
+                onClose={closeFeedbackModal}
             />}
         </div>
     )
