@@ -13,11 +13,13 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -34,15 +36,35 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
+      <head>
+        <link
+          rel="preconnect"
+          href="https://fonts.googleapis.com"
+        />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="dns-prefetch"
+          href="https://res.cloudinary.com"
+        />
+        <link
+          rel="dns-prefetch"
+          href="https://randomuser.me"
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         {
           !session ? <Login /> : (
             <QueryProvider>
               <SessionProviderWrapper>
                 {children}
-                <Analytics />
-                <SpeedInsights />
               </SessionProviderWrapper>
+              <Analytics />
+              <SpeedInsights />
             </QueryProvider>
           )
         }

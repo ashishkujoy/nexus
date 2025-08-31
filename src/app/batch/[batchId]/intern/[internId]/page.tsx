@@ -86,7 +86,11 @@ const MainContent = (props: MainContentProps) => {
                         src={props.intern.imgUrl}
                         alt={props.intern.name}
                         width={150}
-                        height={150} />
+                        height={150}
+                        loading="lazy"
+                        sizes="(max-width: 768px) 120px, 150px"
+                        style={{ borderRadius: "8px" }}
+                    />
 
                     <ProfileInfo
                         name={props.intern.name}

@@ -40,7 +40,15 @@ const TabNav = (props: TabNavProps) => {
 const InternCard = memo((props: { name: string; id: number; colorCode?: string; imgUrl: string; batchId: number }) => {
     return (
         <Link href={`/batch/${props.batchId}/intern/${props.id}`} className="intern-card" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <Image src={props.imgUrl} width={140} height={130} alt={props.name} style={{ objectFit: "cover" }} />
+            <Image 
+                src={props.imgUrl} 
+                width={140} 
+                height={130} 
+                alt={props.name} 
+                style={{ objectFit: "cover" }} 
+                loading="lazy"
+                sizes="(max-width: 768px) 120px, 140px"
+            />
             <div className={`intern-footer ${props.colorCode || "no-color"}`}>{props.name}</div>
         </Link>
     )

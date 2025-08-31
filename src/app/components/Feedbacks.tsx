@@ -10,10 +10,10 @@ import { formatDate } from "../date";
 import "./feedbacks.css";
 import MarkdownRenderer from "./MarkdownView";
 
-// Dynamic imports for conditionally rendered components
-const ErrorOverlay = dynamic(() => import("./ErrorOverlay"), { ssr: false });
-const LoaderOverlay = dynamic(() => import("./LoaderOverlay"), { ssr: false });
-const SuccessOverlay = dynamic(() => import("./SuccessOverlay"), { ssr: false });
+// Lazy load overlay components
+const ErrorOverlay = dynamic(() => import("./ErrorOverlay"), { ssr: false, loading: () => null });
+const LoaderOverlay = dynamic(() => import("./LoaderOverlay"), { ssr: false, loading: () => null });
+const SuccessOverlay = dynamic(() => import("./SuccessOverlay"), { ssr: false, loading: () => null });
 
 type DeliveryModalProps = {
     feedback: Feedback;

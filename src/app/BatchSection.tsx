@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import Link from "next/link";
-import BatchModal from "./components/BatchModal";
+import LazyBatchModal from "./components/LazyBatchModal";
 import { formatDate } from "./date";
 import { useModalStore } from "./stores/modalStore";
 
@@ -108,7 +108,7 @@ const BatchSection = (props: BatchSectionProps) => {
     return (
         <div className="batch-section">
             {batchs.length > 0 ? <Batchs batchs={batchs} onNewBatch={openBatchModal} allowBatchCreation={props.allowBatchCreation} /> : <EmptyBatch onNewBatch={openBatchModal} allowBatchCreation={props.allowBatchCreation} />}
-            {batchModal && <BatchModal onClose={closeBatchModal} />}
+            {batchModal && <LazyBatchModal onClose={closeBatchModal} />}
         </div>
     );
 }
