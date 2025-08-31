@@ -1,6 +1,7 @@
 "use client";
 import { FormEvent, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { Feedback, type FeedbackConversation } from "../batch/[batchId]/types";
 import { formatDate } from "../date";
 
@@ -150,6 +151,7 @@ const FeedbackConversation = (props: { feedback: Feedback; hidden: boolean }) =>
 const FeedbackCard = (props: { feedback: Feedback, canDeliver: boolean }) => {
     const { feedback, canDeliver } = props;
     const queryClient = useQueryClient();
+    const router = useRouter();
     const [collapsed, setCollapsed] = useState(true);
     const [showDeliveryModal, setShowDeliveryModal] = useState(false);
     const [showConversation, setShowConversation] = useState(false);
@@ -189,6 +191,8 @@ const FeedbackCard = (props: { feedback: Feedback, canDeliver: boolean }) => {
             {showDeliveryModal && <DeliveryModal feedback={feedback} onClose={toggleDeliveryModal} onDeliver={() => {
                 toggleDeliveryModal();
                 queryClient.invalidateQueries({ queryKey: ['feedback-conversation'] });
+                queryClient.invalidateQueries({ queryKey: ['feedbacks'] });
+                router.refresh(); // Refresh server-side data
             }} />}
         </div>
     )

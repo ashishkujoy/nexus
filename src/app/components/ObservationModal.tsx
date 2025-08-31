@@ -2,6 +2,7 @@
 import { AlertTriangle, Calendar, Eye, FileText, Users, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 
 import ErrorOverlay from './ErrorOverlay';
 import LoaderOverlay from './LoaderOverlay';
@@ -221,6 +222,7 @@ type ObservationModalProps = {
 
 const ObservationModal = (props: ObservationModalProps) => {
     const queryClient = useQueryClient();
+    const router = useRouter();
     const [selectedBatch, setSelectedBatch] = useState(-1);
     const [selectedIntern, setSelectedIntern] = useState(-1);
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -318,6 +320,7 @@ const ObservationModal = (props: ObservationModalProps) => {
                 observationMutation.reset();
                 props.onClose();
                 queryClient.invalidateQueries({ queryKey: ['observations'] });
+                router.refresh(); // Refresh server-side data
             }} />}
             {observationMutation.isError && <ErrorOverlay title="Error" message={observationMutation.error?.message || "Failed to submit observation"} onClose={() => observationMutation.reset()} />}
         </div>

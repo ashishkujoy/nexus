@@ -1,6 +1,7 @@
 "use client";
 import { useState, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import AddInternsModal from "./AddInternsModal";
 
 type PageHeaderProps = {
@@ -20,6 +21,7 @@ const formatedDate = (date: Date) => {
 
 const BatchPageHeader = (props: PageHeaderProps) => {
     const queryClient = useQueryClient();
+    const router = useRouter();
     const [showModal, setShowModal] = useState(false);
     
     const toggleModal = useCallback(() => {
@@ -46,6 +48,7 @@ const BatchPageHeader = (props: PageHeaderProps) => {
                 onInternsAdded={() => {
                     toggleModal();
                     queryClient.invalidateQueries({ queryKey: ['interns'] });
+                    router.refresh(); // Refresh server-side data
                 }}
             />}
         </div>
