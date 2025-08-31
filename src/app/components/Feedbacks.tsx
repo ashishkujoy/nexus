@@ -2,15 +2,18 @@
 import { FormEvent, useState, memo, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { useModalStore } from "../stores/modalStore";
 import { Feedback, type FeedbackConversation } from "../batch/[batchId]/types";
 import { formatDate } from "../date";
 
-import ErrorOverlay from "./ErrorOverlay";
 import "./feedbacks.css";
-import LoaderOverlay from "./LoaderOverlay";
 import MarkdownRenderer from "./MarkdownView";
-import SuccessOverlay from "./SuccessOverlay";
+
+// Dynamic imports for conditionally rendered components
+const ErrorOverlay = dynamic(() => import("./ErrorOverlay"), { ssr: false });
+const LoaderOverlay = dynamic(() => import("./LoaderOverlay"), { ssr: false });
+const SuccessOverlay = dynamic(() => import("./SuccessOverlay"), { ssr: false });
 
 type DeliveryModalProps = {
     feedback: Feedback;

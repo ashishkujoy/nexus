@@ -3,12 +3,15 @@ import { AlertTriangle, Calendar, Eye, FileText, Paintbrush, Users, X } from 'lu
 import { useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 
 import "./observationModal.css";
-import LoaderOverlay from './LoaderOverlay';
-import SuccessOverlay from './SuccessOverlay';
-import ErrorOverlay from './ErrorOverlay';
 import MarkdownRenderer from './MarkdownView';
+
+// Dynamic imports for overlays
+const LoaderOverlay = dynamic(() => import('./LoaderOverlay'), { ssr: false });
+const SuccessOverlay = dynamic(() => import('./SuccessOverlay'), { ssr: false });
+const ErrorOverlay = dynamic(() => import('./ErrorOverlay'), { ssr: false });
 
 const ModalHeader = (props: { onClose: () => void; }) => {
     return (

@@ -3,12 +3,15 @@ import { AlertTriangle, Calendar, Eye, FileText, Users, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 
-import ErrorOverlay from './ErrorOverlay';
-import LoaderOverlay from './LoaderOverlay';
 import MarkdownRenderer from './MarkdownView';
 import "./observationModal.css";
-import SuccessOverlay from './SuccessOverlay';
+
+// Dynamic imports for overlays
+const ErrorOverlay = dynamic(() => import('./ErrorOverlay'), { ssr: false });
+const LoaderOverlay = dynamic(() => import('./LoaderOverlay'), { ssr: false });
+const SuccessOverlay = dynamic(() => import('./SuccessOverlay'), { ssr: false });
 
 const ModalHeader = (props: { onClose: () => void; }) => {
     return (

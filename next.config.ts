@@ -4,6 +4,47 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [new URL('https://randomuser.me/**'), new URL('https://res.cloudinary.com/**')],
   },
+  
+  // Bundle optimization configurations
+  experimental: {
+    // Enable optimized package imports to reduce bundle size
+    optimizePackageImports: ['@tanstack/react-query', 'zustand', 'lucide-react'],
+  },
+  
+  // Webpack optimizations
+  webpack: (config, { isServer }) => {
+    // Production optimizations
+    if (!isServer) {
+      // Enable tree shaking for better bundle optimization
+      config.optimization = {
+        ...config.optimization,
+        usedExports: true,
+        sideEffects: false,
+      };
+      
+      // Split vendor chunks for better caching
+      config.optimization.splitChunks = {
+        ...config.optimization.splitChunks,
+        cacheGroups: {
+          ...config.optimization.splitChunks?.cacheGroups,
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+            priority: 10,
+          },
+          common: {
+            name: 'common',
+            minChunks: 2,
+            chunks: 'all',
+            priority: 5,
+          },
+        },
+      };
+    }
+    
+    return config;
+  },
 };
 
 export default nextConfig;

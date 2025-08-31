@@ -1,10 +1,13 @@
 import { Calendar, FileText, X } from "lucide-react";
 import "./observationModal.css";
 import { FormEvent } from "react";
-import LoaderOverlay from "./LoaderOverlay";
-import SuccessOverlay from "./SuccessOverlay";
-import ErrorOverlay from "./ErrorOverlay";
+import dynamic from "next/dynamic";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+// Dynamic imports for overlays
+const LoaderOverlay = dynamic(() => import("./LoaderOverlay"), { ssr: false });
+const SuccessOverlay = dynamic(() => import("./SuccessOverlay"), { ssr: false });
+const ErrorOverlay = dynamic(() => import("./ErrorOverlay"), { ssr: false });
 
 const ModalHeader = (props: { onClose: () => void; }) => {
     return (
