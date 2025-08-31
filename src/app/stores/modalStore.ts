@@ -6,7 +6,7 @@ interface ModalState {
   observationModal: boolean
   batchModal: boolean
   addInternsModal: boolean
-  deliveryModal: boolean
+  deliveryModalFeedbackId: number | null // Track which feedback's delivery modal is open
   
   // Actions
   openFeedbackModal: () => void
@@ -17,7 +17,7 @@ interface ModalState {
   closeBatchModal: () => void
   openAddInternsModal: () => void
   closeAddInternsModal: () => void
-  openDeliveryModal: () => void
+  openDeliveryModal: (feedbackId: number) => void
   closeDeliveryModal: () => void
   closeAllModals: () => void
 }
@@ -28,7 +28,7 @@ export const useModalStore = create<ModalState>((set) => ({
   observationModal: false,
   batchModal: false,
   addInternsModal: false,
-  deliveryModal: false,
+  deliveryModalFeedbackId: null,
   
   // Actions
   openFeedbackModal: () => set({ feedbackModal: true }),
@@ -39,13 +39,13 @@ export const useModalStore = create<ModalState>((set) => ({
   closeBatchModal: () => set({ batchModal: false }),
   openAddInternsModal: () => set({ addInternsModal: true }),
   closeAddInternsModal: () => set({ addInternsModal: false }),
-  openDeliveryModal: () => set({ deliveryModal: true }),
-  closeDeliveryModal: () => set({ deliveryModal: false }),
+  openDeliveryModal: (feedbackId: number) => set({ deliveryModalFeedbackId: feedbackId }),
+  closeDeliveryModal: () => set({ deliveryModalFeedbackId: null }),
   closeAllModals: () => set({ 
     feedbackModal: false,
     observationModal: false,
     batchModal: false,
     addInternsModal: false,
-    deliveryModal: false
+    deliveryModalFeedbackId: null
   })
 }))

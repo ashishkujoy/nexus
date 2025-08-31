@@ -2,6 +2,7 @@
 import { FormEvent, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useModalStore } from "../stores/modalStore";
 import { Feedback, type FeedbackConversation } from "../batch/[batchId]/types";
 import { formatDate } from "../date";
 
@@ -152,12 +153,13 @@ const FeedbackCard = (props: { feedback: Feedback, canDeliver: boolean }) => {
     const { feedback, canDeliver } = props;
     const queryClient = useQueryClient();
     const router = useRouter();
+    const { deliveryModalFeedbackId, openDeliveryModal, closeDeliveryModal } = useModalStore();
     const [collapsed, setCollapsed] = useState(true);
-    const [showDeliveryModal, setShowDeliveryModal] = useState(false);
     const [showConversation, setShowConversation] = useState(false);
-    const toggleDeliveryModal = () => setShowDeliveryModal(!showDeliveryModal);
     const toggleShowConversation = () => setShowConversation(!showConversation);
     const toggleCollapsed = () => setCollapsed(!collapsed);
+    
+    const isDeliveryModalOpen = deliveryModalFeedbackId === feedback.id;
 
     return (
         <div>
@@ -182,14 +184,14 @@ const FeedbackCard = (props: { feedback: Feedback, canDeliver: boolean }) => {
 
                 <div className="feedback-actions">
                     {feedback.delivered && <button className="action-btn btn-view-conversation" onClick={toggleShowConversation}>View Conversation</button>}
-                    {canDeliver && !feedback.delivered && <button className="action-btn btn-deliver" onClick={toggleDeliveryModal}>Mark as Delivered</button>}
+                    {canDeliver && !feedback.delivered && <button className="action-btn btn-deliver" onClick={() => openDeliveryModal(feedback.id)}>Mark as Delivered</button>}
                     <button className="action-btn btn-secondary" onClick={toggleCollapsed}>{collapsed ? "View More" : "View Less"}</button>
                 </div>
                 <FeedbackConversation feedback={feedback} hidden={!showConversation} />
             </div>
 
-            {showDeliveryModal && <DeliveryModal feedback={feedback} onClose={toggleDeliveryModal} onDeliver={() => {
-                toggleDeliveryModal();
+            {isDeliveryModalOpen && <DeliveryModal feedback={feedback} onClose={closeDeliveryModal} onDeliver={() => {
+                closeDeliveryModal();
                 queryClient.invalidateQueries({ queryKey: ['feedback-conversation'] });
                 queryClient.invalidateQueries({ queryKey: ['feedbacks'] });
                 router.refresh(); // Refresh server-side data
