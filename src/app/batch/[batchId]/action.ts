@@ -62,37 +62,33 @@ export const fetchInterns = async (batchId: number) => {
 }
 
 export const fetchStats = async (batchId: number, mentorId: number) => {
+    // Pre-calculate date threshold once for better performance
+    const fifteenDaysAgo = new Date();
+    fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
+    
     const result = await sql`
-        WITH intern_stats AS (
-            SELECT 
-                COUNT(*) as total_interns,
-                COUNT(*) FILTER (WHERE notice = true) as active_notices
-            FROM interns 
-            WHERE batch_id = ${batchId}
-        ),
-        observation_stats AS (
-            SELECT COUNT(*) as pending_observations
-            FROM interns i
-            WHERE i.batch_id = ${batchId}
-            AND NOT EXISTS (
-                SELECT 1 FROM observations o 
-                WHERE o.intern_id = i.id 
-                AND o.mentor_id = ${mentorId}
-                AND o.batch_id = ${batchId}
-                AND o.created_at >= CURRENT_DATE - INTERVAL '15 days'
-            )
-        ),
-        feedback_stats AS (
-            SELECT COUNT(*) as pending_feedback
-            FROM feedbacks
-            WHERE batch_id = ${batchId} AND delivered = false
-        )
         SELECT 
-            i.total_interns,
-            i.active_notices,
-            o.pending_observations,
-            f.pending_feedback
-        FROM intern_stats i, observation_stats o, feedback_stats f
+            -- Intern statistics
+            (SELECT COUNT(*) FROM interns WHERE batch_id = ${batchId}) as total_interns,
+            (SELECT COUNT(*) FROM interns WHERE batch_id = ${batchId} AND notice = true) as active_notices,
+            
+            -- Pending observations - interns without recent observations from this mentor
+            (
+                SELECT COUNT(*)
+                FROM interns i
+                WHERE i.batch_id = ${batchId}
+                AND NOT EXISTS (
+                    SELECT 1 
+                    FROM observations o 
+                    WHERE o.intern_id = i.id 
+                        AND o.mentor_id = ${mentorId}
+                        AND o.batch_id = ${batchId}
+                        AND o.created_at >= ${fifteenDaysAgo.toISOString()}
+                )
+            ) as pending_observations,
+            
+            -- Pending feedback count
+            (SELECT COUNT(*) FROM feedbacks WHERE batch_id = ${batchId} AND delivered = false) as pending_feedback
     `;
     
     return {
