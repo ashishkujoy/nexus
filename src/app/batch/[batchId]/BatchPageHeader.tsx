@@ -1,8 +1,8 @@
 "use client";
-import { useState, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import AddInternsModal from "./AddInternsModal";
+import { useModalStore } from "../../stores/modalStore";
 
 type PageHeaderProps = {
     title: string;
@@ -22,11 +22,7 @@ const formatedDate = (date: Date) => {
 const BatchPageHeader = (props: PageHeaderProps) => {
     const queryClient = useQueryClient();
     const router = useRouter();
-    const [showModal, setShowModal] = useState(false);
-    
-    const toggleModal = useCallback(() => {
-        setShowModal(prev => !prev);
-    }, []);
+    const { addInternsModal, openAddInternsModal, closeAddInternsModal } = useModalStore();
 
     return (
         <div>
@@ -38,15 +34,15 @@ const BatchPageHeader = (props: PageHeaderProps) => {
                 </div>
                 {
                     props.root && <div className="header-actions">
-                        <button className="btn btn-primary" onClick={toggleModal}>+ Add Intern</button>
+                        <button className="btn btn-primary" onClick={openAddInternsModal}>+ Add Intern</button>
                     </div>
                 }
             </div>
-            {showModal && <AddInternsModal
+            {addInternsModal && <AddInternsModal
                 batchId={props.batchId}
-                onClose={toggleModal}
+                onClose={closeAddInternsModal}
                 onInternsAdded={() => {
-                    toggleModal();
+                    closeAddInternsModal();
                     queryClient.invalidateQueries({ queryKey: ['interns'] });
                     router.refresh(); // Refresh server-side data
                 }}
