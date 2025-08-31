@@ -21,17 +21,41 @@ export type Intern = {
     email: string;
 }
 
-const MainSection = async (props: { batchId: number; interns: Promise<Intern[]>; canDeliver: boolean }) => {
+const BatchDataProvider = async (props: { batchId: number; interns: Promise<Intern[]>; canDeliver: boolean }) => {
+    // Stream data in parallel with separate Suspense boundaries
     const [interns, observations, feedbacks] = await Promise.all([
         props.interns,
-        fetchObservations(props.batchId),
+        fetchObservations(props.batchId),  
         fetchFeedbacks(props.batchId),
     ]);
 
     return (
+        <BatchClientSection 
+            interns={interns} 
+            observations={observations} 
+            feedbacks={feedbacks} 
+            canDeliver={props.canDeliver} 
+            batchId={props.batchId} 
+        />
+    );
+};
+
+const MainSection = (props: { batchId: number; interns: Promise<Intern[]>; canDeliver: boolean }) => {
+    return (
         <div className="card">
             <div className="card-body" style={{ padding: "0", overflowY: "auto" }}>
-                <BatchClientSection interns={interns} observations={observations} feedbacks={feedbacks} canDeliver={props.canDeliver} batchId={props.batchId} />
+                <Suspense fallback={
+                    <div style={{ padding: "20px", textAlign: "center" }}>
+                        <Skeleton width="100%" height="400px" />
+                        <div style={{ marginTop: "10px", color: "#6c757d" }}>Loading batch data...</div>
+                    </div>
+                }>
+                    <BatchDataProvider 
+                        batchId={props.batchId} 
+                        interns={props.interns} 
+                        canDeliver={props.canDeliver}
+                    />
+                </Suspense>
             </div>
         </div>
     )
@@ -51,7 +75,16 @@ const ContentGrid = (props: { batch: Batch; interns: Promise<Intern[]>; mentorId
     return (
         <div className="content-grid">
             <MainSection interns={props.interns} batchId={props.batch.id} canDeliver={props.batch.permissions.programManager} />
-            <RightSidebarSection interns={props.interns} batch={props.batch} mentorId={props.mentorId} />
+            <Suspense fallback={
+                <div className="sidebar-section">
+                    <div style={{ padding: "20px" }}>
+                        <Skeleton width="100%" height="200px" />
+                        <div style={{ marginTop: "10px", color: "#6c757d", fontSize: "14px" }}>Loading sidebar...</div>
+                    </div>
+                </div>
+            }>
+                <RightSidebarSection interns={props.interns} batch={props.batch} mentorId={props.mentorId} />
+            </Suspense>
         </div>
     )
 }

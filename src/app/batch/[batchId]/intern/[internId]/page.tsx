@@ -5,6 +5,8 @@ import Observations from "@/app/components/Observations";
 import { authOptions } from "@/app/lib/auth";
 import { getServerSession } from "next-auth";
 import Image from "next/image";
+import { Suspense } from "react";
+import { Skeleton } from "@/app/components/Skeleton";
 import { Intern } from "../../page";
 import { Feedback, Observation, Permissions } from "../../types";
 import { fetchFeedbacks, fetchIntern, fetchObservations, fetchPermissions } from "./action";
@@ -109,33 +111,66 @@ const MainContent = (props: MainContentProps) => {
     )
 }
 
-const InternPage = async ({ params }: { params: Promise<{ batchId: number; internId: number; }> }) => {
-    const { batchId, internId } = await params;
-    const session = await getServerSession(authOptions);
-    const userId = session?.user.id || -1;
-
+// Streaming data components
+const InternDataProvider = async (props: { 
+    batchId: number; 
+    internId: number; 
+    permissions: Promise<Permissions>;
+}) => {
     const [permissions, intern, feedbacks, observations] = await Promise.all([
-        fetchPermissions(userId, batchId, session?.user.isRoot || false),
-        fetchIntern(internId),
-        fetchFeedbacks(internId),
-        fetchObservations(internId),
+        props.permissions,
+        fetchIntern(props.internId),
+        fetchFeedbacks(props.internId),
+        fetchObservations(props.internId),
     ]);
 
     feedbacks.forEach((feedback) => feedback.internName = intern.name);
     observations.forEach((observation) => observation.internName = intern.name);
 
     return (
+        <MainContent
+            intern={intern}
+            feedbacks={feedbacks}
+            observations={observations}
+            batchId={props.batchId}
+            permissions={permissions}
+        />
+    );
+};
+
+const InternPage = async ({ params }: { params: Promise<{ batchId: number; internId: number; }> }) => {
+    const { batchId, internId } = await params;
+    const session = await getServerSession(authOptions);
+    const userId = session?.user.id || -1;
+    
+    const permissionsPromise = fetchPermissions(userId, batchId, session?.user.isRoot || false);
+
+    return (
         <div className="main-container">
             <div className="page-container">
                 <div className="main-content">
                     <AppHeader />
-                    <MainContent
-                        intern={intern}
-                        feedbacks={feedbacks}
-                        observations={observations}
-                        batchId={batchId}
-                        permissions={permissions}
-                    />
+                    <Suspense fallback={
+                        <div style={{ padding: "20px" }}>
+                            <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
+                                <Skeleton width="150px" height="150px" />
+                                <div style={{ flex: 1 }}>
+                                    <Skeleton width="200px" height="32px" />
+                                    <div style={{ marginTop: "10px" }}>
+                                        <Skeleton width="300px" height="20px" />
+                                    </div>
+                                </div>
+                            </div>
+                            <Skeleton width="100%" height="300px" />
+                            <div style={{ marginTop: "10px", color: "#6c757d" }}>Loading intern profile...</div>
+                        </div>
+                    }>
+                        <InternDataProvider 
+                            batchId={batchId}
+                            internId={internId}
+                            permissions={permissionsPromise}
+                        />
+                    </Suspense>
                 </div>
             </div>
         </div>
