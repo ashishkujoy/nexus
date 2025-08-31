@@ -1,5 +1,5 @@
 "use client";
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, memo, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useModalStore } from "../stores/modalStore";
@@ -95,7 +95,7 @@ const DeliveryModal = (props: DeliveryModalProps) => {
     )
 }
 
-const FeedbackConversation = (props: { feedback: Feedback; hidden: boolean }) => {
+const FeedbackConversation = memo((props: { feedback: Feedback; hidden: boolean }) => {
     const { data: conversation, isLoading, error } = useQuery({
         queryKey: ['feedback-conversation', props.feedback.id],
         queryFn: async () => {
@@ -147,9 +147,11 @@ const FeedbackConversation = (props: { feedback: Feedback; hidden: boolean }) =>
             </div>
         </div>
     )
-}
+})
 
-const FeedbackCard = (props: { feedback: Feedback, canDeliver: boolean }) => {
+FeedbackConversation.displayName = 'FeedbackConversation';
+
+const FeedbackCard = memo((props: { feedback: Feedback, canDeliver: boolean }) => {
     const { feedback, canDeliver } = props;
     const queryClient = useQueryClient();
     const router = useRouter();
@@ -198,20 +200,30 @@ const FeedbackCard = (props: { feedback: Feedback, canDeliver: boolean }) => {
             }} />}
         </div>
     )
-}
+})
 
-const Feedbacks = (props: { feedbacks: Feedback[]; canDeliver: boolean }) => {
+FeedbackCard.displayName = 'FeedbackCard';
+
+const Feedbacks = memo((props: { feedbacks: Feedback[]; canDeliver: boolean }) => {
+    // Memoize the feedback cards rendering to prevent unnecessary re-renders
+    const feedbackCards = useMemo(() => 
+        props.feedbacks.map(feedback => (
+            <FeedbackCard
+                key={feedback.id}
+                feedback={feedback}
+                canDeliver={props.canDeliver}
+            />
+        )), 
+        [props.feedbacks, props.canDeliver]
+    );
+
     return (
         <div className="observations-list">
-            {
-                props.feedbacks.map(feedback => <FeedbackCard
-                    key={feedback.id}
-                    feedback={feedback}
-                    canDeliver={props.canDeliver}
-                />)
-            }
+            {feedbackCards}
         </div>
     )
-}
+})
+
+Feedbacks.displayName = 'Feedbacks';
 
 export default Feedbacks;
