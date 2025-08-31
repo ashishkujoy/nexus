@@ -1,7 +1,7 @@
 "use client";
 import { AlertTriangle, Calendar, Eye, FileText, Users, X } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import ErrorOverlay from './ErrorOverlay';
 import LoaderOverlay from './LoaderOverlay';
@@ -220,6 +220,7 @@ type ObservationModalProps = {
 }
 
 const ObservationModal = (props: ObservationModalProps) => {
+    const queryClient = useQueryClient();
     const [selectedBatch, setSelectedBatch] = useState(-1);
     const [selectedIntern, setSelectedIntern] = useState(-1);
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -316,7 +317,7 @@ const ObservationModal = (props: ObservationModalProps) => {
             {observationMutation.isSuccess && <SuccessOverlay title="Success" message="Observation recorded successfully!" onClose={() => {
                 observationMutation.reset();
                 props.onClose();
-                window.location.reload();
+                queryClient.invalidateQueries({ queryKey: ['observations'] });
             }} />}
             {observationMutation.isError && <ErrorOverlay title="Error" message={observationMutation.error?.message || "Failed to submit observation"} onClose={() => observationMutation.reset()} />}
         </div>

@@ -1,7 +1,7 @@
 "use client";
 import { AlertTriangle, Calendar, Eye, FileText, Paintbrush, Users, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import "./observationModal.css";
 import LoaderOverlay from './LoaderOverlay';
@@ -271,6 +271,7 @@ const codeToColor = (code: number): string | undefined => {
 }
 
 const FeedbackModal = (props: FeedbackModalProps) => {
+    const queryClient = useQueryClient();
     const [selectedBatch, setSelectedBatch] = useState(-1);
     const [selectedIntern, setSelectedIntern] = useState(-1);
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -370,7 +371,7 @@ const FeedbackModal = (props: FeedbackModalProps) => {
             {feedbackMutation.isSuccess && <SuccessOverlay title="Success" message="Feedback recorded successfully!" onClose={() => {
                 feedbackMutation.reset();
                 props.onClose();
-                window.location.reload();
+                queryClient.invalidateQueries({ queryKey: ['feedbacks'] });
             }} />}
             {feedbackMutation.isError && <ErrorOverlay title="Error" message={feedbackMutation.error?.message || "Failed to submit feedback"} onClose={() => feedbackMutation.reset()} />}
         </div>

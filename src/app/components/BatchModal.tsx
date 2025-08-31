@@ -4,7 +4,7 @@ import { FormEvent } from "react";
 import LoaderOverlay from "./LoaderOverlay";
 import SuccessOverlay from "./SuccessOverlay";
 import ErrorOverlay from "./ErrorOverlay";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const ModalHeader = (props: { onClose: () => void; }) => {
     return (
@@ -59,6 +59,7 @@ type BatchModalProps = {
 }
 
 const BatchModal = (props: BatchModalProps) => {
+    const queryClient = useQueryClient();
     const createBatchMutation = useMutation({
         mutationFn: async (batchData: {
             name: string;
@@ -123,7 +124,7 @@ const BatchModal = (props: BatchModalProps) => {
             {createBatchMutation.isPending && <LoaderOverlay title="Hold On" message="Creating batch..." />}
             {createBatchMutation.isSuccess && <SuccessOverlay title="Success" message="Batch created successfully!" onClose={() => {
                 createBatchMutation.reset();
-                window.location.reload();
+                queryClient.invalidateQueries({ queryKey: ['batches'] });
                 props.onClose();
             }} />}
             {createBatchMutation.isError && <ErrorOverlay title="Error" message={createBatchMutation.error?.message || "Failed to create batch. Please try again."} onClose={() => createBatchMutation.reset()} />}
