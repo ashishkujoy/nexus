@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, memo } from "react";
+import { memo } from "react";
 import Link from "next/link";
 import BatchModal from "./components/BatchModal";
 import { formatDate } from "./date";
+import { useModalStore } from "./stores/modalStore";
 
 type Permissions = {
     recordObservation: boolean;
@@ -102,13 +103,12 @@ type BatchSectionProps = {
 
 const BatchSection = (props: BatchSectionProps) => {
     const { batchs } = props;
-    const [batchModal, setBatchModal] = useState(false);
-    const toggleBatchModal = () => setBatchModal(!batchModal);
+    const { batchModal, openBatchModal, closeBatchModal } = useModalStore();
 
     return (
         <div className="batch-section">
-            {batchs.length > 0 ? <Batchs batchs={batchs} onNewBatch={toggleBatchModal} allowBatchCreation={props.allowBatchCreation} /> : <EmptyBatch onNewBatch={toggleBatchModal} allowBatchCreation={props.allowBatchCreation} />}
-            {batchModal && <BatchModal onClose={toggleBatchModal} />}
+            {batchs.length > 0 ? <Batchs batchs={batchs} onNewBatch={openBatchModal} allowBatchCreation={props.allowBatchCreation} /> : <EmptyBatch onNewBatch={openBatchModal} allowBatchCreation={props.allowBatchCreation} />}
+            {batchModal && <BatchModal onClose={closeBatchModal} />}
         </div>
     );
 }
