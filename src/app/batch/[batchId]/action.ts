@@ -129,7 +129,7 @@ export const fetchObservations = async (batchId: number): Promise<Observation[]>
         FROM observations o
         JOIN interns i ON o.intern_id = i.id
         JOIN mentors m ON o.mentor_id = m.id
-        WHERE o.batch_id = ${batchId} AND o.created_at >= CURRENT_DATE - INTERVAL '1 day' * 30
+        WHERE o.batch_id = ${batchId}
         ORDER BY o.created_at DESC
     `;
 
@@ -150,7 +150,7 @@ export const fetchFeedbacks = async (batchId: number): Promise<Feedback[]> => {
         FROM feedbacks f
         JOIN interns i ON f.intern_id = i.id
         JOIN mentors m ON f.mentor_id = m.id
-        WHERE f.batch_id = ${batchId} AND f.created_at >= CURRENT_DATE - INTERVAL '1 day' * 30
+        WHERE f.batch_id = ${batchId}
         ORDER BY f.created_at DESC
     `;
 

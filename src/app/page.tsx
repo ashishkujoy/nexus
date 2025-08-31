@@ -6,7 +6,6 @@ import { authOptions, User } from "./lib/auth";
 
 
 const MainContent = async (props: { user: User }) => {
-  console.log(props.user)
   const batchs = await fetchBatchesAssigned(props.user.id, props.user.isRoot);
 
   return (
