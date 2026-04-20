@@ -1,6 +1,7 @@
 export type Observation = {
     id: number;
     internName: string;
+    mentorId: number;
     mentorName: string;
     date: Date;
     content: string;
@@ -10,6 +11,7 @@ export type Observation = {
 export type Feedback = {
     id: number;
     internName: string;
+    mentorId: number;
     mentorName: string;
     date: Date;
     content: string;

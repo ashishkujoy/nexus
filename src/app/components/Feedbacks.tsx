@@ -1,4 +1,5 @@
 "use client";
+import { Eye, Paintbrush } from "lucide-react";
 import { FormEvent, useState, memo, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -154,17 +155,127 @@ const FeedbackConversation = memo((props: { feedback: Feedback; hidden: boolean 
 
 FeedbackConversation.displayName = 'FeedbackConversation';
 
-const FeedbackCard = memo((props: { feedback: Feedback, canDeliver: boolean }) => {
-    const { feedback, canDeliver } = props;
+const COLOR_OPTIONS = [
+    { name: "Green", value: "green" },
+    { name: "Yellow", value: "yellow" },
+    { name: "Orange", value: "orange" },
+    { name: "Red", value: "red" },
+];
+
+type EditFeedbackModalProps = {
+    feedback: Feedback;
+    onClose: () => void;
+    onSaved: () => void;
+}
+
+const EditFeedbackModal = (props: EditFeedbackModalProps) => {
+    const [content, setContent] = useState(props.feedback.content);
+    const [notice, setNotice] = useState(props.feedback.notice);
+    const [colorCode, setColorCode] = useState(props.feedback.colorCode ?? "");
+    const [isPreview, setIsPreview] = useState(false);
+
+    const editMutation = useMutation({
+        mutationFn: async () => {
+            const response = await fetch(`/api/feedbacks/${props.feedback.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content, notice, colorCode: colorCode || undefined }),
+            });
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error || "Failed to update feedback");
+            }
+            return response.json();
+        },
+        onSuccess: () => { props.onSaved(); },
+    });
+
+    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!editMutation.isPending) editMutation.mutate();
+    };
+
+    return (
+        <div id="editFeedbackModal" className="modal active">
+            <div className="modal-content">
+                <div className="modal-header">
+                    <div className="modal-title">Edit Feedback</div>
+                    <button className="close-btn" onClick={props.onClose}>&times;</button>
+                </div>
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group" style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                            <Paintbrush size={14} />
+                            <select
+                                value={colorCode}
+                                onChange={(e) => setColorCode(e.target.value)}
+                                className="feedback-input"
+                                style={{ padding: "4px 8px" }}
+                            >
+                                <option value="">No color</option>
+                                {COLOR_OPTIONS.map(c => (
+                                    <option key={c.value} value={c.value}>{c.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <label style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer" }}>
+                            <input type="checkbox" checked={notice} onChange={(e) => setNotice(e.target.checked)} />
+                            Notice
+                        </label>
+                    </div>
+                    <div className="form-group">
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                            <label className="form-label">Content</label>
+                            <button
+                                type="button"
+                                className="action-btn btn-secondary"
+                                style={{ padding: "2px 10px", fontSize: "12px" }}
+                                onClick={() => setIsPreview(!isPreview)}
+                            >
+                                <Eye size={12} style={{ marginRight: "4px" }} />
+                                {isPreview ? "Edit" : "Preview"}
+                            </button>
+                        </div>
+                        {isPreview ? (
+                            <div className="conversation-content"><MarkdownRenderer content={content} /></div>
+                        ) : (
+                            <textarea
+                                className="conversation-input"
+                                value={content}
+                                onChange={(e) => setContent(e.target.value)}
+                                required
+                                rows={8}
+                            />
+                        )}
+                    </div>
+                    <div className="feedback-actions">
+                        <button className="action-btn btn-deliver" type="submit" disabled={editMutation.isPending}>
+                            {editMutation.isPending ? "Saving..." : "Save Changes"}
+                        </button>
+                        <button className="action-btn btn-secondary" type="button" onClick={props.onClose}>Cancel</button>
+                    </div>
+                    {editMutation.isError && (
+                        <p style={{ color: "red", marginTop: "8px" }}>{editMutation.error?.message}</p>
+                    )}
+                </form>
+            </div>
+        </div>
+    );
+};
+
+const FeedbackCard = memo((props: { feedback: Feedback, canDeliver: boolean, currentUserId: number }) => {
+    const { feedback, canDeliver, currentUserId } = props;
     const queryClient = useQueryClient();
     const router = useRouter();
     const { deliveryModalFeedbackId, openDeliveryModal, closeDeliveryModal } = useModalStore();
     const [collapsed, setCollapsed] = useState(true);
     const [showConversation, setShowConversation] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
     const toggleShowConversation = () => setShowConversation(!showConversation);
     const toggleCollapsed = () => setCollapsed(!collapsed);
-    
+
     const isDeliveryModalOpen = deliveryModalFeedbackId === feedback.id;
+    const isAuthor = feedback.mentorId === currentUserId;
 
     return (
         <div>
@@ -190,6 +301,7 @@ const FeedbackCard = memo((props: { feedback: Feedback, canDeliver: boolean }) =
                 <div className="feedback-actions">
                     {feedback.delivered && <button className="action-btn btn-view-conversation" onClick={toggleShowConversation}>View Conversation</button>}
                     {canDeliver && !feedback.delivered && <button className="action-btn btn-deliver" onClick={() => openDeliveryModal(feedback.id)}>Mark as Delivered</button>}
+                    {isAuthor && !feedback.delivered && <button className="action-btn btn-secondary" onClick={() => setIsEditing(true)}>Edit</button>}
                     <button className="action-btn btn-secondary" onClick={toggleCollapsed}>{collapsed ? "View More" : "View Less"}</button>
                 </div>
                 <FeedbackConversation feedback={feedback} hidden={!showConversation} />
@@ -199,7 +311,12 @@ const FeedbackCard = memo((props: { feedback: Feedback, canDeliver: boolean }) =
                 closeDeliveryModal();
                 queryClient.invalidateQueries({ queryKey: ['feedback-conversation'] });
                 queryClient.invalidateQueries({ queryKey: ['feedbacks'] });
-                router.refresh(); // Refresh server-side data
+                router.refresh();
+            }} />}
+            {isEditing && <EditFeedbackModal feedback={feedback} onClose={() => setIsEditing(false)} onSaved={() => {
+                setIsEditing(false);
+                queryClient.invalidateQueries({ queryKey: ['feedbacks'] });
+                router.refresh();
             }} />}
         </div>
     )
@@ -207,17 +324,17 @@ const FeedbackCard = memo((props: { feedback: Feedback, canDeliver: boolean }) =
 
 FeedbackCard.displayName = 'FeedbackCard';
 
-const Feedbacks = memo((props: { feedbacks: Feedback[]; canDeliver: boolean }) => {
-    // Memoize the feedback cards rendering to prevent unnecessary re-renders
-    const feedbackCards = useMemo(() => 
+const Feedbacks = memo((props: { feedbacks: Feedback[]; canDeliver: boolean; currentUserId: number }) => {
+    const feedbackCards = useMemo(() =>
         props.feedbacks.map(feedback => (
             <FeedbackCard
                 key={feedback.id}
                 feedback={feedback}
                 canDeliver={props.canDeliver}
+                currentUserId={props.currentUserId}
             />
-        )), 
-        [props.feedbacks, props.canDeliver]
+        )),
+        [props.feedbacks, props.canDeliver, props.currentUserId]
     );
 
     return (

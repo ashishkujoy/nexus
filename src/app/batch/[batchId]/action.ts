@@ -125,7 +125,7 @@ export const countInternsWithoutRecentObservations = async (
 
 export const fetchObservations = async (batchId: number): Promise<Observation[]> => {
     const rows = await sql`
-        SELECT o.id, i.name as "internName", m.username as "mentorName", o.created_at as "date", o.content, o.watchout
+        SELECT o.id, o.mentor_id as "mentorId", i.name as "internName", m.username as "mentorName", o.created_at as "date", o.content, o.watchout
         FROM observations o
         JOIN interns i ON o.intern_id = i.id
         JOIN mentors m ON o.mentor_id = m.id
@@ -136,6 +136,7 @@ export const fetchObservations = async (batchId: number): Promise<Observation[]>
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return rows.map((row: any) => ({
         id: row.id as number,
+        mentorId: row.mentorId as number,
         internName: row.internName as string,
         mentorName: row.mentorName as string,
         date: new Date(row.date),
@@ -146,7 +147,7 @@ export const fetchObservations = async (batchId: number): Promise<Observation[]>
 
 export const fetchFeedbacks = async (batchId: number): Promise<Feedback[]> => {
     const rows = await sql`
-        SELECT f.id, i.name as "internName", m.username as "mentorName", f.created_at as date, f.content, f.notice, f.delivered, f.color_code as "colorCode"
+        SELECT f.id, f.mentor_id as "mentorId", i.name as "internName", m.username as "mentorName", f.created_at as date, f.content, f.notice, f.delivered, f.color_code as "colorCode"
         FROM feedbacks f
         JOIN interns i ON f.intern_id = i.id
         JOIN mentors m ON f.mentor_id = m.id
@@ -157,6 +158,7 @@ export const fetchFeedbacks = async (batchId: number): Promise<Feedback[]> => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return rows.map((row: any) => ({
         id: row.id as number,
+        mentorId: row.mentorId as number,
         internName: row.internName as string,
         mentorName: row.mentorName as string,
         date: new Date(row.date),

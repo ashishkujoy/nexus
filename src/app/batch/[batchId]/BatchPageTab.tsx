@@ -128,12 +128,13 @@ const InternsTab = (props: InternsTabProps) => {
 type ObservationsTabProps = {
     active: boolean;
     observations: Observation[];
+    currentUserId: number;
 }
 
 const ObservationsTab = (props: ObservationsTabProps) => {
     return (
         <div id="observations" className={`tab-content ${props.active && "active"}`}>
-            <Observations observations={props.observations} />
+            <Observations observations={props.observations} currentUserId={props.currentUserId} />
         </div>
     )
 }
@@ -142,12 +143,13 @@ type FeedbacksTabProps = {
     active: boolean;
     feedbacks: Feedback[];
     canDeliver: boolean;
+    currentUserId: number;
 }
 
 const FeedbacksTab = (props: FeedbacksTabProps) => {
     return (
         <div id="feedback" className={`tab-content ${props.active && "active"}`}>
-            <Feedbacks feedbacks={props.feedbacks} canDeliver={props.canDeliver} />
+            <Feedbacks feedbacks={props.feedbacks} canDeliver={props.canDeliver} currentUserId={props.currentUserId} />
         </div>
     )
 }
@@ -212,6 +214,7 @@ const BatchPageTab = (props: {
     feedbacks: Feedback[];
     canDeliver: boolean;
     batchId: number;
+    currentUserId: number;
 }) => {
     const [activeTab, setActiveTab] = useState("Interns");
     const tabs = ["Interns", "Observations", "Feedbacks"];
@@ -249,8 +252,8 @@ const BatchPageTab = (props: {
             <div>
                 <FilterSection filter={filter} setFilter={(filter) => setFilter(filter)} activeTab={activeTab} />
                 <InternsTab interns={interns} active={activeTab === tabs[0]} batchId={props.batchId} />
-                <ObservationsTab active={activeTab === tabs[1]} observations={observations} />
-                <FeedbacksTab active={activeTab === tabs[2]} feedbacks={feedbacks} canDeliver={props.canDeliver} />
+                <ObservationsTab active={activeTab === tabs[1]} observations={observations} currentUserId={props.currentUserId} />
+                <FeedbacksTab active={activeTab === tabs[2]} feedbacks={feedbacks} canDeliver={props.canDeliver} currentUserId={props.currentUserId} />
             </div>
         </div>
     )

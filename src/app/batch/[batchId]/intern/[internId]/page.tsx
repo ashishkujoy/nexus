@@ -45,26 +45,26 @@ const ProfileInfo = (props: ProfileInfoProps) => {
     )
 }
 
-const ObservationSection = (props: { observations: Observation[] }) => {
+const ObservationSection = (props: { observations: Observation[]; currentUserId: number }) => {
     return (
         <div className="section-card">
             <h2 className="section-title">
                 <ObservationIcon />
                 Observations
             </h2>
-            <Observations observations={props.observations} />
+            <Observations observations={props.observations} currentUserId={props.currentUserId} />
         </div>
     )
 }
 
-const FeedbackSection = (props: { feedbacks: Feedback[]; canDeliver: boolean }) => {
+const FeedbackSection = (props: { feedbacks: Feedback[]; canDeliver: boolean; currentUserId: number }) => {
     return (
         <div className="section-card">
             <h2 className="section-title">
                 <FeedbackIcon />
                 Feedback
             </h2>
-            <Feedbacks feedbacks={props.feedbacks} canDeliver={props.canDeliver} />
+            <Feedbacks feedbacks={props.feedbacks} canDeliver={props.canDeliver} currentUserId={props.currentUserId} />
         </div>
     )
 }
@@ -75,6 +75,7 @@ type MainContentProps = {
     observations: Observation[];
     batchId: number;
     permissions: Permissions;
+    currentUserId: number;
 }
 
 const MainContent = (props: MainContentProps) => {
@@ -108,18 +109,19 @@ const MainContent = (props: MainContentProps) => {
                 />
             </div>
             <div className="content-grid">
-                <ObservationSection observations={props.observations} />
-                <FeedbackSection feedbacks={props.feedbacks} canDeliver={props.permissions.programManager} />
+                <ObservationSection observations={props.observations} currentUserId={props.currentUserId} />
+                <FeedbackSection feedbacks={props.feedbacks} canDeliver={props.permissions.programManager} currentUserId={props.currentUserId} />
             </div>
         </div>
     )
 }
 
 // Streaming data components
-const InternDataProvider = async (props: { 
-    batchId: number; 
-    internId: number; 
+const InternDataProvider = async (props: {
+    batchId: number;
+    internId: number;
     permissions: Promise<Permissions>;
+    currentUserId: number;
 }) => {
     const [permissions, intern, feedbacks, observations] = await Promise.all([
         props.permissions,
@@ -138,6 +140,7 @@ const InternDataProvider = async (props: {
             observations={observations}
             batchId={props.batchId}
             permissions={permissions}
+            currentUserId={props.currentUserId}
         />
     );
 };
@@ -169,10 +172,11 @@ const InternPage = async ({ params }: { params: Promise<{ batchId: number; inter
                             <div style={{ marginTop: "10px", color: "#6c757d" }}>Loading intern profile...</div>
                         </div>
                     }>
-                        <InternDataProvider 
+                        <InternDataProvider
                             batchId={batchId}
                             internId={internId}
                             permissions={permissionsPromise}
+                            currentUserId={userId}
                         />
                     </Suspense>
                 </div>

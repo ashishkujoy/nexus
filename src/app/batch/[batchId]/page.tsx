@@ -21,26 +21,26 @@ export type Intern = {
     email: string;
 }
 
-const BatchDataProvider = async (props: { batchId: number; interns: Promise<Intern[]>; canDeliver: boolean }) => {
-    // Stream data in parallel with separate Suspense boundaries
+const BatchDataProvider = async (props: { batchId: number; interns: Promise<Intern[]>; canDeliver: boolean; currentUserId: number }) => {
     const [interns, observations, feedbacks] = await Promise.all([
         props.interns,
-        fetchObservations(props.batchId),  
+        fetchObservations(props.batchId),
         fetchFeedbacks(props.batchId),
     ]);
 
     return (
-        <BatchClientSection 
-            interns={interns} 
-            observations={observations} 
-            feedbacks={feedbacks} 
-            canDeliver={props.canDeliver} 
-            batchId={props.batchId} 
+        <BatchClientSection
+            interns={interns}
+            observations={observations}
+            feedbacks={feedbacks}
+            canDeliver={props.canDeliver}
+            batchId={props.batchId}
+            currentUserId={props.currentUserId}
         />
     );
 };
 
-const MainSection = (props: { batchId: number; interns: Promise<Intern[]>; canDeliver: boolean }) => {
+const MainSection = (props: { batchId: number; interns: Promise<Intern[]>; canDeliver: boolean; currentUserId: number }) => {
     return (
         <div className="card">
             <div className="card-body" style={{ padding: "0", overflowY: "auto" }}>
@@ -50,10 +50,11 @@ const MainSection = (props: { batchId: number; interns: Promise<Intern[]>; canDe
                         <div style={{ marginTop: "10px", color: "#6c757d" }}>Loading batch data...</div>
                     </div>
                 }>
-                    <BatchDataProvider 
-                        batchId={props.batchId} 
-                        interns={props.interns} 
+                    <BatchDataProvider
+                        batchId={props.batchId}
+                        interns={props.interns}
                         canDeliver={props.canDeliver}
+                        currentUserId={props.currentUserId}
                     />
                 </Suspense>
             </div>
@@ -74,7 +75,7 @@ const RightSidebarSection = async (props: { interns: Promise<Intern[]>, batch: B
 const ContentGrid = (props: { batch: Batch; interns: Promise<Intern[]>; mentorId: number; }) => {
     return (
         <div className="content-grid">
-            <MainSection interns={props.interns} batchId={props.batch.id} canDeliver={props.batch.permissions.programManager} />
+            <MainSection interns={props.interns} batchId={props.batch.id} canDeliver={props.batch.permissions.programManager} currentUserId={props.mentorId} />
             <Suspense fallback={
                 <div className="sidebar-section">
                     <div style={{ padding: "20px" }}>
