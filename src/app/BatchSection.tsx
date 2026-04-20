@@ -66,7 +66,12 @@ const Batchs = (props: { batchs: Batch[]; onNewBatch: () => void; allowBatchCrea
         <div className="section" style={{ height: "calc(100vh - 90px)" }}>
             <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3 className="section-title">My Batches</h3>
-                {props.allowBatchCreation && <button className="btn btn-primary" onClick={props.onNewBatch}>+ Add Batch</button>}
+                {props.allowBatchCreation && (
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <Link href="/admin" className="btn btn-secondary">Admin</Link>
+                        <button className="btn btn-primary" onClick={props.onNewBatch}>+ Add Batch</button>
+                    </div>
+                )}
             </div>
 
             <div className="batch-grid">
@@ -82,7 +87,12 @@ const EmptyBatch = (props: { onNewBatch: () => void; allowBatchCreation: boolean
             <div className="section" style={{ height: "calc(100vh - 80px)" }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div className="section-title">My Batches</div>
-                    {props.allowBatchCreation && <button className="btn btn-primary" onClick={props.onNewBatch}>+ Add Batch</button>}
+                    {props.allowBatchCreation && (
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <Link href="/admin" className="btn btn-secondary">Admin</Link>
+                            <button className="btn btn-primary" onClick={props.onNewBatch}>+ Add Batch</button>
+                        </div>
+                    )}
                 </div>
                 <div className="empty-state">
                     <div className="empty-icon">📋</div>
