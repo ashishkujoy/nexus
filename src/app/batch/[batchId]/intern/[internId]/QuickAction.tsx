@@ -50,29 +50,31 @@ const QuickActions = (props: { permissions: Permissions; batchId: number; batchN
     const clearError = useCallback(() => setErrorMsg(""), []);
     const clearSuccess = useCallback(() => setSuccessMsg(""), []);
 
+    const terminated = props.terminated;
+
     return (
         <div className="quick-actions">
             {
-                (recordObservation || programManager) && <button className="action-btn btn-primary" onClick={() => setObservationModalOpen(true)}>
+                (recordObservation || programManager) && <button className={`action-btn btn-primary ${terminated ? "disabled" : ""}`} onClick={terminated ? undefined : () => setObservationModalOpen(true)}>
                     <PlusIcon />
                     Record Observation
                 </button>
 
             }
             {
-                (recordFeedback || programManager) && <button className="action-btn btn-secondary" onClick={() => setFeedbackModalOpen(true)}>
+                (recordFeedback || programManager) && <button className={`action-btn btn-secondary ${terminated ? "disabled" : ""}`} onClick={terminated ? undefined : () => setFeedbackModalOpen(true)}>
                     <PlusIcon />
                     Record Feedback
                 </button>
             }
             {
-                programManager && <button className="action-btn btn-warning">
+                programManager && <button className={`action-btn btn-warning ${terminated ? "disabled" : ""}`}>
                     <NoticeIcon width={16} heigth={16} />
                     Mark Notice
                 </button>
             }
             {
-                programManager && <button className={`action-btn btn-danger ${props.terminated ? "disabled" : ""}`} onClick={terminateIntern}>
+                programManager && <button className={`action-btn btn-danger ${terminated ? "disabled" : ""}`} onClick={terminated ? undefined : terminateIntern}>
                     <TerminateIcon />
                     Terminate
                 </button>
