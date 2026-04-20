@@ -14,12 +14,18 @@ const ObservationModal = dynamic(() => import("@/app/components/ObservationModal
     ssr: false
 });
 
+const FeedbackModal = dynamic(() => import("@/app/components/FeedbackModal"), {
+    loading: () => <Skeleton width="600px" height="400px" />,
+    ssr: false
+});
+
 const QuickActions = (props: { permissions: Permissions; batchId: number; batchName: string; internId: number; internName: string; notice: boolean; terminated: boolean }) => {
     const { recordObservation, recordFeedback, programManager } = props.permissions;
     const [loadingMsg, setLoadingMsg] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
     const [successMsg, setSuccessMsg] = useState("");
     const [observationModalOpen, setObservationModalOpen] = useState(false);
+    const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
 
     const terminateIntern = useCallback(() => {
         setLoadingMsg("Terminating intern...");
@@ -54,7 +60,7 @@ const QuickActions = (props: { permissions: Permissions; batchId: number; batchN
 
             }
             {
-                (recordFeedback || programManager) && <button className="action-btn btn-secondary">
+                (recordFeedback || programManager) && <button className="action-btn btn-secondary" onClick={() => setFeedbackModalOpen(true)}>
                     <PlusIcon />
                     Record Feedback
                 </button>
@@ -70,6 +76,13 @@ const QuickActions = (props: { permissions: Permissions; batchId: number; batchN
                     <TerminateIcon />
                     Terminate
                 </button>
+            }
+            {
+                feedbackModalOpen && <FeedbackModal
+                    batches={[{ id: props.batchId, name: props.batchName }]}
+                    internsByBatch={{ [props.batchId]: [{ id: props.internId, name: props.internName }] }}
+                    onClose={() => setFeedbackModalOpen(false)}
+                />
             }
             {
                 observationModalOpen && <ObservationModal
