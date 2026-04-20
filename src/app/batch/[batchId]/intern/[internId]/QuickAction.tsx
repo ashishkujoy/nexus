@@ -3,15 +3,23 @@
 import ErrorOverlay from "@/app/components/ErrorOverlay";
 import { NoticeIcon, PlusIcon, TerminateIcon } from "@/app/components/Icons";
 import LoaderOverlay from "@/app/components/LoaderOverlay";
+import { Skeleton } from "@/app/components/Skeleton";
+import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
 import { Permissions } from "../../types";
 import SuccessOverlay from "@/app/components/SuccessOverlay";
 
-const QuickActions = (props: { permissions: Permissions; batchId: number; internId: number; notice: boolean; terminated: boolean }) => {
+const ObservationModal = dynamic(() => import("@/app/components/ObservationModal"), {
+    loading: () => <Skeleton width="600px" height="400px" />,
+    ssr: false
+});
+
+const QuickActions = (props: { permissions: Permissions; batchId: number; batchName: string; internId: number; internName: string; notice: boolean; terminated: boolean }) => {
     const { recordObservation, recordFeedback, programManager } = props.permissions;
     const [loadingMsg, setLoadingMsg] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
     const [successMsg, setSuccessMsg] = useState("");
+    const [observationModalOpen, setObservationModalOpen] = useState(false);
 
     const terminateIntern = useCallback(() => {
         setLoadingMsg("Terminating intern...");
@@ -39,7 +47,7 @@ const QuickActions = (props: { permissions: Permissions; batchId: number; intern
     return (
         <div className="quick-actions">
             {
-                (recordObservation || programManager) && <button className="action-btn btn-primary">
+                (recordObservation || programManager) && <button className="action-btn btn-primary" onClick={() => setObservationModalOpen(true)}>
                     <PlusIcon />
                     Record Observation
                 </button>
@@ -62,6 +70,13 @@ const QuickActions = (props: { permissions: Permissions; batchId: number; intern
                     <TerminateIcon />
                     Terminate
                 </button>
+            }
+            {
+                observationModalOpen && <ObservationModal
+                    batches={[{ id: props.batchId, name: props.batchName }]}
+                    internsByBatch={{ [props.batchId]: [{ id: props.internId, name: props.internName }] }}
+                    onClose={() => setObservationModalOpen(false)}
+                />
             }
             {
                 loadingMsg && <LoaderOverlay title="Hold On!" message={loadingMsg} />

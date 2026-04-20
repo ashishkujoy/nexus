@@ -266,6 +266,12 @@ const ObservationModal = (props: ObservationModalProps) => {
 
     const availableInterns: Intern[] = selectedBatch ? props.internsByBatch[selectedBatch] || [] : [];
 
+    useEffect(() => {
+        if (availableInterns.length === 1) {
+            setSelectedIntern(availableInterns[0].id);
+        }
+    }, [availableInterns])
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const reqBody = {

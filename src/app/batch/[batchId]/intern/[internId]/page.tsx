@@ -9,7 +9,7 @@ import { Suspense } from "react";
 import { Skeleton } from "@/app/components/Skeleton";
 import { Intern } from "../../page";
 import { Feedback, Observation, Permissions } from "../../types";
-import { fetchFeedbacks, fetchIntern, fetchObservations, fetchPermissions } from "./action";
+import { fetchBatchName, fetchFeedbacks, fetchIntern, fetchObservations, fetchPermissions } from "./action";
 import "./page.css";
 import QuickActions from "./QuickAction";
 
@@ -74,6 +74,7 @@ type MainContentProps = {
     feedbacks: Feedback[];
     observations: Observation[];
     batchId: number;
+    batchName: string;
     permissions: Permissions;
     currentUserId: number;
 }
@@ -103,7 +104,9 @@ const MainContent = (props: MainContentProps) => {
                 <QuickActions
                     permissions={props.permissions}
                     batchId={props.batchId}
+                    batchName={props.batchName}
                     internId={props.intern.id}
+                    internName={props.intern.name}
                     notice={props.intern.notice}
                     terminated={props.intern.terminated}
                 />
@@ -123,11 +126,12 @@ const InternDataProvider = async (props: {
     permissions: Promise<Permissions>;
     currentUserId: number;
 }) => {
-    const [permissions, intern, feedbacks, observations] = await Promise.all([
+    const [permissions, intern, feedbacks, observations, batchName] = await Promise.all([
         props.permissions,
         fetchIntern(props.internId),
         fetchFeedbacks(props.internId),
         fetchObservations(props.internId),
+        fetchBatchName(props.batchId),
     ]);
 
     feedbacks.forEach((feedback) => feedback.internName = intern.name);
@@ -139,6 +143,7 @@ const InternDataProvider = async (props: {
             feedbacks={feedbacks}
             observations={observations}
             batchId={props.batchId}
+            batchName={batchName}
             permissions={permissions}
             currentUserId={props.currentUserId}
         />

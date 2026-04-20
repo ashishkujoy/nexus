@@ -1,6 +1,12 @@
 import { sql } from "../../../../lib/db";
 import { Permissions } from "../../types";
 
+export const fetchBatchName = async (batchId: number): Promise<string> => {
+    const rows = await sql`SELECT name FROM batches WHERE id = ${batchId} LIMIT 1`;
+    if (rows.length === 0) throw new Error(`Batch ${batchId} not found`);
+    return rows[0].name as string;
+}
+
 export const fetchPermissions = async (mentorId: number, batchId: number, root: boolean) => {
     if (root) {
         return {
