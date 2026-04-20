@@ -14,6 +14,12 @@ pnpm dev
 bun dev
 ```
 
+For onboarding new intern, first create a new batch and get the batch id, then run the following command to create a new intern:
+
+```bash
+ npx tsx onboarding/airtable_client.ts <base id> <table id> <view name> <batch id>
+```
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
