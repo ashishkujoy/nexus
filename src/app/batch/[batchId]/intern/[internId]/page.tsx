@@ -3,6 +3,7 @@ import Feedbacks from "@/app/components/Feedbacks";
 import { FeedbackIcon, NoticeIcon, ObservationIcon } from "@/app/components/Icons";
 import Observations from "@/app/components/Observations";
 import { authOptions } from "@/app/lib/auth";
+import { AlertOctagon, AlertTriangle } from "lucide-react";
 import { getServerSession } from "next-auth";
 import Image from "next/image";
 import { Suspense } from "react";
@@ -25,15 +26,14 @@ const ProfileInfo = (props: ProfileInfoProps) => {
         <div className="profile-info">
             <div className="name-section">
                 <h1 className="profile-name">{props.name}</h1>
-                {
-                    props.notice && !props.terminated && <span className="notice-badge">
-                        <NoticeIcon width={16} />
+                {!props.terminated && !props.notice && <span className="status-badge status-active">Active</span>}
+                {props.notice && !props.terminated && (
+                    <span className="status-badge status-notice">
+                        <NoticeIcon width={14} />
                         Notice
                     </span>
-                }
-                {
-                    props.terminated && <span className="terminated-badge">Terminated</span>
-                }
+                )}
+                {props.terminated && <span className="status-badge status-terminated">Terminated</span>}
             </div>
             <div className="profile-details">
                 <div className="detail-item">
@@ -84,15 +84,48 @@ const MainContent = (props: MainContentProps) => {
         <div className="intern-container">
             <div className="intern-header">
                 <div className="intern-profile-section">
-                    <Image
-                        src={props.intern.imgUrl}
-                        alt={props.intern.name}
-                        width={150}
-                        height={150}
-                        loading="lazy"
-                        sizes="(max-width: 768px) 120px, 150px"
-                        style={{ borderRadius: "8px" }}
-                    />
+                    <div style={{
+                        position: 'relative',
+                        width: 150,
+                        height: 150,
+                        borderRadius: '8px',
+                        outline: props.intern.notice && !props.intern.terminated ? '3px solid #ef4444' : undefined,
+                        outlineOffset: '2px',
+                        flexShrink: 0,
+                    }}>
+                        <Image
+                            src={props.intern.imgUrl}
+                            alt={props.intern.name}
+                            width={150}
+                            height={150}
+                            loading="lazy"
+                            sizes="(max-width: 768px) 120px, 150px"
+                            style={{ borderRadius: '8px', display: 'block' }}
+                        />
+                        {props.intern.terminated && (
+                            <>
+                                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', borderRadius: '8px' }} />
+                                <AlertOctagon
+                                    color="#ef4444"
+                                    size={22}
+                                    strokeWidth={2}
+                                    style={{ position: 'absolute', top: 6, right: 6 }}
+                                />
+                            </>
+                        )}
+                        {props.intern.notice && !props.intern.terminated && (
+                            <div style={{
+                                position: 'absolute', top: 6, right: 6,
+                                background: '#fff',
+                                borderRadius: '50%',
+                                width: 28, height: 28,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
+                            }}>
+                                <AlertTriangle color="#ef4444" size={18} strokeWidth={2.5} />
+                            </div>
+                        )}
+                    </div>
 
                     <ProfileInfo
                         name={props.intern.name}

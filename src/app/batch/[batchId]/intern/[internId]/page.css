@@ -2,13 +2,8 @@
     display: flex;
     align-items: center;
     gap: 10px;
-}
-
-.name-section span {
-    background: #b4b6ba;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
 }
 
 .notice-badge {
@@ -97,6 +92,9 @@
 }
 
 .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 12px;
