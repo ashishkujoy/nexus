@@ -195,28 +195,30 @@ const InternPage = async ({ params }: { params: Promise<{ batchId: number; inter
             <div className="page-container">
                 <div className="main-content">
                     <AppHeader />
-                    <Suspense fallback={
-                        <div style={{ padding: "20px" }}>
-                            <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
-                                <Skeleton width="150px" height="150px" />
-                                <div style={{ flex: 1 }}>
-                                    <Skeleton width="200px" height="32px" />
-                                    <div style={{ marginTop: "10px" }}>
-                                        <Skeleton width="300px" height="20px" />
+                    <div className="content">
+                        <Suspense fallback={
+                            <div style={{ padding: "20px" }}>
+                                <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
+                                    <Skeleton width="150px" height="150px" />
+                                    <div style={{ flex: 1 }}>
+                                        <Skeleton width="200px" height="32px" />
+                                        <div style={{ marginTop: "10px" }}>
+                                            <Skeleton width="300px" height="20px" />
+                                        </div>
                                     </div>
                                 </div>
+                                <Skeleton width="100%" height="300px" />
+                                <div style={{ marginTop: "10px", color: "#6c757d" }}>Loading intern profile...</div>
                             </div>
-                            <Skeleton width="100%" height="300px" />
-                            <div style={{ marginTop: "10px", color: "#6c757d" }}>Loading intern profile...</div>
-                        </div>
-                    }>
-                        <InternDataProvider
-                            batchId={batchId}
-                            internId={internId}
-                            permissions={permissionsPromise}
-                            currentUserId={userId}
-                        />
-                    </Suspense>
+                        }>
+                            <InternDataProvider
+                                batchId={batchId}
+                                internId={internId}
+                                permissions={permissionsPromise}
+                                currentUserId={userId}
+                            />
+                        </Suspense>
+                    </div>
                 </div>
             </div>
         </div>
