@@ -1,6 +1,5 @@
-import { AlertTriangle, BinocularsIcon, BrushIcon, Users } from "lucide-react";
+import { BrushIcon, Users } from "lucide-react";
 
-import { ReactNode } from "react";
 import "./filters.css";
 
 export type Filter = {
@@ -9,6 +8,7 @@ export type Filter = {
     notice?: boolean;
     feedbacks: string;
     watchout?: boolean;
+    showTerminated?: boolean;
 }
 
 type FilterProps = {
@@ -18,7 +18,6 @@ type FilterProps = {
 }
 
 type CheckboxFilterProps = {
-    icon: ReactNode;
     title: string;
     value?: boolean;
     setValue: (s: boolean) => void;
@@ -28,17 +27,11 @@ const NoticeFilter = (props: CheckboxFilterProps) => {
     return (
         <div>
             <label className="checkbox-label">
-                <div className="checkbox-container">
-                    <input
-                        type="checkbox"
-                        checked={props.value}
-                        onChange={(e) => props.setValue(e.target.checked)}
-                        className="sr-only"
-                    />
-                    <div className={`checkbox-box ${props.value ? 'checked' : 'unckecked'}`}>
-                        {props.value && props.icon}
-                    </div>
-                </div>
+                <input
+                    type="checkbox"
+                    checked={props.value ?? false}
+                    onChange={(e) => props.setValue(e.target.checked)}
+                />
                 {props.title}
             </label>
         </div>
@@ -120,14 +113,17 @@ const FilterSection = (props: FilterProps) => {
                     />
                 }
                 {["Feedbacks", "Interns"].includes(props.activeTab) && <NoticeFilter
-                    icon={<AlertTriangle className="text-white" />}
                     title="Notice"
                     value={props.filter.notice}
                     setValue={(notice) => props.setFilter({ ...props.filter, notice })}
                 />}
+                {props.activeTab === "Interns" && <NoticeFilter
+                    title="Show Terminated"
+                    value={props.filter.showTerminated}
+                    setValue={(showTerminated) => props.setFilter({ ...props.filter, showTerminated })}
+                />}
                 {
                     props.activeTab === "Observations" && <NoticeFilter
-                        icon={<BinocularsIcon color="orange" enableBackground={"white"} />}
                         title="Watchout"
                         value={props.filter.watchout}
                         setValue={(watchout) => props.setFilter({ ...props.filter, watchout })}

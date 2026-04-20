@@ -27,3 +27,40 @@
     right: 10px;
     pointer-events: none;
 }
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-box {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.checkbox-box.checked {
+    background: #2563eb;
+    border-color: #2563eb;
+}
+
+.checkbox-box svg {
+    width: 14px;
+    height: 14px;
+}

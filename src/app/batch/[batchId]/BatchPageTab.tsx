@@ -3,6 +3,7 @@
 import Feedbacks from "@/app/components/Feedbacks";
 import Observations from "@/app/components/Observations";
 import Image from "next/image";
+import { AlertOctagon, AlertTriangle } from "lucide-react";
 import { useEffect, useMemo, useState, memo, useCallback } from "react";
 import "./batchPageTab.css";
 import { Intern } from "./page";
@@ -37,28 +38,54 @@ const TabNav = (props: TabNavProps) => {
     )
 }
 
-const InternCard = memo((props: { name: string; id: number; colorCode?: string; imgUrl: string; batchId: number }) => {
+const InternCard = memo((props: { name: string; id: number; colorCode?: string; imgUrl: string; batchId: number; terminated: boolean; notice: boolean }) => {
     return (
-        <Link href={`/batch/${props.batchId}/intern/${props.id}`} className="intern-card" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <Image 
-                src={props.imgUrl} 
-                width={140} 
-                height={130} 
-                alt={props.name} 
-                style={{ objectFit: "cover" }} 
-                loading="lazy"
-                sizes="(max-width: 768px) 120px, 140px"
-            />
+        <Link href={`/batch/${props.batchId}/intern/${props.id}`} className="intern-card" style={{ textDecoration: 'none', color: 'inherit', outline: props.notice && !props.terminated ? '3px solid #ef4444' : undefined, outlineOffset: '2px' }}>
+            <div style={{ position: 'relative', width: 140, height: 130 }}>
+                <Image
+                    src={props.imgUrl}
+                    width={140}
+                    height={130}
+                    alt={props.name}
+                    style={{ objectFit: "cover" }}
+                    loading="lazy"
+                    sizes="(max-width: 768px) 120px, 140px"
+                />
+                {props.terminated && (
+                    <>
+                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)' }} />
+                        <AlertOctagon
+                            color="#ef4444"
+                            size={22}
+                            strokeWidth={2}
+                            style={{ position: 'absolute', top: 6, right: 6 }}
+                        />
+                    </>
+                )}
+                {props.notice && !props.terminated && (
+                    <div style={{
+                        position: 'absolute', top: 6, right: 6,
+                        background: '#fff',
+                        borderRadius: '50%',
+                        width: 28, height: 28,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
+                    }}>
+                        <AlertTriangle color="#ef4444" size={18} strokeWidth={2.5} />
+                    </div>
+                )}
+            </div>
             <div className={`intern-footer ${props.colorCode || "no-color"}`}>{props.name}</div>
         </Link>
     )
 }, (prevProps, nextProps) => {
-    // Custom comparison for optimal performance
-    return prevProps.id === nextProps.id && 
+    return prevProps.id === nextProps.id &&
            prevProps.name === nextProps.name &&
            prevProps.colorCode === nextProps.colorCode &&
            prevProps.imgUrl === nextProps.imgUrl &&
-           prevProps.batchId === nextProps.batchId;
+           prevProps.batchId === nextProps.batchId &&
+           prevProps.terminated === nextProps.terminated &&
+           prevProps.notice === nextProps.notice;
 });
 
 InternCard.displayName = 'InternCard';
@@ -74,6 +101,8 @@ const InternsGrid = memo(({ interns, batchId }: { interns: Intern[], batchId: nu
                 imgUrl={intern.imgUrl}
                 colorCode={intern.colorCode}
                 batchId={batchId}
+                terminated={intern.terminated}
+                notice={intern.notice}
             />)}
         </div>
     );
@@ -126,15 +155,12 @@ const FeedbacksTab = (props: FeedbacksTabProps) => {
 const getHash = () => window.location.hash.replace("#", "").toLocaleLowerCase();
 
 const filterInterns = (interns: Intern[], filter: Filter) => {
-    // Early return if no filters applied
-    if (!filter.name && !filter.colorCode && filter.notice === undefined) {
-        return interns;
-    }
-
-    // Pre-compute filter values to avoid repeated operations
     const nameFilter = filter.name?.toLowerCase();
 
     return interns.filter(intern => {
+        if (!filter.showTerminated && intern.terminated) {
+            return false;
+        }
         if (nameFilter && !intern.name.toLowerCase().includes(nameFilter)) {
             return false;
         }
@@ -193,7 +219,8 @@ const BatchPageTab = (props: {
         name: "",
         colorCode: undefined,
         notice: undefined,
-        feedbacks: "All"
+        feedbacks: "All",
+        showTerminated: false
     });
 
     const interns = useMemo(() => filterInterns(props.interns, filter), [filter, props.interns]);
