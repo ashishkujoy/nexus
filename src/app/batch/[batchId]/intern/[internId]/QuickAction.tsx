@@ -5,6 +5,7 @@ import { NoticeIcon, PlusIcon, TerminateIcon } from "@/app/components/Icons";
 import LoaderOverlay from "@/app/components/LoaderOverlay";
 import { Skeleton } from "@/app/components/Skeleton";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { Permissions } from "../../types";
 import SuccessOverlay from "@/app/components/SuccessOverlay";
@@ -20,6 +21,7 @@ const FeedbackModal = dynamic(() => import("@/app/components/FeedbackModal"), {
 });
 
 const QuickActions = (props: { permissions: Permissions; batchId: number; batchName: string; internId: number; internName: string; notice: boolean; terminated: boolean }) => {
+    const router = useRouter();
     const { recordObservation, recordFeedback, programManager } = props.permissions;
     const [loadingMsg, setLoadingMsg] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
@@ -39,6 +41,7 @@ const QuickActions = (props: { permissions: Permissions; batchId: number; batchN
             .then(({ ok, body }) => {
                 if (ok) {
                     setSuccessMsg("Intern terminated successfully.");
+                    router.refresh();
                     return;
                 }
                 setErrorMsg(body.error || "Failed to terminate intern.");
