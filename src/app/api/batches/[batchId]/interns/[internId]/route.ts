@@ -91,10 +91,10 @@ export async function DELETE(
             return internIdValidation.response;
         }
 
-        // Terminate intern
+        // Terminate intern and clear notice
         await sql`
-            UPDATE interns 
-            SET terminated = TRUE 
+            UPDATE interns
+            SET terminated = TRUE, notice = FALSE
             WHERE id = ${internIdValidation.id} AND batch_id = ${batchIdValidation.id}
         `;
         
