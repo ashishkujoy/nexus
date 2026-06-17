@@ -3,7 +3,16 @@ import Airtable from "airtable";
 import { AirtableBase } from "airtable/lib/airtable_base.js";
 import { v2 as cloudinary } from "cloudinary";
 import sharp from "sharp";
-const sql = neon(process.env.NEXUS_DB_URL!);
+const sql = neon(process.env.DATABASE_URL!);
+import {config} from "dotenv"
+
+config();
+
+cloudinary.config({ 
+  cloud_name: process.env.CLAUDINARY_CLOUD_NAME, 
+  api_key: process.env.CLAUDINARY_API_KEY, 
+  api_secret: process.env.CLAUDINARY_API_SECRET
+}); 
 
 
 export class AirtableClient {
@@ -26,7 +35,7 @@ export class AirtableClient {
     const table = this.base(this.tableId);
 
     const record = await table.select({ view: this.viewName }).all();
-    const interns = record.slice(1).map(this.#toIntern);
+    const interns = record.map(this.#toIntern);
     const internsWithImg = await Promise.all(
       interns.map(intern => this.#onboard(intern, batchId))
 
